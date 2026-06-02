@@ -275,7 +275,7 @@ const CONFIG = {
   clientId:  "2ada9cb7-83e9-450b-a632-193715bec13f",
   tenantId:  "165074eb-b8b7-49e8-a9b4-54cac7939ed2",
   siteId:    "gebaskabe.sharepoint.com,2adf941c-11ef-4788-b148-84a239538257,e0158228-22a6-4225-87dc-fe7d619ae7e4",
-  redirectUri: window.location.href.split('?')[0],
+  redirectUri: 'https://lon-ka.github.io/KA-Leerkrachten/',
 };
 
 // !! Na setup.html invullen:
@@ -1462,12 +1462,12 @@ function closeModal() { const m = document.getElementById('modal-bg'); if (m) m.
 // Meldpunt-patroon: msalInit eenmalig bij DOMContentLoaded
 async function msalInit() {
   msalApp = new msal.PublicClientApplication({
-    auth: { clientId: CONFIG.clientId, authority: 'https://login.microsoftonline.com/' + CONFIG.tenantId, redirectUri: CONFIG.redirectUri },
+    auth: { clientId: CONFIG.clientId, authority: 'https://login.microsoftonline.com/' + CONFIG.tenantId, redirectUri: 'https://lon-ka.github.io/KA-Leerkrachten/' },
     cache: { cacheLocation: 'localStorage' }
   });
   await msalApp.initialize();
   try {
-    await msalApp.handleRedirectPromise();
+    const redirectResult = await msalApp.handleRedirectPromise();
     const accounts = msalApp.getAllAccounts();
     if (accounts.length > 0) {
       currentUser = accounts[0];
