@@ -347,7 +347,7 @@ async function afterLogin() {
 async function loadUserAccess(email) {
   if (!LIST_IDS.BEHEER_Toegang) return { naam: currentUser.name, email, scholen: ["KIE","KEI","MUL"], niveau: "Systeembeheer", sol: true };
   try {
-    const data = await graphGet(`/sites/${CONFIG.siteId}/lists/${LIST_IDS.BEHEER_Toegang}/items?$expand=fields&$filter=fields/Email eq '${email}' and fields/Actief eq 1`);
+    const data = await graphGet(`/sites/${CONFIG.siteId}/lists/${LIST_IDS.BEHEER_Toegang}/items?$expand=fields&$filter=fields/Email eq '${email}'`);
     if (!data.value.length) return null;
     const f = data.value[0].fields;
     return {
@@ -507,7 +507,8 @@ async function showDashboard() {
     const counts = {};
     for (const s of SCHOOLS) {
       if (userAccess?.scholen.includes(s.key) && LIST_IDS[`${s.key}_Leerkrachten`]) {
-        const items = await getListItems(LIST_IDS[`${s.key}_Leerkrachten`], "fields/Actief eq 1");
+        const allItems = await getListItems(LIST_IDS[`${s.key}_Leerkrachten`], "");
+        const items = allItems.filter(i => i.Actief !== false);
         counts[s.key] = items.length;
       } else counts[s.key] = 0;
     }
@@ -570,7 +571,8 @@ async function showSchool(schoolKey) {
   currentSchool = SCHOOLS.find(s => s.key === schoolKey);
   showLoader();
   try {
-    const leerkrachten = await getListItems(LIST_IDS[`${schoolKey}_Leerkrachten`], "fields/Actief eq 1");
+    const allLeerkrachten = await getListItems(LIST_IDS[`${schoolKey}_Leerkrachten`], "");
+    const leerkrachten = allLeerkrachten.filter(i => i.Actief !== false);
     renderLeerkrachtenList(leerkrachten);
   } catch(e) { render(`<div class="page-content"><div class="empty">Fout: ${e.message}</div></div>`); }
 }
@@ -844,7 +846,7 @@ function renderPOP(l, doelen, actief) {
 
 async function togglePOP(leerkrachtId, currentState) {
   try {
-    const items = await getListItems(LIST_IDS[`${currentSchool.key}_POP`], `fields/LeerkrachtId eq '${leerkrachtId}' and fields/POPActief eq 1`);
+    const items = await getListItems(LIST_IDS[`${currentSchool.key}_POP`], `fields/LeerkrachtId eq '${leerkrachtId}'`);
     if (currentState) {
       for (const i of items) await updateItem(LIST_IDS[`${currentSchool.key}_POP`], i.id, { POPActief: false });
     } else {
