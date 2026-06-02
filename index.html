@@ -620,9 +620,9 @@ async function showLeerkracht(id, tab = 'functiebeschrijving') {
   try {
     const [l, gesprekken, opmerkingen, popItems] = await Promise.all([
       getListItems(LIST_IDS[`${currentSchool.key}_Leerkrachten`]).then(items => items.find(i => i.id === id)),
-      getListItems(LIST_IDS[`${currentSchool.key}_Gesprekken`], `fields/LeerkrachtId eq '${id}'`),
-      getListItems(LIST_IDS[`${currentSchool.key}_Opmerkingen`], `fields/LeerkrachtId eq '${id}'`),
-      getListItems(LIST_IDS[`${currentSchool.key}_POP`], `fields/LeerkrachtId eq '${id}'`),
+      getListItems(LIST_IDS[`${currentSchool.key}_Gesprekken`]).then(items => items.filter(i => i.LeerkrachtId === id || i.LeerkrachtId === parseInt(id))),
+      getListItems(LIST_IDS[`${currentSchool.key}_Opmerkingen`]).then(items => items.filter(i => i.LeerkrachtId === id || i.LeerkrachtId === parseInt(id))),
+      getListItems(LIST_IDS[`${currentSchool.key}_POP`]).then(items => items.filter(i => i.LeerkrachtId === id || i.LeerkrachtId === parseInt(id))),
     ]);
     currentLeerkracht = l;
     renderLeerkrachtDetail(l, gesprekken, opmerkingen, popItems);
@@ -853,7 +853,8 @@ function renderPOP(l, doelen, actief) {
 
 async function togglePOP(leerkrachtId, currentState) {
   try {
-    const items = await getListItems(LIST_IDS[`${currentSchool.key}_POP`], `fields/LeerkrachtId eq '${leerkrachtId}'`);
+    const allPOP = await getListItems(LIST_IDS[`${currentSchool.key}_POP`]);
+    const items = allPOP.filter(i => i.LeerkrachtId === leerkrachtId || i.LeerkrachtId === parseInt(leerkrachtId));
     if (currentState) {
       for (const i of items) await updateItem(LIST_IDS[`${currentSchool.key}_POP`], i.id, { POPActief: false });
     } else {
@@ -1000,10 +1001,10 @@ async function showSollicitant(id, tab = 'basisgegevens') {
   try {
     const [s, gesprekken, docs, refs, comm] = await Promise.all([
       getListItems(LIST_IDS.SOL_Sollicitanten).then(items => items.find(i => i.id === id)),
-      getListItems(LIST_IDS.SOL_Gesprekken, `fields/SollicitantId eq '${id}'`),
-      getListItems(LIST_IDS.SOL_Documenten, `fields/SollicitantId eq '${id}'`),
-      getListItems(LIST_IDS.SOL_Referenties, `fields/SollicitantId eq '${id}'`),
-      getListItems(LIST_IDS.SOL_Communicatie, `fields/SollicitantId eq '${id}'`),
+      getListItems(LIST_IDS.SOL_Gesprekken).then(items => items.filter(i => i.SollicitantId === id || i.SollicitantId === parseInt(id))),
+      getListItems(LIST_IDS.SOL_Documenten).then(items => items.filter(i => i.SollicitantId === id || i.SollicitantId === parseInt(id))),
+      getListItems(LIST_IDS.SOL_Referenties).then(items => items.filter(i => i.SollicitantId === id || i.SollicitantId === parseInt(id))),
+      getListItems(LIST_IDS.SOL_Communicatie).then(items => items.filter(i => i.SollicitantId === id || i.SollicitantId === parseInt(id))),
     ]);
     currentSollicitant = s;
     renderSollicitantDetail(s, gesprekken, docs, refs, comm);
