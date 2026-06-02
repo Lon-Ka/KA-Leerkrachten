@@ -308,18 +308,12 @@ const COMPETENTIES = [
 // ════════════════════════════════════════════════════════════════
 // MSAL & AUTH
 // ════════════════════════════════════════════════════════════════
-const msalApp = new msal.PublicClientApplication({
-  auth: { clientId: CONFIG.clientId, authority: `https://login.microsoftonline.com/${CONFIG.tenantId}`, redirectUri: CONFIG.redirectUri },
-  cache: { cacheLocation: "localStorage" }
-});
-
-let currentUser = null, token = null, userAccess = null;
+let msalApp = null, currentUser = null, token = null, userAccess = null;
 
 async function doLogin() {
   const btn = document.getElementById('btn-auth');
   btn.disabled = true; btn.textContent = 'Aanmelden...';
   try {
-    await msalApp.initialize();
     const r = await msalApp.loginPopup({ scopes: ["Sites.ReadWrite.All"] });
     token = r.accessToken;
     currentUser = r.account;
@@ -1468,17 +1462,26 @@ function closeModal() { const m = document.getElementById('modal-bg'); if (m) m.
 // ════════════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════════════
-msalApp.initialize().then(async () => {
+// Meldpunt-patroon: msalInit eenmalig bij DOMContentLoaded
+async function msalInit() {
+  msalApp = new msal.PublicClientApplication({
+    auth: { clientId: CONFIG.clientId, authority: 'https://login.microsoftonline.com/' + CONFIG.tenantId, redirectUri: CONFIG.redirectUri },
+    cache: { cacheLocation: 'localStorage' }
+  });
+  await msalApp.initialize();
   try {
-    const r = await msalApp.handleRedirectPromise();
+    await msalApp.handleRedirectPromise();
     const accounts = msalApp.getAllAccounts();
     if (accounts.length > 0) {
       currentUser = accounts[0];
       await getToken();
       await afterLogin();
     }
-  } catch(e) { console.error("MSAL init error:", e); }
-}).catch((e) => console.error("MSAL initialize error:", e));
+  } catch(e) { console.error('MSAL redirect error:', e); }
+}
+window.addEventListener('DOMContentLoaded', function() {
+  msalInit().catch(function(e) { console.error('MSAL init error:', e); });
+});
 </script>
 </body>
 </html>

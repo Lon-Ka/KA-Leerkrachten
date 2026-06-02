@@ -172,16 +172,10 @@ const SCHOOLS = [
 // ════════════════════════════════════════════════
 // MSAL
 // ════════════════════════════════════════════════
-const msalApp = new msal.PublicClientApplication({
-  auth: { clientId: CONFIG.clientId, authority: `https://login.microsoftonline.com/${CONFIG.tenantId}`, redirectUri: CONFIG.redirectUri },
-  cache: { cacheLocation: "localStorage" }
-});
-
-let token = null, currentUser = null;
+let msalApp = null, token = null, currentUser = null;
 
 async function doLogin() {
   try {
-    await msalApp.initialize();
     const r = await msalApp.loginPopup({ scopes: ["Sites.ReadWrite.All"] });
     token = r.accessToken; currentUser = r.account;
     document.getElementById('auth-overlay').style.display = 'none';
@@ -660,7 +654,13 @@ const style = document.createElement('style');
 style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
 document.head.appendChild(style);
 
-msalApp.initialize().then(async () => {
+// Meldpunt-patroon
+async function msalInit() {
+  msalApp = new msal.PublicClientApplication({
+    auth: { clientId: CONFIG.clientId, authority: 'https://login.microsoftonline.com/' + CONFIG.tenantId, redirectUri: CONFIG.redirectUri },
+    cache: { cacheLocation: 'localStorage' }
+  });
+  await msalApp.initialize();
   try {
     await msalApp.handleRedirectPromise();
     const accounts = msalApp.getAllAccounts();
@@ -672,8 +672,11 @@ msalApp.initialize().then(async () => {
       document.getElementById('sb-user').textContent = accounts[0].username;
       showToegang();
     }
-  } catch(e) { console.error("MSAL init error:", e); }
-}).catch((e) => console.error("MSAL initialize error:", e));
+  } catch(e) { console.error('MSAL redirect error:', e); }
+}
+window.addEventListener('DOMContentLoaded', function() {
+  msalInit().catch(function(e) { console.error('MSAL init error:', e); });
+});
 </script>
 </body>
 </html>

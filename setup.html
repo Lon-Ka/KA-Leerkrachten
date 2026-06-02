@@ -290,19 +290,12 @@ const LISTS = [
 // Document Library voor bijlagen
 const DOC_LIBRARY = { name: "SOL_Bijlagen", displayName: "Sollicitanten: Bijlagen" };
 
-// ── MSAL ─────────────────────────────────────────────────────────────────────
-const msalApp = new msal.PublicClientApplication({
-  auth: { clientId: CONFIG.clientId, authority: `https://login.microsoftonline.com/${CONFIG.tenantId}`, redirectUri: CONFIG.redirectUri },
-  cache: { cacheLocation: "sessionStorage" }
-});
-
 let token = null;
 
 async function doLogin() {
   try {
     document.getElementById('btn-login').disabled = true;
     document.getElementById('btn-login').innerHTML = '<span class="spinner"></span> Aanmelden...';
-    await msalApp.initialize();
     const result = await msalApp.loginPopup({ scopes: ["Sites.ReadWrite.All"] });
     token = result.accessToken;
     document.getElementById('login-status').innerHTML = `✅ Aangemeld als <strong>${result.account.username}</strong>`;
@@ -490,10 +483,19 @@ function copyAllIds() {
   alert('Alle IDs gekopieerd als JSON!');
 }
 
-// Initialiseer MSAL v3 (verplicht voor loginPopup)
-msalApp.initialize().then(() => {
-  msalApp.handleRedirectPromise().catch(() => {});
-}).catch((e) => console.error("MSAL initialize error:", e));
+// Initialiseer MSAL (Meldpunt-patroon: éénmalig bij DOMContentLoaded)
+var msalApp = null;
+async function msalInit() {
+  msalApp = new msal.PublicClientApplication({
+    auth: { clientId: CONFIG.clientId, authority: 'https://login.microsoftonline.com/' + CONFIG.tenantId, redirectUri: CONFIG.redirectUri },
+    cache: { cacheLocation: "sessionStorage" }
+  });
+  await msalApp.initialize();
+  try { var r = await msalApp.handleRedirectPromise(); } catch(e) {}
+}
+window.addEventListener('DOMContentLoaded', function() {
+  msalInit().catch(function(e) { console.error('MSAL init error:', e); });
+});
 </script>
 </body>
 </html>
