@@ -319,6 +319,7 @@ async function doLogin() {
   const btn = document.getElementById('btn-auth');
   btn.disabled = true; btn.textContent = 'Aanmelden...';
   try {
+    await msalApp.initialize();
     const r = await msalApp.loginPopup({ scopes: ["Sites.ReadWrite.All"] });
     token = r.accessToken;
     currentUser = r.account;
@@ -1467,14 +1468,17 @@ function closeModal() { const m = document.getElementById('modal-bg'); if (m) m.
 // ════════════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════════════
-msalApp.handleRedirectPromise().then(async r => {
-  const accounts = msalApp.getAllAccounts();
-  if (accounts.length > 0) {
-    currentUser = accounts[0];
-    await getToken();
-    await afterLogin();
-  }
-}).catch(() => {});
+msalApp.initialize().then(async () => {
+  try {
+    const r = await msalApp.handleRedirectPromise();
+    const accounts = msalApp.getAllAccounts();
+    if (accounts.length > 0) {
+      currentUser = accounts[0];
+      await getToken();
+      await afterLogin();
+    }
+  } catch(e) { console.error("MSAL init error:", e); }
+}).catch((e) => console.error("MSAL initialize error:", e));
 </script>
 </body>
 </html>

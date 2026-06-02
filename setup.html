@@ -302,6 +302,7 @@ async function doLogin() {
   try {
     document.getElementById('btn-login').disabled = true;
     document.getElementById('btn-login').innerHTML = '<span class="spinner"></span> Aanmelden...';
+    await msalApp.initialize();
     const result = await msalApp.loginPopup({ scopes: ["Sites.ReadWrite.All"] });
     token = result.accessToken;
     document.getElementById('login-status').innerHTML = `✅ Aangemeld als <strong>${result.account.username}</strong>`;
@@ -489,8 +490,10 @@ function copyAllIds() {
   alert('Alle IDs gekopieerd als JSON!');
 }
 
-// Handle redirect
-msalApp.handleRedirectPromise().catch(() => {});
+// Initialiseer MSAL v3 (verplicht voor loginPopup)
+msalApp.initialize().then(() => {
+  msalApp.handleRedirectPromise().catch(() => {});
+}).catch((e) => console.error("MSAL initialize error:", e));
 </script>
 </body>
 </html>

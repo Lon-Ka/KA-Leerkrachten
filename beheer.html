@@ -181,6 +181,7 @@ let token = null, currentUser = null;
 
 async function doLogin() {
   try {
+    await msalApp.initialize();
     const r = await msalApp.loginPopup({ scopes: ["Sites.ReadWrite.All"] });
     token = r.accessToken; currentUser = r.account;
     document.getElementById('auth-overlay').style.display = 'none';
@@ -659,17 +660,20 @@ const style = document.createElement('style');
 style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
 document.head.appendChild(style);
 
-msalApp.handleRedirectPromise().then(async r => {
-  const accounts = msalApp.getAllAccounts();
-  if (accounts.length > 0) {
-    currentUser = accounts[0];
-    await getToken();
-    document.getElementById('auth-overlay').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    document.getElementById('sb-user').textContent = accounts[0].username;
-    showToegang();
-  }
-}).catch(() => {});
+msalApp.initialize().then(async () => {
+  try {
+    await msalApp.handleRedirectPromise();
+    const accounts = msalApp.getAllAccounts();
+    if (accounts.length > 0) {
+      currentUser = accounts[0];
+      await getToken();
+      document.getElementById('auth-overlay').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      document.getElementById('sb-user').textContent = accounts[0].username;
+      showToegang();
+    }
+  } catch(e) { console.error("MSAL init error:", e); }
+}).catch((e) => console.error("MSAL initialize error:", e));
 </script>
 </body>
 </html>
