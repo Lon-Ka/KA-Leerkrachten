@@ -2,6 +2,8 @@
 
 > Personeelsopvolgingssysteem voor de drie basisscholen van de Scholengemeenschap Kapelle-op-den-Bos BaO.
 
+> ⚠️ **Privacy:** Gebruikersnamen en e-mailadressen worden niet in deze repo opgeslagen. Toegang wordt beheerd via `beheer.html` (SharePoint — niet publiek zichtbaar).
+
 ## Scholen
 
 | Sleutel | School |
@@ -16,9 +18,9 @@
 
 | Bestand | Functie | Wie |
 |---------|---------|-----|
-| `index.html` | Hoofdapplicatie: leerkrachten + sollicitanten | Directies, Rita Rubbrecht |
-| `beheer.html` | Beheerpanel: toegang, GDPR, competenties | Wim Cools (ICT) |
-| `setup.html` | Eenmalige setup: SharePoint-lijsten aanmaken | Wim Cools (eenmalig) |
+| `index.html` | Hoofdapplicatie: leerkrachten + sollicitanten | Directies + coördinator |
+| `beheer.html` | Beheerpanel: toegang, GDPR, competenties | ICT-verantwoordelijke |
+| `setup.html` | Eenmalige setup: SharePoint-lijsten aanmaken | ICT-verantwoordelijke (eenmalig) |
 
 ## Technologie
 
@@ -95,9 +97,9 @@ https://lon-ka.github.io/KA-Leerkrachten/setup.html
 
 | Gebruiker | Email | Scholen | Niveau |
 |-----------|-------|---------|--------|
-| Felicia Van der Vliet | felicia.vandervilet@gebaska.be | KIE, KEI, MUL | Directie |
-| Rita Rubbrecht | secretariaatlonka@centrumschool.londerzeel.be | KIE, KEI, MUL | Directie |
-| Wim Cools | ict@gebaska.be | KIE, KEI, MUL | Systeembeheer |
+| Directie school 1 + 2 | *(via beheer.html)* | KIE, KEI, MUL | Directie |
+| Coördinator | *(via beheer.html)* | KIE, KEI, MUL | Directie |
+| ICT-verantwoordelijke | *(via beheer.html)* | KIE, KEI, MUL | Systeembeheer |
 
 ## GDPR
 
@@ -110,9 +112,9 @@ https://lon-ka.github.io/KA-Leerkrachten/setup.html
 
 | Rol | Naam | Contact |
 |-----|------|---------|
-| ICT-verantwoordelijke | Wim Cools | ict@gebaska.be |
-| Directie | Felicia Van der Vliet | felicia.vandervilet@gebaska.be |
-| Coördinator | Rita Rubbrecht | secretariaatlonka@centrumschool.londerzeel.be |
+| ICT-verantwoordelijke | *(zie schoolsecretariaat)* | *(intern)* |
+| Directie | *(zie schoolsecretariaat)* | *(intern)* |
+| Coördinator | *(zie schoolsecretariaat)* | *(intern)* |
 
 ---
 
