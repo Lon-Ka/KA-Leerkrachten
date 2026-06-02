@@ -174,18 +174,13 @@ const SCHOOLS = [
 // ════════════════════════════════════════════════
 let msalApp = null, token = null, currentUser = null;
 
-async function doLogin() {
+function doLogin() {
   try {
-    const r = await msalApp.loginPopup({ scopes: ["Sites.ReadWrite.All"] });
-    token = r.accessToken; currentUser = r.account;
-    document.getElementById('auth-overlay').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    document.getElementById('sb-user').textContent = r.account.username;
-    showToegang();
+    msalApp.loginRedirect({ scopes: ["Sites.ReadWrite.All"] });
   } catch(e) { document.getElementById('auth-err').textContent = e.message; }
 }
 
-function doLogout() { msalApp.logoutPopup().then(() => location.reload()); }
+function doLogout() { msalApp.logoutRedirect(); }
 
 async function getToken() {
   const accounts = msalApp.getAllAccounts();

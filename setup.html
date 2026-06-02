@@ -292,17 +292,11 @@ const DOC_LIBRARY = { name: "SOL_Bijlagen", displayName: "Sollicitanten: Bijlage
 
 let token = null;
 
-async function doLogin() {
+function doLogin() {
   try {
     document.getElementById('btn-login').disabled = true;
     document.getElementById('btn-login').innerHTML = '<span class="spinner"></span> Aanmelden...';
-    const result = await msalApp.loginPopup({ scopes: ["Sites.ReadWrite.All"] });
-    token = result.accessToken;
-    document.getElementById('login-status').innerHTML = `✅ Aangemeld als <strong>${result.account.username}</strong>`;
-    document.getElementById('btn-login').innerHTML = '✅ Aangemeld';
-    document.getElementById('step-create').style.display = 'block';
-    renderListGrid();
-    document.getElementById('step-create').scrollIntoView({ behavior: 'smooth' });
+    msalApp.loginRedirect({ scopes: ["Sites.ReadWrite.All"] });
   } catch(e) {
     document.getElementById('btn-login').disabled = false;
     document.getElementById('btn-login').innerHTML = 'Aanmelden met Microsoft 365';
@@ -394,6 +388,7 @@ async function startSetup() {
   // Refresh token
   try {
     const accounts = msalApp.getAllAccounts();
+    if (!accounts.length) return;
     const r = await msalApp.acquireTokenSilent({ scopes: ["Sites.ReadWrite.All"], account: accounts[0] });
     token = r.accessToken;
   } catch(e) { log('Token vernieuwen mislukt: ' + e.message, 'err'); }
@@ -491,7 +486,20 @@ async function msalInit() {
     cache: { cacheLocation: "sessionStorage" }
   });
   await msalApp.initialize();
-  try { var r = await msalApp.handleRedirectPromise(); } catch(e) {}
+  try {
+    var r = await msalApp.handleRedirectPromise();
+    var accounts = msalApp.getAllAccounts();
+    if (accounts.length > 0) {
+      // Teruggekeerd na redirect - token ophalen en stap 2 tonen
+      var tokenResult = await msalApp.acquireTokenSilent({ scopes: ["Sites.ReadWrite.All"], account: accounts[0] });
+      token = tokenResult.accessToken;
+      document.getElementById('login-status').innerHTML = '✅ Aangemeld als <strong>' + accounts[0].username + '</strong>';
+      document.getElementById('btn-login').innerHTML = '✅ Aangemeld';
+      document.getElementById('btn-login').disabled = true;
+      document.getElementById('step-create').style.display = 'block';
+      renderListGrid();
+    }
+  } catch(e) { console.error('handleRedirectPromise error:', e); }
 }
 window.addEventListener('DOMContentLoaded', function() {
   msalInit().catch(function(e) { console.error('MSAL init error:', e); });
