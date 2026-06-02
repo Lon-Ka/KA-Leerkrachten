@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beheer — KA-Leerkrachten</title>
+<script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+<style>
+:root {
+  --teal:#1D9E75; --teal-dark:#0F6E56; --teal-light:#E1F5EE; --teal-mid:#9FE1CB;
+  --amber:#F59E0B; --amber-bg:#FEF3C7; --red:#EF4444; --red-bg:#FEE2E2;
+  --green:#22C55E; --green-bg:#DCFCE7;
+  --g50:#F9FAFB; --g100:#F3F4F6; --g200:#E5E7EB; --g300:#D1D5DB;
+  --g400:#9CA3AF; --g500:#6B7280; --g600:#4B5563; --g900:#111827;
+  --sidebar-w:220px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g50);color:var(--g900);font-size:14px}
+
+#auth-overlay{position:fixed;inset:0;background:linear-gradient(135deg,var(--teal-dark),var(--teal));display:flex;align-items:center;justify-content:center;z-index:1000}
+.auth-card{background:white;border-radius:16px;padding:36px;width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.auth-card h1{font-size:20px;font-weight:700;margin-bottom:6px}
+.auth-card p{color:var(--g500);font-size:13px;margin-bottom:20px}
+.auth-btn{width:100%;padding:11px;background:var(--teal);color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.auth-err{color:var(--red);font-size:12px;margin-top:8px}
+
+#app{display:none;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);background:white;border-right:1px solid var(--g200);position:fixed;top:0;bottom:0;left:0;display:flex;flex-direction:column}
+.sb-head{padding:16px;border-bottom:1px solid var(--g200)}
+.sb-title{font-size:14px;font-weight:700}
+.sb-sub{font-size:11px;color:var(--g400)}
+.sb-badge{display:inline-block;font-size:10px;padding:2px 6px;background:var(--red-bg);color:var(--red);border-radius:10px;margin-left:6px}
+.sb-nav{flex:1;padding:8px 0;overflow-y:auto}
+.sb-item{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;font-size:13px;color:var(--g600);border-left:2px solid transparent;transition:all .1s}
+.sb-item:hover{background:var(--g50);color:var(--g900)}
+.sb-item.active{background:var(--teal-light);color:var(--teal-dark);font-weight:600;border-left-color:var(--teal)}
+.sb-sep{font-size:10px;font-weight:600;color:var(--g400);letter-spacing:.06em;text-transform:uppercase;padding:8px 16px 3px;margin-top:4px}
+.sb-foot{padding:12px 16px;border-top:1px solid var(--g200)}
+.sb-foot button{width:100%;padding:7px;font-size:12px;background:white;border:1px solid var(--g200);border-radius:6px;cursor:pointer;color:var(--g500);font-family:inherit}
+.sb-foot button:hover{background:var(--g50)}
+
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column}
+.page-header{padding:16px 24px;background:white;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between}
+.page-header h1{font-size:17px;font-weight:600}
+.page-header p{font-size:12px;color:var(--g400);margin-top:2px}
+.content{padding:24px;flex:1}
+
+.card{background:white;border:1px solid var(--g200);border-radius:10px;padding:20px;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:600;margin-bottom:14px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:1px solid var(--g200);background:white;color:var(--g700);cursor:pointer;font-size:13px;font-weight:500;font-family:inherit;transition:all .1s}
+.btn:hover{background:var(--g50)}
+.btn-primary{background:var(--teal);color:white;border-color:var(--teal)}
+.btn-primary:hover{background:var(--teal-dark)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-danger{color:var(--red);border-color:#FECACA}
+.btn-danger:hover{background:var(--red-bg)}
+
+.table{width:100%;border-collapse:collapse}
+.table th{background:var(--teal-light);color:var(--teal-dark);font-size:12px;font-weight:600;padding:9px 12px;text-align:left;border-bottom:1px solid var(--teal-mid)}
+.table td{padding:9px 12px;border-bottom:1px solid var(--g100);font-size:13px;vertical-align:middle}
+.table tr:hover td{background:var(--g50)}
+
+.check{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+.check-yes{background:var(--green-bg);color:#15803D}
+.check-no{background:var(--g100);color:var(--g400)}
+
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.fg label{font-size:12px;font-weight:500;color:var(--g600)}
+.fg input,.fg select{padding:8px 10px;border:1px solid var(--g200);border-radius:7px;font-size:13px;font-family:inherit}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--teal)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.cb-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--g100)}
+.cb-row:last-child{border-bottom:none}
+.cb-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--teal)}
+.cb-row label{font-size:13px;color:var(--g700);flex:1}
+.cb-row .cb-school{font-size:11px;color:var(--g400);background:var(--g100);padding:2px 6px;border-radius:4px}
+
+.tag{font-size:11px;padding:2px 8px;border-radius:10px}
+.tag-sys{background:#F5F3FF;color:#6D28D9}
+.tag-dir{background:var(--teal-light);color:var(--teal-dark)}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:500;padding:16px}
+.modal{background:white;border-radius:12px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:24px}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:16px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:14px;border-top:1px solid var(--g200)}
+
+#toast{position:fixed;bottom:20px;right:20px;background:var(--g900);color:white;padding:10px 16px;border-radius:8px;font-size:13px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast.show{opacity:1}
+
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px}
+.alert-warn{background:var(--amber-bg);border:1px solid #FCD34D;color:#B45309}
+.alert-info{background:var(--teal-light);border:1px solid var(--teal-mid);color:var(--teal-dark)}
+</style>
+</head>
+<body>
+
+<div id="auth-overlay">
+  <div class="auth-card">
+    <h1>🔧 KA Beheer</h1>
+    <p>Enkel toegankelijk voor systeembeheerder (Wim Cools).<br>Meld aan met je M365-beheerdersaccount.</p>
+    <button class="auth-btn" onclick="doLogin()">Aanmelden met Microsoft 365</button>
+    <p class="auth-err" id="auth-err"></p>
+  </div>
+</div>
+
+<div id="app">
+  <div class="layout">
+    <nav class="sidebar">
+      <div class="sb-head">
+        <div class="sb-title">KA Beheer</div>
+        <div class="sb-sub" id="sb-user">—</div>
+      </div>
+      <div class="sb-nav">
+        <div class="sb-sep">Gebruikers</div>
+        <div class="sb-item active" id="nav-toegang" onclick="showToegang()">👥 Toegangsmatrix</div>
+        <div class="sb-sep">Sollicitanten</div>
+        <div class="sb-item" id="nav-sol" onclick="showSolBeheer()">📋 Sollicitantenbeheer</div>
+        <div class="sb-sep">Configuratie</div>
+        <div class="sb-item" id="nav-comp" onclick="showCompetenties()">⭐ Competentiekader</div>
+        <div class="sb-item" id="nav-ids" onclick="showListIds()">🔑 Lijst-IDs</div>
+        <div class="sb-sep">Informatie</div>
+        <div class="sb-item" id="nav-info" onclick="showInfo()">ℹ️ Over de applicatie</div>
+      </div>
+      <div class="sb-foot">
+        <button onclick="doLogout()">Afmelden</button>
+      </div>
+    </nav>
+
+    <div class="main" id="main">
+      <div style="display:flex;align-items:center;justify-content:center;height:100vh">
+        <div style="width:24px;height:24px;border:2px solid var(--g200);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════
+const CONFIG = {
+  clientId: "2ada9cb7-83e9-450b-a632-193715bec13f",
+  tenantId: "165074eb-b8b7-49e8-a9b4-54cac7939ed2",
+  siteId:   "gebaskabe.sharepoint.com,2adf941c-11ef-4788-b148-84a239538257,e0158228-22a6-4225-87dc-fe7d619ae7e4",
+  redirectUri: window.location.href.split('?')[0],
+};
+
+// !! Na setup.html invullen:
+const LIST_IDS = {
+  BEHEER_Toegang:   "",
+  KIE_Leerkrachten: "", KIE_Gesprekken: "", KIE_Opmerkingen: "", KIE_POP: "",
+  KEI_Leerkrachten: "", KEI_Gesprekken: "", KEI_Opmerkingen: "", KEI_POP: "",
+  MUL_Leerkrachten: "", MUL_Gesprekken: "", MUL_Opmerkingen: "", MUL_POP: "",
+  SOL_Sollicitanten: "", SOL_Gesprekken: "", SOL_Documenten: "",
+  SOL_Referenties: "", SOL_Communicatie: "", SOL_Bijlagen: "",
+};
+
+const SCHOOLS = [
+  { key:"KIE", name:"Het Kiezeltje" },
+  { key:"KEI", name:"De Kei" },
+  { key:"MUL", name:"'t Mulderke" },
+];
+
+// ════════════════════════════════════════════════
+// MSAL
+// ════════════════════════════════════════════════
+const msalApp = new msal.PublicClientApplication({
+  auth: { clientId: CONFIG.clientId, authority: `https://login.microsoftonline.com/${CONFIG.tenantId}`, redirectUri: CONFIG.redirectUri },
+  cache: { cacheLocation: "localStorage" }
+});
+
+let token = null, currentUser = null;
+
+async function doLogin() {
+  try {
+    const r = await msalApp.loginPopup({ scopes: ["Sites.ReadWrite.All"] });
+    token = r.accessToken; currentUser = r.account;
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('sb-user').textContent = r.account.username;
+    showToegang();
+  } catch(e) { document.getElementById('auth-err').textContent = e.message; }
+}
+
+function doLogout() { msalApp.logoutPopup().then(() => location.reload()); }
+
+async function getToken() {
+  const accounts = msalApp.getAllAccounts();
+  if (!accounts.length) return;
+  const r = await msalApp.acquireTokenSilent({ scopes: ["Sites.ReadWrite.All"], account: accounts[0] });
+  token = r.accessToken;
+}
+
+// ════════════════════════════════════════════════
+// GRAPH
+// ════════════════════════════════════════════════
+async function graphGet(url) {
+  const r = await fetch(`https://graph.microsoft.com/v1.0${url}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function graphPost(url, body) {
+  const r = await fetch(`https://graph.microsoft.com/v1.0${url}`, { method:'POST', headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function graphPatch(url, body) {
+  const r = await fetch(`https://graph.microsoft.com/v1.0${url}`, { method:'PATCH', headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function graphDelete(url) {
+  const r = await fetch(`https://graph.microsoft.com/v1.0${url}`, { method:'DELETE', headers:{Authorization:`Bearer ${token}`} });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+async function getItems(listId, filter='') {
+  if (!listId) return [];
+  let url = `/sites/${CONFIG.siteId}/lists/${listId}/items?$expand=fields&$top=500`;
+  if (filter) url += `&$filter=${filter}`;
+  const d = await graphGet(url);
+  return d.value.map(i => ({id:i.id, ...i.fields}));
+}
+async function createItem(listId, fields) {
+  return graphPost(`/sites/${CONFIG.siteId}/lists/${listId}/items`, {fields});
+}
+async function updateItem(listId, itemId, fields) {
+  return graphPatch(`/sites/${CONFIG.siteId}/lists/${listId}/items/${itemId}/fields`, fields);
+}
+async function deleteItem(listId, itemId) {
+  return graphDelete(`/sites/${CONFIG.siteId}/lists/${listId}/items/${itemId}`);
+}
+
+// ════════════════════════════════════════════════
+// UI
+// ════════════════════════════════════════════════
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function setNav(id) {
+  document.querySelectorAll('.sb-item').forEach(el => el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderPage(headerTitle, headerSub, bodyHtml) {
+  document.getElementById('main').innerHTML = `
+    <div class="page-header">
+      <div><h1>${headerTitle}</h1><p>${headerSub}</p></div>
+    </div>
+    <div class="content">${bodyHtml}</div>`;
+}
+
+// ════════════════════════════════════════════════
+// TOEGANGSMATRIX
+// ════════════════════════════════════════════════
+async function showToegang() {
+  setNav('nav-toegang');
+  renderPage('Toegangsmatrix', 'Beheer wie toegang heeft tot welke scholen', '<div style="text-align:center;padding:40px"><div style="width:24px;height:24px;border:2px solid var(--g200);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin:auto"></div></div>');
+  await getToken();
+  try {
+    const items = await getItems(LIST_IDS.BEHEER_Toegang);
+    renderToegang(items);
+  } catch(e) { document.querySelector('.content').innerHTML = `<div class="alert alert-warn">Fout bij laden: ${e.message}<br><small>Controleer of LIST_IDS.BEHEER_Toegang is ingevuld na setup.</small></div>`; }
+}
+
+function renderToegang(items) {
+  const rows = items.map(u => `
+    <tr>
+      <td><strong>${u.Naam||''}</strong></td>
+      <td style="color:var(--g500)">${u.Email||''}</td>
+      <td>${u.Rol||''}</td>
+      <td style="text-align:center"><div class="check ${u.SchoolKIE?'check-yes':'check-no'}">${u.SchoolKIE?'✓':'—'}</div></td>
+      <td style="text-align:center"><div class="check ${u.SchoolKEI?'check-yes':'check-no'}">${u.SchoolKEI?'✓':'—'}</div></td>
+      <td style="text-align:center"><div class="check ${u.SchoolMUL?'check-yes':'check-no'}">${u.SchoolMUL?'✓':'—'}</div></td>
+      <td><span class="tag ${u.Niveau==='Systeembeheer'?'tag-sys':'tag-dir'}">${u.Niveau||''}</span></td>
+      <td><span style="font-size:11px;color:${u.Actief?'var(--green)':'var(--red)'}">${u.Actief?'✓ Actief':'✗ Inactief'}</span></td>
+      <td>
+        <button class="btn btn-sm" onclick="showEditUser('${u.id}',${JSON.stringify(u).replace(/'/g,"&#39;")})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="toggleActief('${u.id}',${u.Actief})">${u.Actief?'Deactiveren':'Activeren'}</button>
+      </td>
+    </tr>`).join('');
+
+  document.querySelector('.content').innerHTML = `
+    <div class="alert alert-info">Wijzigingen hier zijn onmiddellijk van kracht — gebruikers zien de nieuwe rechten bij de volgende aanmelding.</div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Gebruikers (${items.length})</div>
+        <button class="btn btn-primary" onclick="showAddUser()">+ Gebruiker toevoegen</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="table">
+          <thead><tr>
+            <th>Naam</th><th>E-mailadres</th><th>Rol</th>
+            <th style="text-align:center">KIE</th><th style="text-align:center">KEI</th><th style="text-align:center">MUL</th>
+            <th>Niveau</th><th>Status</th><th>Acties</th>
+          </tr></thead>
+          <tbody>${rows || '<tr><td colspan="9" style="text-align:center;color:var(--g400);padding:24px">Nog geen gebruikers. Voeg een gebruiker toe.</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Toegangsniveaus</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">
+        <div style="padding:12px;background:var(--teal-light);border-radius:8px;font-size:13px">
+          <strong style="color:var(--teal-dark)">Directie</strong><br>
+          <span style="color:var(--g600);font-size:12px">Lezen en schrijven van eigen school/scholen. Kan leerkrachten, gesprekken, POP en sollicitantendossiers beheren.</span>
+        </div>
+        <div style="padding:12px;background:#F5F3FF;border-radius:8px;font-size:13px">
+          <strong style="color:#6D28D9">Systeembeheer</strong><br>
+          <span style="color:var(--g600);font-size:12px">Volledige toegang tot alle scholen + toegang tot beheer.html. Kan gebruikers beheren en configuratie wijzigen.</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+function showAddUser() {
+  showModal(`
+    <div class="modal-title">Gebruiker toevoegen</div>
+    <div class="form-row">
+      <div class="fg"><label>Naam</label><input id="m-naam" placeholder="Achternaam Voornaam"></div>
+      <div class="fg"><label>Rol / Functie</label><input id="m-rol" placeholder="bv. Directie"></div>
+    </div>
+    <div class="fg"><label>E-mailadres (M365)</label><input id="m-email" type="email" placeholder="naam@gebaska.be"></div>
+    <div class="fg"><label>Toegangsniveau</label>
+      <select id="m-niveau"><option>Directie</option><option>Systeembeheer</option></select>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;font-weight:500;color:var(--g600);display:block;margin-bottom:8px">Toegang tot scholen</label>
+      ${SCHOOLS.map(s => `
+        <div class="cb-row">
+          <input type="checkbox" id="cb-${s.key}" name="school" value="${s.key}">
+          <label for="cb-${s.key}">${s.name}</label>
+          <span class="cb-school">${s.key}</span>
+        </div>`).join('')}
+    </div>
+    <div class="fg"><label>Periode / Opmerking</label><input id="m-periode" placeholder="bv. Permanent"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveNewUser()">Toevoegen</button>
+    </div>`);
+}
+
+async function saveNewUser() {
+  const naam = document.getElementById('m-naam').value.trim();
+  const email = document.getElementById('m-email').value.trim();
+  if (!naam || !email) { toast('Naam en e-mailadres zijn verplicht'); return; }
+  try {
+    await createItem(LIST_IDS.BEHEER_Toegang, {
+      Naam: naam, Email: email, Rol: document.getElementById('m-rol').value,
+      SchoolKIE: document.getElementById('cb-KIE').checked,
+      SchoolKEI: document.getElementById('cb-KEI').checked,
+      SchoolMUL: document.getElementById('cb-MUL').checked,
+      Niveau: document.getElementById('m-niveau').value,
+      Periode: document.getElementById('m-periode').value,
+      Actief: true,
+    });
+    toast('Gebruiker toegevoegd');
+    closeModal();
+    showToegang();
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+function showEditUser(id, user) {
+  if (typeof user === 'string') user = JSON.parse(user);
+  showModal(`
+    <div class="modal-title">Gebruiker bewerken</div>
+    <div class="form-row">
+      <div class="fg"><label>Naam</label><input id="m-naam" value="${user.Naam||''}"></div>
+      <div class="fg"><label>Rol / Functie</label><input id="m-rol" value="${user.Rol||''}"></div>
+    </div>
+    <div class="fg"><label>E-mailadres (M365)</label><input id="m-email" value="${user.Email||''}"></div>
+    <div class="fg"><label>Toegangsniveau</label>
+      <select id="m-niveau">
+        <option ${user.Niveau==='Directie'?'selected':''}>Directie</option>
+        <option ${user.Niveau==='Systeembeheer'?'selected':''}>Systeembeheer</option>
+      </select>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;font-weight:500;color:var(--g600);display:block;margin-bottom:8px">Toegang tot scholen</label>
+      ${SCHOOLS.map(s => `
+        <div class="cb-row">
+          <input type="checkbox" id="cb-${s.key}" ${user[`School${s.key}`]?'checked':''}>
+          <label for="cb-${s.key}">${s.name}</label>
+          <span class="cb-school">${s.key}</span>
+        </div>`).join('')}
+    </div>
+    <div class="fg"><label>Periode / Opmerking</label><input id="m-periode" value="${user.Periode||''}"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="deleteUser('${id}')">Verwijderen</button>
+      <div style="flex:1"></div>
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveEditUser('${id}')">Opslaan</button>
+    </div>`);
+}
+
+async function saveEditUser(id) {
+  try {
+    await updateItem(LIST_IDS.BEHEER_Toegang, id, {
+      Naam: document.getElementById('m-naam').value,
+      Email: document.getElementById('m-email').value,
+      Rol: document.getElementById('m-rol').value,
+      SchoolKIE: document.getElementById('cb-KIE').checked,
+      SchoolKEI: document.getElementById('cb-KEI').checked,
+      SchoolMUL: document.getElementById('cb-MUL').checked,
+      Niveau: document.getElementById('m-niveau').value,
+      Periode: document.getElementById('m-periode').value,
+    });
+    toast('Gebruiker bijgewerkt');
+    closeModal();
+    showToegang();
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+async function toggleActief(id, current) {
+  if (!confirm(current ? 'Gebruiker deactiveren? De toegang vervalt onmiddellijk.' : 'Gebruiker activeren?')) return;
+  try {
+    await updateItem(LIST_IDS.BEHEER_Toegang, id, { Actief: !current });
+    toast(current ? 'Gebruiker gedeactiveerd' : 'Gebruiker geactiveerd');
+    showToegang();
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+async function deleteUser(id) {
+  if (!confirm('Gebruiker permanent verwijderen?')) return;
+  try { await deleteItem(LIST_IDS.BEHEER_Toegang, id); toast('Verwijderd'); closeModal(); showToegang(); }
+  catch(e) { toast('Fout: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════
+// SOLLICITANTEN BEHEER
+// ════════════════════════════════════════════════
+async function showSolBeheer() {
+  setNav('nav-sol');
+  renderPage('Sollicitantenbeheer', 'Overzicht en archivering van sollicitantendossiers', '<div style="text-align:center;padding:40px"><div style="width:24px;height:24px;border:2px solid var(--g200);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin:auto"></div></div>');
+  await getToken();
+  try {
+    const items = await getItems(LIST_IDS.SOL_Sollicitanten);
+    const statusCount = {};
+    items.forEach(i => { statusCount[i.Status] = (statusCount[i.Status]||0)+1; });
+
+    const statusColors = { Nieuw:'var(--blue-bg,#EFF6FF)', Uitgenodigd:'var(--amber-bg)', Gesprek:'#F5F3FF', Beslissing:'var(--green-bg)', Afgesloten:'var(--g100)' };
+    const beslCounts = { Aangenomen: items.filter(i=>i.Beslissing==='Aangenomen').length, Reserve: items.filter(i=>i.Beslissing==='Reserve').length, Afgewezen: items.filter(i=>i.Beslissing==='Afgewezen').length };
+
+    const rows = items.sort((a,b) => new Date(b.DatumOntvangst||0)-new Date(a.DatumOntvangst||0)).map(s => `
+      <tr>
+        <td><strong>${s.Voornaam||''} ${s.Naam||''}</strong></td>
+        <td style="color:var(--g500)">${s.Functie||'—'}</td>
+        <td><span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${statusColors[s.Status]||'var(--g100)'}">${s.Status||'—'}</span></td>
+        <td>${s.Beslissing && s.Beslissing!=='—' ? s.Beslissing : '—'}</td>
+        <td style="font-size:12px;color:var(--g400)">${s.DatumOntvangst ? new Date(s.DatumOntvangst).toLocaleDateString('nl-BE') : '—'}</td>
+        <td>
+          ${s.Status !== 'Afgesloten' ? `<button class="btn btn-sm" onclick="archiveer('${s.id}')">Archiveren</button>` : `<button class="btn btn-sm btn-danger" onclick="verwijderDossier('${s.id}')">Verwijderen</button>`}
+        </td>
+      </tr>`).join('');
+
+    document.querySelector('.content').innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px">
+        ${['Nieuw','Uitgenodigd','Gesprek','Beslissing','Afgesloten'].map(s => `
+          <div style="background:white;border:1px solid var(--g200);border-radius:8px;padding:12px;text-align:center">
+            <div style="font-size:22px;font-weight:700">${statusCount[s]||0}</div>
+            <div style="font-size:11px;color:var(--g400)">${s}</div>
+          </div>`).join('')}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+        ${[['Aangenomen','var(--green-bg,#DCFCE7)','#15803D'],['Reserve','var(--amber-bg)','#B45309'],['Afgewezen','var(--red-bg)','#B91C1C']].map(([l,bg,c]) => `
+          <div style="background:${bg};border-radius:8px;padding:12px;text-align:center">
+            <div style="font-size:20px;font-weight:700;color:${c}">${beslCounts[l]||0}</div>
+            <div style="font-size:11px;color:${c}">${l}</div>
+          </div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="card-title">Alle dossiers (${items.length})</div>
+        <div style="overflow-x:auto">
+          <table class="table">
+            <thead><tr><th>Naam</th><th>Functie</th><th>Status</th><th>Beslissing</th><th>Datum</th><th>Actie</th></tr></thead>
+            <tbody>${rows||'<tr><td colspan="6" style="text-align:center;color:var(--g400);padding:24px">Nog geen sollicitantendossiers.</td></tr>'}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="alert alert-warn" style="margin-top:0">
+        <strong>GDPR herinnering:</strong> Afgewezen sollicitantendossiers dienen verwijderd te worden na de afgesproken bewaartermijn (aanbeveling: 6 maanden). Gearchiveerde dossiers zijn nog leesbaar maar niet meer aanpasbaar.
+      </div>`;
+  } catch(e) { document.querySelector('.content').innerHTML = `<div class="alert alert-warn">Fout: ${e.message}</div>`; }
+}
+
+async function archiveer(id) {
+  if (!confirm('Dossier archiveren? Het wordt enkel leesbaar.')) return;
+  try { await updateItem(LIST_IDS.SOL_Sollicitanten, id, { Status: 'Afgesloten' }); toast('Gearchiveerd'); showSolBeheer(); }
+  catch(e) { toast('Fout: ' + e.message); }
+}
+
+async function verwijderDossier(id) {
+  if (!confirm('Dossier en alle gekoppelde data permanent verwijderen? Dit kan niet ongedaan worden gemaakt.')) return;
+  try {
+    // Delete all linked records
+    for (const listKey of ['SOL_Gesprekken','SOL_Documenten','SOL_Referenties','SOL_Communicatie']) {
+      const items = await getItems(LIST_IDS[listKey], `fields/SollicitantId eq '${id}'`);
+      for (const i of items) await deleteItem(LIST_IDS[listKey], i.id);
+    }
+    await deleteItem(LIST_IDS.SOL_Sollicitanten, id);
+    toast('Dossier verwijderd');
+    showSolBeheer();
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════
+// COMPETENTIEKADER
+// ════════════════════════════════════════════════
+const DEFAULT_COMPS = [
+  { domein:"Leren & Ontwikkelen", items:["Vakinhoudelijke kennis","Differentiatievermogen","Klasmanagement","Leerlingbegeleiding","Zelfontwikkeling"] },
+  { domein:"Samenwerken",         items:["Teamspeler","Collegialiteit","Oudercontact","Samenwerking zorgteam","Bijdrage schoolcultuur"] },
+  { domein:"Communicatie",        items:["Mondeling communiceren","Schriftelijk rapporteren","Luistervaardigheid","Feedback geven/ontvangen","Digitale communicatie"] },
+  { domein:"Persoonlijk",         items:["Flexibiliteit","Stressbestendigheid","Initiatief","Zelfstandigheid","Professionaliteit"] },
+];
+
+function showCompetenties() {
+  setNav('nav-comp');
+  const stored = localStorage.getItem('baoka_comps');
+  const comps = stored ? JSON.parse(stored) : DEFAULT_COMPS;
+
+  const html = comps.map((dom, di) => `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📂 ${dom.domein}</div>
+        <button class="btn btn-sm" onclick="addCompetentie(${di})">+ Competentie</button>
+      </div>
+      <ul style="list-style:none">
+        ${dom.items.map((item, ii) => `
+          <div class="cb-row">
+            <span style="flex:1;font-size:13px">${item}</span>
+            <button class="btn btn-sm btn-danger" onclick="removeComp(${di},${ii})">✕</button>
+          </div>`).join('')}
+      </ul>
+    </div>`).join('');
+
+  renderPage('Competentiekader', 'Competenties die beoordeeld worden tijdens sollicitatiegesprekken', `
+    <div class="alert alert-info">Wijzigingen in het competentiekader zijn onmiddellijk beschikbaar in de applicatie. Bestaande gespreksverslagen worden niet aangepast.</div>
+    ${html}
+    <button class="btn" onclick="resetComps()" style="margin-top:4px">↺ Standaard herstellen</button>`);
+}
+
+function addCompetentie(di) {
+  const naam = prompt('Naam van de nieuwe competentie:');
+  if (!naam) return;
+  const stored = localStorage.getItem('baoka_comps');
+  const comps = stored ? JSON.parse(stored) : DEFAULT_COMPS;
+  comps[di].items.push(naam.trim());
+  localStorage.setItem('baoka_comps', JSON.stringify(comps));
+  toast('Competentie toegevoegd');
+  showCompetenties();
+}
+
+function removeComp(di, ii) {
+  if (!confirm('Competentie verwijderen?')) return;
+  const stored = localStorage.getItem('baoka_comps');
+  const comps = stored ? JSON.parse(stored) : DEFAULT_COMPS;
+  comps[di].items.splice(ii, 1);
+  localStorage.setItem('baoka_comps', JSON.stringify(comps));
+  toast('Verwijderd');
+  showCompetenties();
+}
+
+function resetComps() {
+  if (!confirm('Competentiekader herstellen naar standaard?')) return;
+  localStorage.removeItem('baoka_comps');
+  toast('Hersteld');
+  showCompetenties();
+}
+
+// ════════════════════════════════════════════════
+// LIJST-IDS
+// ════════════════════════════════════════════════
+function showListIds() {
+  setNav('nav-ids');
+  const rows = Object.entries(LIST_IDS).map(([k,v]) => `
+    <tr>
+      <td><code style="font-size:12px">${k}</code></td>
+      <td style="font-size:12px;color:${v?'var(--g700)':'var(--red)'}">${v || '⚠ Nog niet ingevuld'}</td>
+      <td>${v ? `<button class="btn btn-sm" onclick="navigator.clipboard.writeText('${v}');toast('Gekopieerd')">Kopiëren</button>` : ''}</td>
+    </tr>`).join('');
+
+  renderPage('Lijst-IDs', 'Overzicht van alle SharePoint-lijst-IDs', `
+    <div class="alert alert-warn">Vul de IDs in door setup.html uit te voeren. Kopieer daarna het JSON-resultaat en plak de waarden in LIST_IDS in zowel index.html als beheer.html.</div>
+    <div class="card">
+      <table class="table">
+        <thead><tr><th>Lijst</th><th>ID</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <button class="btn btn-primary" onclick="navigator.clipboard.writeText(JSON.stringify(LIST_IDS,null,2));toast('JSON gekopieerd')">
+      Alle IDs kopiëren als JSON
+    </button>`);
+}
+
+// ════════════════════════════════════════════════
+// INFO
+// ════════════════════════════════════════════════
+function showInfo() {
+  setNav('nav-info');
+  renderPage('Over de applicatie', 'Versie- en contactinformatie', `
+    <div class="card">
+      <div class="card-title">Applicatie-informatie</div>
+      <table class="table">
+        <tbody>
+          <tr><td style="font-weight:500">Naam</td><td>KA-Leerkrachten Volgsysteem</td></tr>
+          <tr><td style="font-weight:500">Scholengroep</td><td>Scholengemeenschap Kapelle-op-den-Bos BaO</td></tr>
+          <tr><td style="font-weight:500">Versie</td><td>1.0</td></tr>
+          <tr><td style="font-weight:500">Scholen</td><td>Het Kiezeltje (KIE) · De Kei (KEI) · 't Mulderke (MUL)</td></tr>
+          <tr><td style="font-weight:500">GitHub repository</td><td><a href="https://github.com/Lon-Ka/KA-Leerkrachten" target="_blank">Lon-Ka/KA-Leerkrachten</a></td></tr>
+          <tr><td style="font-weight:500">GitHub Pages URL</td><td><a href="https://Lon-Ka.github.io/KA-Leerkrachten/" target="_blank">https://Lon-Ka.github.io/KA-Leerkrachten/</a></td></tr>
+          <tr><td style="font-weight:500">Azure App Registration</td><td>${CONFIG.clientId}</td></tr>
+          <tr><td style="font-weight:500">SharePoint Site ID</td><td style="font-size:11px">${CONFIG.siteId}</td></tr>
+          <tr><td style="font-weight:500">Tenant</td><td>gebaskabe (${CONFIG.tenantId})</td></tr>
+          <tr><td style="font-weight:500">Systeembeheerder</td><td>Wim Cools (ict@gebaska.be)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">GDPR-herinnering</div>
+      <ul style="font-size:13px;color:var(--g600);line-height:1.8;padding-left:16px">
+        <li>Sollicitantendossiers van afgewezen kandidaten verwijderen na de afgesproken bewaartermijn</li>
+        <li>Leerkrachtendata enkel toegankelijk voor bevoegde directies via de BEHEER_Toegang-lijst</li>
+        <li>Data opgeslagen in Microsoft 365 SharePoint — onder Microsoft-verwerkersovereenkomst</li>
+        <li>Audittrail via ingebouwde SharePoint-versiegeschiedenis</li>
+        <li>Bij vragen: contacteer de DPO van de scholengroep</li>
+      </ul>
+    </div>`);
+}
+
+// ════════════════════════════════════════════════
+// MODAL
+// ════════════════════════════════════════════════
+function showModal(html) {
+  const existing = document.getElementById('modal-bg');
+  if (existing) existing.remove();
+  const div = document.createElement('div');
+  div.id = 'modal-bg'; div.className = 'modal-bg';
+  div.innerHTML = `<div class="modal">${html}</div>`;
+  div.addEventListener('click', e => { if (e.target===div) closeModal(); });
+  document.body.appendChild(div);
+}
+function closeModal() { const m = document.getElementById('modal-bg'); if (m) m.remove(); }
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+const style = document.createElement('style');
+style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(style);
+
+msalApp.handleRedirectPromise().then(async r => {
+  const accounts = msalApp.getAllAccounts();
+  if (accounts.length > 0) {
+    currentUser = accounts[0];
+    await getToken();
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('sb-user').textContent = accounts[0].username;
+    showToegang();
+  }
+}).catch(() => {});
+</script>
+</body>
+</html>

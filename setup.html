@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setup — KA-Leerkrachten</title>
+<script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+<style>
+  :root {
+    --teal: #1D9E75;
+    --teal-dark: #0F6E56;
+    --teal-light: #E1F5EE;
+    --amber: #F59E0B;
+    --red: #EF4444;
+    --green: #22C55E;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-400: #9CA3AF;
+    --gray-600: #4B5563;
+    --gray-900: #111827;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gray-50); color: var(--gray-900); font-size: 14px; }
+
+  header { background: var(--teal); color: white; padding: 16px 32px; display: flex; align-items: center; gap: 12px; }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header span { font-size: 12px; opacity: .7; margin-left: auto; }
+
+  .container { max-width: 900px; margin: 32px auto; padding: 0 24px; }
+
+  .card { background: white; border: 1px solid var(--gray-200); border-radius: 10px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .card p { color: var(--gray-600); font-size: 13px; line-height: 1.6; }
+
+  .warning { background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 8px; padding: 14px 16px; margin-bottom: 20px; font-size: 13px; color: #92400E; }
+  .warning strong { display: block; margin-bottom: 4px; }
+
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; font-family: inherit; transition: all .15s; }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--teal-dark); }
+  .btn-primary:disabled { background: var(--gray-400); cursor: not-allowed; }
+  .btn-secondary { background: white; border: 1px solid var(--gray-200); color: var(--gray-600); }
+  .btn-secondary:hover { background: var(--gray-50); }
+
+  .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+  .list-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--gray-200); border-radius: 8px; font-size: 13px; }
+  .list-item .icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+  .icon-pending { background: var(--gray-100); color: var(--gray-400); }
+  .icon-running { background: #FEF3C7; color: var(--amber); animation: pulse 1s infinite; }
+  .icon-done { background: #DCFCE7; color: var(--green); }
+  .icon-error { background: #FEE2E2; color: var(--red); }
+
+  .list-name { font-weight: 500; flex: 1; }
+  .list-type { font-size: 11px; color: var(--gray-400); background: var(--gray-100); padding: 2px 6px; border-radius: 4px; }
+
+  .progress-bar { height: 6px; background: var(--gray-200); border-radius: 3px; overflow: hidden; margin: 16px 0 8px; }
+  .progress-fill { height: 100%; background: var(--teal); border-radius: 3px; transition: width .4s; }
+  .progress-label { font-size: 12px; color: var(--gray-600); text-align: right; }
+
+  .log { background: var(--gray-900); color: #86EFAC; font-family: 'Courier New', monospace; font-size: 12px; border-radius: 8px; padding: 16px; max-height: 280px; overflow-y: auto; margin-top: 16px; line-height: 1.7; }
+  .log .err { color: #FCA5A5; }
+  .log .info { color: #93C5FD; }
+  .log .warn { color: #FCD34D; }
+
+  .ids-box { background: var(--teal-light); border: 1px solid var(--teal); border-radius: 8px; padding: 16px; margin-top: 16px; }
+  .ids-box h3 { font-size: 13px; font-weight: 600; color: var(--teal-dark); margin-bottom: 10px; }
+  .id-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; }
+  .id-row label { color: var(--gray-600); width: 220px; flex-shrink: 0; }
+  .id-row code { background: white; border: 1px solid var(--gray-200); border-radius: 4px; padding: 3px 8px; flex: 1; font-size: 11px; word-break: break-all; }
+  .id-row button { padding: 3px 8px; font-size: 11px; border: 1px solid var(--gray-200); background: white; border-radius: 4px; cursor: pointer; white-space: nowrap; }
+  .id-row button:hover { background: var(--gray-50); }
+
+  .step-dots { display: flex; gap: 8px; margin-bottom: 24px; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+  .dot-active { background: var(--teal); color: white; }
+  .dot-done { background: var(--teal-light); color: var(--teal); }
+  .dot-pending { background: var(--gray-100); color: var(--gray-400); }
+  .dot-label { font-size: 11px; color: var(--gray-400); align-self: center; margin-left: -4px; margin-right: 8px; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.3); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; display:inline-block; }
+</style>
+</head>
+<body>
+
+<header>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+  <h1>KA-Leerkrachten — Setup</h1>
+  <span>Eenmalig uitvoeren door ICT-verantwoordelijke</span>
+</header>
+
+<div class="container">
+
+  <div class="warning">
+    <strong>⚠ Dit script enkel uitvoeren bij eerste installatie</strong>
+    Het aanmaken van lijsten die al bestaan zal een fout geven maar de bestaande data niet verwijderen. Bij twijfel: controleer eerst in SharePoint of de lijsten al bestaan.
+  </div>
+
+  <div class="card" id="step-login">
+    <h2>Stap 1 — Aanmelden</h2>
+    <p style="margin:8px 0 16px">Meld aan met het beheerdersaccount van de gebaska-tenant (Wim Cools). Dit account heeft admin consent voor de app-registratie nodig.</p>
+    <button class="btn btn-primary" onclick="doLogin()" id="btn-login">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      Aanmelden met Microsoft 365
+    </button>
+    <p id="login-status" style="margin-top:10px;font-size:13px;color:var(--gray-600)"></p>
+  </div>
+
+  <div class="card" id="step-create" style="display:none">
+    <h2>Stap 2 — SharePoint-lijsten aanmaken</h2>
+    <p style="margin-bottom:16px">De volgende 18 lijsten + 1 Document Library worden aangemaakt op <strong>gebaskabe.sharepoint.com/sites/KA-Leerkrachten</strong>.</p>
+
+    <div class="list-grid" id="list-grid"></div>
+
+    <div class="progress-bar" style="display:none" id="prog-wrap">
+      <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+    <div class="progress-label" id="prog-label"></div>
+
+    <div style="margin-top:16px;display:flex;gap:10px">
+      <button class="btn btn-primary" onclick="startSetup()" id="btn-setup">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Lijsten aanmaken
+      </button>
+      <button class="btn btn-secondary" onclick="clearLog()" id="btn-clear">Log wissen</button>
+    </div>
+
+    <div class="log" id="log">Wacht op start...</div>
+  </div>
+
+  <div class="card" id="step-ids" style="display:none">
+    <h2>Stap 3 — Lijst-IDs kopiëren naar applicatie</h2>
+    <p style="margin-bottom:4px">Kopieer onderstaande IDs naar de configuratie in <code>index.html</code> en <code>beheer.html</code> (sectie <code>LIST_IDS</code>).</p>
+    <div class="ids-box" id="ids-box">
+      <h3>Gegenereerde Lijst-IDs</h3>
+      <div id="ids-content">Wordt ingevuld na aanmaak...</div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:12px" onclick="copyAllIds()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Alle IDs kopiëren als JSON
+    </button>
+  </div>
+
+</div>
+
+<script>
+// ── Configuratie ─────────────────────────────────────────────────────────────
+const CONFIG = {
+  clientId:  "2ada9cb7-83e9-450b-a632-193715bec13f",
+  tenantId:  "165074eb-b8b7-49e8-a9b4-54cac7939ed2",
+  siteId:    "gebaskabe.sharepoint.com,2adf941c-11ef-4788-b148-84a239538257,e0158228-22a6-4225-87dc-fe7d619ae7e4",
+  redirectUri: window.location.href.split('?')[0],
+};
+
+// ── Lijst-definities ─────────────────────────────────────────────────────────
+const LISTS = [
+  // Beheer
+  { name: "BEHEER_Toegang", type: "beheer", displayName: "Beheer: Toegangsmatrix",
+    columns: [
+      { name: "Naam",     type: "text" },
+      { name: "Email",    type: "text" },
+      { name: "Rol",      type: "text" },
+      { name: "SchoolKIE",type: "boolean" },
+      { name: "SchoolKEI",type: "boolean" },
+      { name: "SchoolMUL",type: "boolean" },
+      { name: "Niveau",   type: "choice", choices: ["Directie","Systeembeheer"] },
+      { name: "Periode",  type: "text" },
+      { name: "Actief",   type: "boolean" },
+    ]
+  },
+  // Scholen
+  ...["KIE","KEI","MUL"].flatMap(s => [
+    { name: `${s}_Leerkrachten`, type: "school", displayName: `${s}: Leerkrachten`,
+      columns: [
+        { name: "Naam",             type: "text" },
+        { name: "Voornaam",         type: "text" },
+        { name: "Functie",          type: "text" },
+        { name: "Opdracht",         type: "choice", choices: ["20%","40%","50%","60%","80%","100%"] },
+        { name: "Email",            type: "text" },
+        { name: "Functiebeschrijving", type: "note" },
+        { name: "School",           type: "text" },
+        { name: "Actief",           type: "boolean" },
+      ]
+    },
+    { name: `${s}_Gesprekken`, type: "school", displayName: `${s}: Gesprekken`,
+      columns: [
+        { name: "LeerkrachtId",     type: "text" },
+        { name: "LeerkrachtNaam",   type: "text" },
+        { name: "Datum",            type: "dateTime" },
+        { name: "Type",             type: "choice", choices: ["Functioneringsgesprek","Evaluatiegesprek","Planningsgesprek","Informeel gesprek"] },
+        { name: "Nota",             type: "note" },
+        { name: "Doelen",           type: "note" },
+        { name: "School",           type: "text" },
+        { name: "IngevoerdDoor",    type: "text" },
+      ]
+    },
+    { name: `${s}_Opmerkingen`, type: "school", displayName: `${s}: Opmerkingen`,
+      columns: [
+        { name: "LeerkrachtId",     type: "text" },
+        { name: "LeerkrachtNaam",   type: "text" },
+        { name: "Tekst",            type: "note" },
+        { name: "School",           type: "text" },
+        { name: "IngevoerdDoor",    type: "text" },
+      ]
+    },
+    { name: `${s}_POP`, type: "school", displayName: `${s}: POP-doelen`,
+      columns: [
+        { name: "LeerkrachtId",     type: "text" },
+        { name: "LeerkrachtNaam",   type: "text" },
+        { name: "POPActief",        type: "boolean" },
+        { name: "POPPeriode",       type: "text" },
+        { name: "Doel",             type: "text" },
+        { name: "Actie",            type: "note" },
+        { name: "Deadline",         type: "dateTime" },
+        { name: "Voortgang",        type: "number" },
+        { name: "School",           type: "text" },
+      ]
+    },
+  ]),
+  // Sollicitanten (scholengroep-breed)
+  { name: "SOL_Sollicitanten", type: "sollicitant", displayName: "Sollicitanten: Dossiers",
+    columns: [
+      { name: "Naam",             type: "text" },
+      { name: "Voornaam",         type: "text" },
+      { name: "Email",            type: "text" },
+      { name: "Telefoon",         type: "text" },
+      { name: "Functie",          type: "text" },
+      { name: "SchoolVoorkeur",   type: "text" },
+      { name: "Status",           type: "choice", choices: ["Nieuw","Uitgenodigd","Gesprek","Beslissing","Afgesloten"] },
+      { name: "Beslissing",       type: "choice", choices: ["—","Aangenomen","Reserve","Afgewezen"] },
+      { name: "DatumOntvangst",   type: "dateTime" },
+      { name: "Opmerkingen",      type: "note" },
+      { name: "IngevoerdDoor",    type: "text" },
+    ]
+  },
+  { name: "SOL_Gesprekken", type: "sollicitant", displayName: "Sollicitanten: Gesprekken",
+    columns: [
+      { name: "SollicitantId",    type: "text" },
+      { name: "SollicitantNaam",  type: "text" },
+      { name: "Datum",            type: "dateTime" },
+      { name: "Type",             type: "choice", choices: ["Eerste gesprek","Vervolggesprek","Proefles","Telefonisch gesprek"] },
+      { name: "Aanwezigen",       type: "text" },
+      { name: "AlgemeenVerslag",  type: "note" },
+      { name: "Competenties",     type: "note" },
+      { name: "Eindadvies",       type: "choice", choices: ["—","Positief","Eerder positief","Eerder negatief","Negatief"] },
+      { name: "IngevoerdDoor",    type: "text" },
+    ]
+  },
+  { name: "SOL_Documenten", type: "sollicitant", displayName: "Sollicitanten: Documenten (metadata)",
+    columns: [
+      { name: "SollicitantId",    type: "text" },
+      { name: "SollicitantNaam",  type: "text" },
+      { name: "Bestandsnaam",     type: "text" },
+      { name: "Type",             type: "choice", choices: ["Sollicitatiebrief","CV","Attest","Diploma","Andere"] },
+      { name: "DriveItemId",      type: "text" },
+      { name: "DriveItemUrl",     type: "text" },
+      { name: "UploadDatum",      type: "dateTime" },
+      { name: "UploadDoor",       type: "text" },
+    ]
+  },
+  { name: "SOL_Referenties", type: "sollicitant", displayName: "Sollicitanten: Referenties",
+    columns: [
+      { name: "SollicitantId",    type: "text" },
+      { name: "SollicitantNaam",  type: "text" },
+      { name: "NaamReferent",     type: "text" },
+      { name: "Organisatie",      type: "text" },
+      { name: "Relatie",          type: "text" },
+      { name: "Contactdatum",     type: "dateTime" },
+      { name: "Samenvatting",     type: "note" },
+      { name: "Beoordeling",      type: "choice", choices: ["—","Positief","Neutraal","Negatief"] },
+      { name: "IngevoerdDoor",    type: "text" },
+    ]
+  },
+  { name: "SOL_Communicatie", type: "sollicitant", displayName: "Sollicitanten: Communicatie",
+    columns: [
+      { name: "SollicitantId",    type: "text" },
+      { name: "SollicitantNaam",  type: "text" },
+      { name: "Type",             type: "choice", choices: ["Uitnodiging gesprek","Bevestiging gesprek","Afwijzing","Aanbieding","Andere"] },
+      { name: "Kanaal",           type: "choice", choices: ["E-mail","Brief","Telefoon","Andere"] },
+      { name: "Inhoud",           type: "note" },
+      { name: "VerstuurdDoor",    type: "text" },
+    ]
+  },
+];
+
+// Document Library voor bijlagen
+const DOC_LIBRARY = { name: "SOL_Bijlagen", displayName: "Sollicitanten: Bijlagen" };
+
+// ── MSAL ─────────────────────────────────────────────────────────────────────
+const msalApp = new msal.PublicClientApplication({
+  auth: { clientId: CONFIG.clientId, authority: `https://login.microsoftonline.com/${CONFIG.tenantId}`, redirectUri: CONFIG.redirectUri },
+  cache: { cacheLocation: "sessionStorage" }
+});
+
+let token = null;
+
+async function doLogin() {
+  try {
+    document.getElementById('btn-login').disabled = true;
+    document.getElementById('btn-login').innerHTML = '<span class="spinner"></span> Aanmelden...';
+    const result = await msalApp.loginPopup({ scopes: ["Sites.ReadWrite.All"] });
+    token = result.accessToken;
+    document.getElementById('login-status').innerHTML = `✅ Aangemeld als <strong>${result.account.username}</strong>`;
+    document.getElementById('btn-login').innerHTML = '✅ Aangemeld';
+    document.getElementById('step-create').style.display = 'block';
+    renderListGrid();
+    document.getElementById('step-create').scrollIntoView({ behavior: 'smooth' });
+  } catch(e) {
+    document.getElementById('btn-login').disabled = false;
+    document.getElementById('btn-login').innerHTML = 'Aanmelden met Microsoft 365';
+    document.getElementById('login-status').textContent = '❌ Aanmelden mislukt: ' + e.message;
+  }
+}
+
+// ── Grid render ───────────────────────────────────────────────────────────────
+const typeLabels = { beheer: 'Beheer', school: 'School', sollicitant: 'Sollicitant', library: 'Document Library' };
+const typeColors = { beheer: '#DBEAFE', school: '#DCFCE7', sollicitant: '#FEF3C7', library: '#F3E8FF' };
+
+function renderListGrid() {
+  const grid = document.getElementById('list-grid');
+  const allItems = [...LISTS, { name: DOC_LIBRARY.name, type: 'library', displayName: DOC_LIBRARY.displayName, columns: [] }];
+  grid.innerHTML = allItems.map(l => `
+    <div class="list-item" id="item-${l.name}">
+      <div class="icon icon-pending" id="icon-${l.name}">○</div>
+      <span class="list-name">${l.displayName || l.name}</span>
+      <span class="list-type" style="background:${typeColors[l.type]||'#F3F4F6'}">${typeLabels[l.type]||l.type}</span>
+    </div>`).join('');
+}
+
+// ── Graph API helpers ────────────────────────────────────────────────────────
+async function graphPost(url, body) {
+  const r = await fetch(`https://graph.microsoft.com/v1.0${url}`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || r.statusText); }
+  return r.json();
+}
+
+function columnDef(col) {
+  const base = { name: col.name, indexed: false };
+  switch(col.type) {
+    case 'text':     return { ...base, text: {} };
+    case 'note':     return { ...base, text: { allowMultipleLines: true, linesForEditing: 6 } };
+    case 'boolean':  return { ...base, boolean: {} };
+    case 'number':   return { ...base, number: {} };
+    case 'dateTime': return { ...base, dateTime: { displayAs: "default", format: "dateOnly" } };
+    case 'choice':   return { ...base, choice: { allowTextEntry: false, choices: col.choices, displayAs: "dropDownMenu" } };
+    default:         return { ...base, text: {} };
+  }
+}
+
+// ── Setup logic ──────────────────────────────────────────────────────────────
+const listIds = {};
+let logEl, logLines = [];
+
+function log(msg, cls = '') {
+  logLines.push(`<span class="${cls}">${new Date().toLocaleTimeString('nl-BE')}  ${msg}</span>`);
+  if (logEl) { logEl.innerHTML = logLines.join('\n'); logEl.scrollTop = logEl.scrollHeight; }
+}
+
+function setIcon(name, state) {
+  const el = document.getElementById(`icon-${name}`);
+  if (!el) return;
+  el.className = `icon icon-${state}`;
+  el.textContent = state === 'done' ? '✓' : state === 'error' ? '✗' : state === 'running' ? '…' : '○';
+}
+
+function clearLog() { logLines = []; if (logEl) logEl.innerHTML = ''; }
+
+async function startSetup() {
+  const btn = document.getElementById('btn-setup');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Bezig...';
+  logEl = document.getElementById('log');
+  logLines = [];
+
+  const progWrap = document.getElementById('prog-wrap');
+  const progFill = document.getElementById('prog-fill');
+  const progLabel = document.getElementById('prog-label');
+  progWrap.style.display = 'block';
+
+  const total = LISTS.length + 1; // +1 for library
+  let done = 0;
+
+  function updateProg() {
+    done++;
+    const pct = Math.round(done / total * 100);
+    progFill.style.width = pct + '%';
+    progLabel.textContent = `${done} / ${total} voltooid (${pct}%)`;
+  }
+
+  const siteBase = `/sites/${CONFIG.siteId}`;
+
+  // Refresh token
+  try {
+    const accounts = msalApp.getAllAccounts();
+    const r = await msalApp.acquireTokenSilent({ scopes: ["Sites.ReadWrite.All"], account: accounts[0] });
+    token = r.accessToken;
+  } catch(e) { log('Token vernieuwen mislukt: ' + e.message, 'err'); }
+
+  // Create lists
+  for (const list of LISTS) {
+    setIcon(list.name, 'running');
+    log(`Aanmaken: ${list.name}...`, 'info');
+    try {
+      const created = await graphPost(`${siteBase}/lists`, {
+        displayName: list.name,
+        list: { template: "genericList", hidden: false }
+      });
+      listIds[list.name] = created.id;
+      log(`  → Lijst aangemaakt (ID: ${created.id.substring(0,8)}...)`);
+
+      // Add columns (Title is auto-created; skip if name = Title)
+      for (const col of list.columns) {
+        try {
+          await graphPost(`${siteBase}/lists/${created.id}/columns`, columnDef(col));
+        } catch(ce) {
+          if (!ce.message.includes('already exists')) log(`  ⚠ Kolom '${col.name}': ${ce.message}`, 'warn');
+        }
+      }
+      log(`  → ${list.columns.length} kolommen toegevoegd`);
+      setIcon(list.name, 'done');
+    } catch(e) {
+      if (e.message.includes('already exists') || e.message.includes('A list with the same name')) {
+        log(`  ⚠ Lijst bestaat al — overgeslagen`, 'warn');
+        setIcon(list.name, 'done');
+      } else {
+        log(`  ✗ Fout: ${e.message}`, 'err');
+        setIcon(list.name, 'error');
+      }
+    }
+    updateProg();
+    await new Promise(r => setTimeout(r, 400)); // rate limit buffer
+  }
+
+  // Document Library
+  setIcon(DOC_LIBRARY.name, 'running');
+  log(`Aanmaken Document Library: ${DOC_LIBRARY.name}...`, 'info');
+  try {
+    const lib = await graphPost(`${siteBase}/lists`, {
+      displayName: DOC_LIBRARY.name,
+      list: { template: "documentLibrary" }
+    });
+    listIds[DOC_LIBRARY.name] = lib.id;
+    log(`  → Document Library aangemaakt (ID: ${lib.id.substring(0,8)}...)`);
+    setIcon(DOC_LIBRARY.name, 'done');
+  } catch(e) {
+    if (e.message.includes('already exists')) {
+      log(`  ⚠ Library bestaat al — overgeslagen`, 'warn');
+      setIcon(DOC_LIBRARY.name, 'done');
+    } else {
+      log(`  ✗ Fout: ${e.message}`, 'err');
+      setIcon(DOC_LIBRARY.name, 'error');
+    }
+  }
+  updateProg();
+
+  log('', '');
+  log('✅ Setup voltooid! Kopieer de IDs hieronder naar index.html en beheer.html.', 'info');
+
+  btn.innerHTML = '✅ Klaar';
+  renderIds();
+  document.getElementById('step-ids').style.display = 'block';
+  document.getElementById('step-ids').scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderIds() {
+  const box = document.getElementById('ids-content');
+  box.innerHTML = Object.entries(listIds).map(([name, id]) => `
+    <div class="id-row">
+      <label>${name}</label>
+      <code id="id-${name}">${id}</code>
+      <button onclick="copyId('${name}')">Kopiëren</button>
+    </div>`).join('');
+}
+
+function copyId(name) {
+  navigator.clipboard.writeText(document.getElementById(`id-${name}`).textContent);
+}
+
+function copyAllIds() {
+  navigator.clipboard.writeText(JSON.stringify(listIds, null, 2));
+  alert('Alle IDs gekopieerd als JSON!');
+}
+
+// Handle redirect
+msalApp.handleRedirectPromise().catch(() => {});
+</script>
+</body>
+</html>

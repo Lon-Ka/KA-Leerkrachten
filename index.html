@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KA-Leerkrachten</title>
+<script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+<style>
+:root {
+  --teal:       #1D9E75;
+  --teal-dark:  #0F6E56;
+  --teal-light: #E1F5EE;
+  --teal-mid:   #9FE1CB;
+  --amber:      #F59E0B;
+  --amber-bg:   #FEF3C7;
+  --red:        #EF4444;
+  --red-bg:     #FEE2E2;
+  --blue:       #3B82F6;
+  --blue-bg:    #EFF6FF;
+  --purple:     #8B5CF6;
+  --purple-bg:  #F5F3FF;
+  --green:      #22C55E;
+  --green-bg:   #DCFCE7;
+  --gray-50:    #F9FAFB;
+  --gray-100:   #F3F4F6;
+  --gray-200:   #E5E7EB;
+  --gray-300:   #D1D5DB;
+  --gray-400:   #9CA3AF;
+  --gray-500:   #6B7280;
+  --gray-600:   #4B5563;
+  --gray-700:   #374151;
+  --gray-900:   #111827;
+  --sidebar-w:  256px;
+  --header-h:   56px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--gray-50);color:var(--gray-900);font-size:14px;overflow:hidden;height:100vh}
+
+/* ── Auth overlay ── */
+#auth-overlay{position:fixed;inset:0;background:linear-gradient(135deg,var(--teal-dark),var(--teal));display:flex;align-items:center;justify-content:center;z-index:1000}
+.auth-card{background:white;border-radius:16px;padding:40px;width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.auth-logo{width:56px;height:56px;background:var(--teal-light);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.auth-card h1{font-size:22px;font-weight:700;margin-bottom:6px}
+.auth-card p{color:var(--gray-500);font-size:13px;margin-bottom:24px;line-height:1.5}
+.auth-btn{width:100%;padding:12px;background:var(--teal);color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:background .15s}
+.auth-btn:hover{background:var(--teal-dark)}
+.auth-btn:disabled{background:var(--gray-400);cursor:not-allowed}
+.auth-err{color:var(--red);font-size:12px;margin-top:10px}
+
+/* ── Layout ── */
+#app{display:none;height:100vh;overflow:hidden}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:white;border-right:1px solid var(--gray-200);display:flex;flex-direction:column;z-index:100}
+.main{margin-left:var(--sidebar-w);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── Sidebar ── */
+.sb-header{padding:16px;border-bottom:1px solid var(--gray-200)}
+.sb-logo{display:flex;align-items:center;gap:10px}
+.sb-logo-icon{width:32px;height:32px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.sb-logo-text{font-size:13px;font-weight:700;color:var(--gray-900);line-height:1.2}
+.sb-logo-sub{font-size:10px;color:var(--gray-400);font-weight:400}
+.sb-user{padding:10px 16px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;gap:8px}
+.sb-avatar{width:28px;height:28px;border-radius:50%;background:var(--teal-light);color:var(--teal-dark);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-user-name{font-size:12px;font-weight:500;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-user-role{font-size:10px;color:var(--gray-400)}
+
+.sb-nav{flex:1;overflow-y:auto;padding:8px 0}
+.sb-section{font-size:10px;font-weight:600;color:var(--gray-400);letter-spacing:.06em;text-transform:uppercase;padding:10px 16px 4px}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 16px;cursor:pointer;font-size:13px;color:var(--gray-600);transition:background .1s;border-left:2px solid transparent;user-select:none}
+.sb-item:hover{background:var(--gray-50);color:var(--gray-900)}
+.sb-item.active{background:var(--teal-light);color:var(--teal-dark);font-weight:600;border-left-color:var(--teal)}
+.sb-item svg{flex-shrink:0;opacity:.6}
+.sb-item.active svg{opacity:1}
+.sb-badge{margin-left:auto;background:var(--teal);color:white;font-size:10px;padding:1px 6px;border-radius:10px;font-weight:600}
+.sb-school-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+.sb-footer{padding:12px 16px;border-top:1px solid var(--gray-200)}
+.sb-footer button{width:100%;padding:8px;font-size:12px;background:transparent;border:1px solid var(--gray-200);border-radius:6px;cursor:pointer;color:var(--gray-500);font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.sb-footer button:hover{background:var(--gray-50)}
+
+/* ── Header ── */
+.page-header{padding:0 24px;height:var(--header-h);border-bottom:1px solid var(--gray-200);background:white;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.page-header h1{font-size:17px;font-weight:600;flex:1}
+.page-sub{font-size:12px;color:var(--gray-400);margin-top:1px}
+
+/* ── Content ── */
+.page-content{flex:1;overflow-y:auto;padding:24px}
+
+/* ── Tabs ── */
+.tabs{display:flex;border-bottom:1px solid var(--gray-200);background:white;padding:0 24px;flex-shrink:0}
+.tab{padding:10px 16px;font-size:13px;cursor:pointer;color:var(--gray-500);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .1s;white-space:nowrap}
+.tab:hover{color:var(--gray-900)}
+.tab.active{color:var(--teal);border-bottom-color:var(--teal);font-weight:600}
+
+/* ── Cards ── */
+.card{background:white;border:1px solid var(--gray-200);border-radius:10px;padding:20px;margin-bottom:16px}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:14px;font-weight:600}
+.card-sub{font-size:12px;color:var(--gray-400);margin-top:2px}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;border:1px solid var(--gray-200);background:white;color:var(--gray-700);cursor:pointer;font-size:13px;font-weight:500;font-family:inherit;transition:background .1s}
+.btn:hover{background:var(--gray-50)}
+.btn-primary{background:var(--teal);color:white;border-color:var(--teal)}
+.btn-primary:hover{background:var(--teal-dark);border-color:var(--teal-dark)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-danger{color:var(--red);border-color:#FECACA}
+.btn-danger:hover{background:var(--red-bg)}
+
+/* ── Form ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid-3{grid-template-columns:1fr 1fr 1fr}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:12px;font-weight:500;color:var(--gray-600)}
+.fg input,.fg select,.fg textarea{padding:8px 10px;border:1px solid var(--gray-200);border-radius:7px;font-size:13px;font-family:inherit;background:white;transition:border-color .15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--teal)}
+.fg textarea{resize:vertical;min-height:80px;line-height:1.5}
+.fg-full{grid-column:1/-1}
+
+/* ── Person cards (leerkrachten / sollicitanten) ── */
+.person-card{display:flex;align-items:center;gap:12px;padding:12px 16px;background:white;border:1px solid var(--gray-200);border-radius:10px;cursor:pointer;transition:border-color .15s;margin-bottom:8px}
+.person-card:hover{border-color:var(--teal)}
+.person-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.av-teal{background:var(--teal-light);color:var(--teal-dark)}
+.av-blue{background:var(--blue-bg);color:#1D4ED8}
+.av-purple{background:var(--purple-bg);color:#6D28D9}
+.av-amber{background:var(--amber-bg);color:#B45309}
+.person-info{flex:1;min-width:0}
+.person-name{font-weight:600;font-size:14px}
+.person-meta{font-size:12px;color:var(--gray-400);margin-top:1px}
+.person-tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+
+/* ── Tags & badges ── */
+.tag{font-size:11px;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.tag-green{background:var(--green-bg);color:#15803D}
+.tag-amber{background:var(--amber-bg);color:#B45309}
+.tag-blue{background:var(--blue-bg);color:#1D4ED8}
+.tag-red{background:var(--red-bg);color:#B91C1C}
+.tag-purple{background:var(--purple-bg);color:#6D28D9}
+.tag-gray{background:var(--gray-100);color:var(--gray-500);border:1px solid var(--gray-200)}
+.tag-teal{background:var(--teal-light);color:var(--teal-dark)}
+
+/* ── Status flow ── */
+.status-flow{display:flex;align-items:center;gap:0;margin:12px 0}
+.sf-step{padding:6px 14px;font-size:12px;font-weight:500;background:var(--gray-100);color:var(--gray-400);flex:1;text-align:center;cursor:pointer;transition:all .15s;border:1px solid var(--gray-200);margin-right:-1px}
+.sf-step:first-child{border-radius:7px 0 0 7px}
+.sf-step:last-child{border-radius:0 7px 7px 0;margin-right:0}
+.sf-step.active{background:var(--teal);color:white;border-color:var(--teal);z-index:1}
+.sf-step.done{background:var(--teal-light);color:var(--teal-dark);border-color:var(--teal-mid)}
+.sf-step.decision-ok{background:var(--green-bg);color:#15803D;border-color:#86EFAC}
+.sf-step.decision-reserve{background:var(--amber-bg);color:#B45309;border-color:#FCD34D}
+.sf-step.decision-nok{background:var(--red-bg);color:#B91C1C;border-color:#FCA5A5}
+
+/* ── Progress ── */
+.progress-wrap{margin:8px 0 2px}
+.progress-bar{height:6px;background:var(--gray-100);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:var(--teal);border-radius:3px;transition:width .3s}
+.progress-label{font-size:11px;color:var(--gray-400);text-align:right;margin-top:2px}
+
+/* ── Entry (gesprekken / opmerkingen) ── */
+.entry{background:white;border:1px solid var(--gray-200);border-radius:10px;padding:14px 16px;margin-bottom:8px}
+.entry-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.entry-date{font-size:11px;color:var(--gray-400)}
+.entry-body{font-size:13px;color:var(--gray-600);line-height:1.6}
+
+/* ── Competentie grid ── */
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.comp-item{display:flex;align-items:center;gap:8px;font-size:12px}
+.comp-name{flex:1;color:var(--gray-700)}
+.comp-stars{display:flex;gap:3px}
+.star{width:18px;height:18px;border:1px solid var(--gray-200);border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .1s}
+.star.filled{background:var(--amber);border-color:var(--amber);color:white}
+
+/* ── Modal ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:500;padding:16px}
+.modal{background:white;border-radius:12px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:18px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--gray-200)}
+
+/* ── Upload zone ── */
+.upload-zone{border:2px dashed var(--gray-200);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:border-color .15s}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--teal);background:var(--teal-light)}
+.upload-zone p{font-size:13px;color:var(--gray-400);margin-top:6px}
+
+/* ── Dashboard stats ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:white;border:1px solid var(--gray-200);border-radius:10px;padding:16px}
+.stat-val{font-size:26px;font-weight:700;margin-bottom:2px}
+.stat-lbl{font-size:12px;color:var(--gray-400)}
+.stat-icon{font-size:20px;margin-bottom:8px}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:48px 16px;color:var(--gray-400)}
+.empty svg{margin-bottom:12px;opacity:.4}
+.empty p{font-size:13px}
+
+/* ── Loader ── */
+.loader{display:flex;align-items:center;justify-content:center;padding:48px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{width:24px;height:24px;border:2px solid var(--gray-200);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite}
+
+/* ── Divider ── */
+.divider{height:1px;background:var(--gray-100);margin:16px 0}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:20px;right:20px;background:var(--gray-900);color:white;padding:10px 16px;border-radius:8px;font-size:13px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- Auth overlay -->
+<div id="auth-overlay">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <h1>KA-Leerkrachten</h1>
+    <p>Scholengemeenschap Kapelle-op-den-Bos BaO<br>Meld aan met je schoolaccount om verder te gaan.</p>
+    <button class="auth-btn" id="btn-auth" onclick="doLogin()">
+      <svg width="18" height="18" viewBox="0 0 23 23" fill="none"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="12" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="12" width="10" height="10" fill="#00A4EF"/><rect x="12" y="12" width="10" height="10" fill="#FFB900"/></svg>
+      Aanmelden met Microsoft 365
+    </button>
+    <p class="auth-err" id="auth-err"></p>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo">
+        <div class="sb-logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <div>
+          <div class="sb-logo-text">KA-Leerkrachten</div>
+          <div class="sb-logo-sub">Scholengemeenschap KaBo</div>
+        </div>
+      </div>
+    </div>
+    <div class="sb-user">
+      <div class="sb-avatar" id="sb-av">?</div>
+      <div>
+        <div class="sb-user-name" id="sb-name">Aanmelden...</div>
+        <div class="sb-user-role" id="sb-role"></div>
+      </div>
+    </div>
+    <div class="sb-nav" id="sb-nav">
+      <!-- dynamisch gebouwd -->
+    </div>
+    <div class="sb-footer">
+      <button onclick="doLogout()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Afmelden
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="main" id="main-area">
+    <div class="loader" id="main-loader"><div class="spin"></div></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// CONFIG — vervang LIST_IDS na het uitvoeren van setup.html
+// ════════════════════════════════════════════════════════════════
+const CONFIG = {
+  clientId:  "2ada9cb7-83e9-450b-a632-193715bec13f",
+  tenantId:  "165074eb-b8b7-49e8-a9b4-54cac7939ed2",
+  siteId:    "gebaskabe.sharepoint.com,2adf941c-11ef-4788-b148-84a239538257,e0158228-22a6-4225-87dc-fe7d619ae7e4",
+  redirectUri: window.location.href.split('?')[0],
+};
+
+// !! Na setup.html invullen:
+const LIST_IDS = {
+  BEHEER_Toegang:   "",
+  KIE_Leerkrachten: "", KIE_Gesprekken: "", KIE_Opmerkingen: "", KIE_POP: "",
+  KEI_Leerkrachten: "", KEI_Gesprekken: "", KEI_Opmerkingen: "", KEI_POP: "",
+  MUL_Leerkrachten: "", MUL_Gesprekken: "", MUL_Opmerkingen: "", MUL_POP: "",
+  SOL_Sollicitanten: "", SOL_Gesprekken: "", SOL_Documenten: "",
+  SOL_Referenties: "", SOL_Communicatie: "",
+  SOL_Bijlagen: "",
+};
+
+const SCHOOLS = [
+  { key: "KIE", name: "Het Kiezeltje", color: "av-teal" },
+  { key: "KEI", name: "De Kei",        color: "av-blue" },
+  { key: "MUL", name: "'t Mulderke",   color: "av-purple" },
+];
+
+const SOL_STATUSES = ["Nieuw","Uitgenodigd","Gesprek","Beslissing","Afgesloten"];
+const SOL_STATUS_COLORS = { Nieuw:"tag-blue", Uitgenodigd:"tag-amber", Gesprek:"tag-purple", Beslissing:"tag-green", Afgesloten:"tag-gray" };
+
+const COMPETENTIES = [
+  { domein:"Leren & Ontwikkelen", items:["Vakinhoudelijke kennis","Differentiatievermogen","Klasmanagement","Leerlingbegeleiding","Zelfontwikkeling"] },
+  { domein:"Samenwerken",         items:["Teamspeler","Collegialiteit","Oudercontact","Samenwerking zorgteam","Bijdrage schoolcultuur"] },
+  { domein:"Communicatie",        items:["Mondeling communiceren","Schriftelijk rapporteren","Luistervaardigheid","Feedback geven/ontvangen","Digitale communicatie"] },
+  { domein:"Persoonlijk",         items:["Flexibiliteit","Stressbestendigheid","Initiatief","Zelfstandigheid","Professionaliteit"] },
+];
+
+// ════════════════════════════════════════════════════════════════
+// MSAL & AUTH
+// ════════════════════════════════════════════════════════════════
+const msalApp = new msal.PublicClientApplication({
+  auth: { clientId: CONFIG.clientId, authority: `https://login.microsoftonline.com/${CONFIG.tenantId}`, redirectUri: CONFIG.redirectUri },
+  cache: { cacheLocation: "localStorage" }
+});
+
+let currentUser = null, token = null, userAccess = null;
+
+async function doLogin() {
+  const btn = document.getElementById('btn-auth');
+  btn.disabled = true; btn.textContent = 'Aanmelden...';
+  try {
+    const r = await msalApp.loginPopup({ scopes: ["Sites.ReadWrite.All"] });
+    token = r.accessToken;
+    currentUser = r.account;
+    await afterLogin();
+  } catch(e) {
+    document.getElementById('auth-err').textContent = e.message;
+    btn.disabled = false; btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 23 23" fill="none"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="12" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="12" width="10" height="10" fill="#00A4EF"/><rect x="12" y="12" width="10" height="10" fill="#FFB900"/></svg> Aanmelden met Microsoft 365';
+  }
+}
+
+function doLogout() {
+  msalApp.logoutPopup().then(() => location.reload());
+}
+
+async function getToken() {
+  const accounts = msalApp.getAllAccounts();
+  if (!accounts.length) return null;
+  const r = await msalApp.acquireTokenSilent({ scopes: ["Sites.ReadWrite.All"], account: accounts[0] });
+  token = r.accessToken;
+  return token;
+}
+
+async function afterLogin() {
+  await getToken();
+  // Load access rights
+  userAccess = await loadUserAccess(currentUser.username);
+  if (!userAccess) { document.getElementById('auth-err').textContent = "Geen toegang. Contacteer de systeembeheerder (Wim Cools)."; document.getElementById('btn-auth').disabled = false; return; }
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  buildSidebar();
+  showDashboard();
+}
+
+async function loadUserAccess(email) {
+  if (!LIST_IDS.BEHEER_Toegang) return { naam: currentUser.name, email, scholen: ["KIE","KEI","MUL"], niveau: "Systeembeheer", sol: true };
+  try {
+    const data = await graphGet(`/sites/${CONFIG.siteId}/lists/${LIST_IDS.BEHEER_Toegang}/items?$expand=fields&$filter=fields/Email eq '${email}' and fields/Actief eq 1`);
+    if (!data.value.length) return null;
+    const f = data.value[0].fields;
+    return {
+      naam: f.Naam, email: f.Email, rol: f.Rol,
+      scholen: [f.SchoolKIE && "KIE", f.SchoolKEI && "KEI", f.SchoolMUL && "MUL"].filter(Boolean),
+      niveau: f.Niveau, sol: true,
+    };
+  } catch { return { naam: currentUser.name, email, scholen: ["KIE","KEI","MUL"], niveau: "Directie", sol: true }; }
+}
+
+// ════════════════════════════════════════════════════════════════
+// GRAPH API
+// ════════════════════════════════════════════════════════════════
+async function graphGet(url) {
+  const r = await fetch(`https://graph.microsoft.com/v1.0${url}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function graphPost(url, body) {
+  const r = await fetch(`https://graph.microsoft.com/v1.0${url}`, { method:'POST', headers: { Authorization:`Bearer ${token}`, 'Content-Type':'application/json' }, body: JSON.stringify(body) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function graphPatch(url, body) {
+  const r = await fetch(`https://graph.microsoft.com/v1.0${url}`, { method:'PATCH', headers: { Authorization:`Bearer ${token}`, 'Content-Type':'application/json' }, body: JSON.stringify(body) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function graphDelete(url) {
+  const r = await fetch(`https://graph.microsoft.com/v1.0${url}`, { method:'DELETE', headers: { Authorization:`Bearer ${token}` } });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+async function getListItems(listId, filter = '') {
+  if (!listId) return [];
+  let url = `/sites/${CONFIG.siteId}/lists/${listId}/items?$expand=fields&$top=500`;
+  if (filter) url += `&$filter=${filter}`;
+  const data = await graphGet(url);
+  return data.value.map(i => ({ id: i.id, ...i.fields }));
+}
+async function createItem(listId, fields) {
+  return graphPost(`/sites/${CONFIG.siteId}/lists/${listId}/items`, { fields });
+}
+async function updateItem(listId, itemId, fields) {
+  return graphPatch(`/sites/${CONFIG.siteId}/lists/${listId}/items/${itemId}/fields`, fields);
+}
+async function deleteItem(listId, itemId) {
+  return graphDelete(`/sites/${CONFIG.siteId}/lists/${listId}/items/${itemId}`);
+}
+
+// File upload
+async function uploadFile(sollicitantId, sollicitantNaam, file) {
+  const safeName = sollicitantNaam.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const folder = `${safeName}_${sollicitantId}`;
+  const driveId = LIST_IDS.SOL_Bijlagen;
+  // Create folder if not exists
+  try { await graphPost(`/sites/${CONFIG.siteId}/drive/root:/${folder}:/children`, { name: folder, folder: {}, '@microsoft.graph.conflictBehavior': 'fail' }); } catch {}
+  // Upload file
+  const arrayBuf = await file.arrayBuffer();
+  const r = await fetch(`https://graph.microsoft.com/v1.0/sites/${CONFIG.siteId}/drive/root:/${folder}/${file.name}:/content`, {
+    method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': file.type || 'application/octet-stream' }, body: arrayBuf
+  });
+  if (!r.ok) throw new Error('Upload mislukt');
+  return r.json();
+}
+
+// ════════════════════════════════════════════════════════════════
+// UI HELPERS
+// ════════════════════════════════════════════════════════════════
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function initials(name) {
+  return (name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('nl-BE', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function today() { return new Date().toISOString().slice(0,10); }
+
+function avatarColor(name) {
+  const colors = ['av-teal','av-blue','av-purple','av-amber'];
+  return colors[(name||'').charCodeAt(0) % colors.length];
+}
+
+function render(html) {
+  document.getElementById('main-area').innerHTML = html;
+}
+
+function showLoader() {
+  document.getElementById('main-area').innerHTML = '<div class="loader"><div class="spin"></div></div>';
+}
+
+// ════════════════════════════════════════════════════════════════
+// SIDEBAR
+// ════════════════════════════════════════════════════════════════
+let activeNav = 'dashboard';
+
+function buildSidebar() {
+  const av = document.getElementById('sb-av');
+  const nm = document.getElementById('sb-name');
+  const rl = document.getElementById('sb-role');
+  if (userAccess) {
+    av.textContent = initials(userAccess.naam);
+    nm.textContent = userAccess.naam;
+    rl.textContent = userAccess.rol || userAccess.niveau;
+  }
+
+  const schoolColors = { KIE:'#1D9E75', KEI:'#3B82F6', MUL:'#8B5CF6' };
+
+  let html = `
+    <div class="sb-section">Navigatie</div>
+    <div class="sb-item ${activeNav==='dashboard'?'active':''}" onclick="showDashboard()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </div>
+    <div class="sb-section">Leerkrachten</div>`;
+
+  for (const s of SCHOOLS) {
+    if (!userAccess || userAccess.scholen.includes(s.key)) {
+      html += `<div class="sb-item ${activeNav===s.key?'active':''}" onclick="showSchool('${s.key}')">
+        <div class="sb-school-dot" style="background:${schoolColors[s.key]}"></div>
+        ${s.name}
+      </div>`;
+    }
+  }
+
+  html += `
+    <div class="sb-section">Sollicitanten</div>
+    <div class="sb-item ${activeNav==='sol'?'active':''}" onclick="showSollicitanten()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Alle sollicitanten
+    </div>`;
+
+  document.getElementById('sb-nav').innerHTML = html;
+}
+
+function setActive(key) {
+  activeNav = key;
+  buildSidebar();
+}
+
+// ════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════════════════════════
+async function showDashboard() {
+  setActive('dashboard');
+  showLoader();
+  try {
+    // Count leerkrachten per school
+    const counts = {};
+    for (const s of SCHOOLS) {
+      if (userAccess?.scholen.includes(s.key) && LIST_IDS[`${s.key}_Leerkrachten`]) {
+        const items = await getListItems(LIST_IDS[`${s.key}_Leerkrachten`], "fields/Actief eq 1");
+        counts[s.key] = items.length;
+      } else counts[s.key] = 0;
+    }
+    const solItems = LIST_IDS.SOL_Sollicitanten ? await getListItems(LIST_IDS.SOL_Sollicitanten) : [];
+    const solNieuw = solItems.filter(s => s.Status === 'Nieuw').length;
+    const solGesprek = solItems.filter(s => s.Status === 'Gesprek').length;
+
+    render(`
+      <div class="page-header">
+        <div>
+          <h1>Dashboard</h1>
+          <div class="page-sub">Scholengemeenschap Kapelle-op-den-Bos BaO</div>
+        </div>
+      </div>
+      <div class="page-content">
+        <div class="stats-grid">
+          ${SCHOOLS.filter(s => userAccess?.scholen.includes(s.key)).map(s => `
+            <div class="stat-card" style="cursor:pointer" onclick="showSchool('${s.key}')">
+              <div class="stat-icon">🏫</div>
+              <div class="stat-val">${counts[s.key]}</div>
+              <div class="stat-lbl">${s.name}</div>
+            </div>`).join('')}
+          <div class="stat-card" style="cursor:pointer" onclick="showSollicitanten()">
+            <div class="stat-icon">📋</div>
+            <div class="stat-val">${solItems.length}</div>
+            <div class="stat-lbl">Sollicitanten totaal</div>
+          </div>
+        </div>
+        ${solNieuw > 0 ? `<div style="background:var(--blue-bg);border:1px solid #BFDBFE;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#1E40AF">
+          <strong>${solNieuw} nieuwe sollicitatie${solNieuw>1?'s':''}</strong> wacht${solNieuw===1?'':'en'} op verwerking.
+          <span style="cursor:pointer;text-decoration:underline;margin-left:8px" onclick="showSollicitanten()">Bekijken →</span>
+        </div>` : ''}
+        ${solGesprek > 0 ? `<div style="background:var(--amber-bg);border:1px solid #FCD34D;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#B45309">
+          <strong>${solGesprek} sollicitant${solGesprek>1?'en':''}</strong> in gespreksfase.
+          <span style="cursor:pointer;text-decoration:underline;margin-left:8px" onclick="showSollicitanten('Gesprek')">Bekijken →</span>
+        </div>` : ''}
+        <div class="card">
+          <div class="card-title" style="margin-bottom:10px">Scholen</div>
+          ${SCHOOLS.filter(s => userAccess?.scholen.includes(s.key)).map(s => `
+            <div class="person-card" onclick="showSchool('${s.key}')">
+              <div class="person-avatar av-teal" style="font-size:16px">🏫</div>
+              <div class="person-info">
+                <div class="person-name">${s.name}</div>
+                <div class="person-meta">${counts[s.key]} leerkracht${counts[s.key]!==1?'en':''} · Sleutel: ${s.key}</div>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>`).join('')}
+        </div>
+      </div>`);
+  } catch(e) { render(`<div class="page-content"><div class="empty">Fout bij laden: ${e.message}</div></div>`); }
+}
+
+// ════════════════════════════════════════════════════════════════
+// LEERKRACHTEN MODULE
+// ════════════════════════════════════════════════════════════════
+let currentSchool = null, currentLeerkracht = null, currentLeerkrachtTab = 'functiebeschrijving';
+
+async function showSchool(schoolKey) {
+  setActive(schoolKey);
+  currentSchool = SCHOOLS.find(s => s.key === schoolKey);
+  showLoader();
+  try {
+    const leerkrachten = await getListItems(LIST_IDS[`${schoolKey}_Leerkrachten`], "fields/Actief eq 1");
+    renderLeerkrachtenList(leerkrachten);
+  } catch(e) { render(`<div class="page-content"><div class="empty">Fout: ${e.message}</div></div>`); }
+}
+
+function renderLeerkrachtenList(items) {
+  const school = currentSchool;
+  render(`
+    <div class="page-header">
+      <div>
+        <h1>${school.name}</h1>
+        <div class="page-sub">${items.length} leerkracht${items.length!==1?'en':''}</div>
+      </div>
+      <button class="btn btn-primary" onclick="showAddLeerkracht()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Leerkracht toevoegen
+      </button>
+    </div>
+    <div class="page-content">
+      ${items.length === 0 ? `<div class="empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>Nog geen leerkrachten toegevoegd.</p></div>` :
+      items.map(l => `
+        <div class="person-card" onclick="showLeerkracht('${l.id}')">
+          <div class="person-avatar ${avatarColor(l.Naam)}">${initials((l.Voornaam||'') + ' ' + (l.Naam||''))}</div>
+          <div class="person-info">
+            <div class="person-name">${l.Voornaam || ''} ${l.Naam || ''}</div>
+            <div class="person-meta">${l.Functie || ''} · ${l.Opdracht || ''}</div>
+          </div>
+          <div class="person-tags">
+            ${l.Functiebeschrijving ? `<span class="tag tag-teal">Functiebeschrijving</span>` : ''}
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>`).join('')}
+    </div>`);
+}
+
+async function showLeerkracht(id, tab = 'functiebeschrijving') {
+  showLoader();
+  currentLeerkrachtTab = tab;
+  try {
+    const [l, gesprekken, opmerkingen, popItems] = await Promise.all([
+      getListItems(LIST_IDS[`${currentSchool.key}_Leerkrachten`]).then(items => items.find(i => i.id === id)),
+      getListItems(LIST_IDS[`${currentSchool.key}_Gesprekken`], `fields/LeerkrachtId eq '${id}'`),
+      getListItems(LIST_IDS[`${currentSchool.key}_Opmerkingen`], `fields/LeerkrachtId eq '${id}'`),
+      getListItems(LIST_IDS[`${currentSchool.key}_POP`], `fields/LeerkrachtId eq '${id}'`),
+    ]);
+    currentLeerkracht = l;
+    renderLeerkrachtDetail(l, gesprekken, opmerkingen, popItems);
+  } catch(e) { render(`<div class="page-content"><div class="empty">Fout: ${e.message}</div></div>`); }
+}
+
+function renderLeerkrachtDetail(l, gesprekken, opmerkingen, popItems) {
+  const name = `${l.Voornaam||''} ${l.Naam||''}`.trim();
+  const popActief = popItems.some(p => p.POPActief);
+  const popDoelen = popItems.filter(p => p.Doel);
+
+  const tabs = ['functiebeschrijving','gesprekken','opmerkingen','pop'];
+  const tabLabels = { functiebeschrijving:'Functiebeschrijving', gesprekken:`Gesprekken (${gesprekken.length})`, opmerkingen:`Opmerkingen (${opmerkingen.length})`, pop:`POP${popActief?' ✓':''}` };
+
+  render(`
+    <div class="page-header">
+      <button class="btn btn-sm" onclick="showSchool('${currentSchool.key}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        ${currentSchool.name}
+      </button>
+      <div style="display:flex;align-items:center;gap:10px;flex:1;margin-left:8px">
+        <div class="person-avatar ${avatarColor(l.Naam)}" style="width:36px;height:36px">${initials(name)}</div>
+        <div>
+          <h1 style="font-size:16px">${name}</h1>
+          <div class="page-sub">${l.Functie||''} · ${l.Opdracht||''}</div>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      ${tabs.map(t => `<div class="tab ${currentLeerkrachtTab===t?'active':''}" onclick="showLeerkracht('${l.id}','${t}')">${tabLabels[t]}</div>`).join('')}
+    </div>
+    <div class="page-content" id="tab-content">
+      ${currentLeerkrachtTab === 'functiebeschrijving' ? renderFunctiebeschrijving(l) :
+        currentLeerkrachtTab === 'gesprekken' ? renderGesprekken(l, gesprekken) :
+        currentLeerkrachtTab === 'opmerkingen' ? renderOpmerkingen(l, opmerkingen) :
+        renderPOP(l, popDoelen, popActief)}
+    </div>`);
+}
+
+function renderFunctiebeschrijving(l) {
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Functiebeschrijving</div><div class="card-sub">${l.Functie||''} · ${l.Opdracht||''}</div></div>
+        <button class="btn btn-sm" onclick="showEditFunctie()">✏️ Bewerken</button>
+      </div>
+      <p style="font-size:13px;line-height:1.7;color:${l.Functiebeschrijving?'inherit':'var(--gray-400)'}">${l.Functiebeschrijving || 'Nog geen functiebeschrijving. Klik op Bewerken.'}</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Basisgegevens</div>
+      <div class="form-grid">
+        ${[['Naam',l.Naam],['Voornaam',l.Voornaam],['Functie',l.Functie],['Opdracht',l.Opdracht],['E-mail',l.Email]].map(([k,v])=>`
+          <div class="fg"><label>${k}</label><input value="${v||''}" readonly style="background:var(--gray-50)"></div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function showEditFunctie() {
+  const l = currentLeerkracht;
+  showModal(`
+    <div class="modal-title">Functiebeschrijving bewerken</div>
+    <div class="fg"><label>Functiebeschrijving</label>
+      <textarea id="m-functie" rows="8" style="min-height:160px">${l.Functiebeschrijving||''}</textarea></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveFunctie('${l.id}')">Opslaan</button>
+    </div>`);
+}
+
+async function saveFunctie(id) {
+  const val = document.getElementById('m-functie').value;
+  try {
+    await updateItem(LIST_IDS[`${currentSchool.key}_Leerkrachten`], id, { Functiebeschrijving: val });
+    toast('Functiebeschrijving opgeslagen');
+    closeModal();
+    showLeerkracht(id, 'functiebeschrijving');
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+function renderGesprekken(l, items) {
+  const sorted = [...items].sort((a,b) => new Date(b.Datum) - new Date(a.Datum));
+  return `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="btn btn-primary" onclick="showAddGesprek('${l.id}')">+ Gesprek toevoegen</button>
+    </div>
+    ${sorted.length === 0 ? `<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>Nog geen gesprekken.</p></div>` :
+    sorted.map(g => `
+      <div class="entry">
+        <div class="entry-header">
+          <div>
+            <div style="font-weight:600;font-size:13px">${g.Type||''}</div>
+            <div class="entry-date">${fmtDate(g.Datum)}</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <span class="tag ${g.Type==='Functioneringsgesprek'?'tag-green':g.Type==='Evaluatiegesprek'?'tag-amber':'tag-blue'}">${g.Type||''}</span>
+            <button class="btn btn-sm btn-danger" onclick="deleteGesprek('${g.id}','${l.id}')">✕</button>
+          </div>
+        </div>
+        <div class="entry-body">${g.Nota||''}</div>
+        ${g.Doelen ? `<div style="margin-top:8px;padding:8px 10px;background:var(--gray-50);border-radius:6px;font-size:12px;color:var(--gray-600)">🎯 ${g.Doelen}</div>` : ''}
+      </div>`).join('')}`;
+}
+
+function showAddGesprek(leerkrachtId) {
+  showModal(`
+    <div class="modal-title">Gesprek toevoegen</div>
+    <div class="form-grid">
+      <div class="fg"><label>Datum</label><input type="date" id="m-datum" value="${today()}"></div>
+      <div class="fg"><label>Type</label>
+        <select id="m-type">
+          <option>Functioneringsgesprek</option><option>Evaluatiegesprek</option>
+          <option>Planningsgesprek</option><option>Informeel gesprek</option>
+        </select>
+      </div>
+      <div class="fg fg-full"><label>Verslag / nota</label><textarea id="m-nota" rows="5" placeholder="Beschrijf het gesprek..."></textarea></div>
+      <div class="fg fg-full"><label>Afspraken / doelen</label><textarea id="m-doelen" rows="3" placeholder="Concrete afspraken..."></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveGesprek('${leerkrachtId}')">Opslaan</button>
+    </div>`);
+}
+
+async function saveGesprek(leerkrachtId) {
+  const l = currentLeerkracht;
+  try {
+    await createItem(LIST_IDS[`${currentSchool.key}_Gesprekken`], {
+      LeerkrachtId: leerkrachtId, LeerkrachtNaam: `${l.Voornaam} ${l.Naam}`,
+      Datum: document.getElementById('m-datum').value,
+      Type: document.getElementById('m-type').value,
+      Nota: document.getElementById('m-nota').value,
+      Doelen: document.getElementById('m-doelen').value,
+      School: currentSchool.key, IngevoerdDoor: userAccess?.email,
+    });
+    toast('Gesprek opgeslagen');
+    closeModal();
+    showLeerkracht(leerkrachtId, 'gesprekken');
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+async function deleteGesprek(itemId, leerkrachtId) {
+  if (!confirm('Gesprek verwijderen?')) return;
+  try { await deleteItem(LIST_IDS[`${currentSchool.key}_Gesprekken`], itemId); toast('Verwijderd'); showLeerkracht(leerkrachtId, 'gesprekken'); }
+  catch(e) { toast('Fout: ' + e.message); }
+}
+
+function renderOpmerkingen(l, items) {
+  const sorted = [...items].sort((a,b) => new Date(b.Modified||0) - new Date(a.Modified||0));
+  return `
+    <div class="card">
+      <div class="card-title" style="margin-bottom:10px">Opmerking toevoegen</div>
+      <textarea id="new-opmerking" class="fg" style="width:100%;padding:8px 10px;border:1px solid var(--gray-200);border-radius:7px;font-size:13px;font-family:inherit;resize:vertical;min-height:80px" placeholder="Schrijf een korte opmerking..."></textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px">
+        <button class="btn btn-primary" onclick="saveOpmerking('${l.id}')">+ Toevoegen</button>
+      </div>
+    </div>
+    ${sorted.length === 0 ? `<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg><p>Nog geen opmerkingen.</p></div>` :
+    sorted.map(o => `
+      <div class="entry">
+        <div class="entry-header">
+          <div class="entry-date">${fmtDate(o.Modified)}</div>
+          <button class="btn btn-sm btn-danger" onclick="deleteOpmerking('${o.id}','${l.id}')">✕</button>
+        </div>
+        <div class="entry-body">${o.Tekst||''}</div>
+      </div>`).join('')}`;
+}
+
+async function saveOpmerking(leerkrachtId) {
+  const l = currentLeerkracht;
+  const tekst = document.getElementById('new-opmerking').value.trim();
+  if (!tekst) return;
+  try {
+    await createItem(LIST_IDS[`${currentSchool.key}_Opmerkingen`], {
+      LeerkrachtId: leerkrachtId, LeerkrachtNaam: `${l.Voornaam} ${l.Naam}`,
+      Tekst: tekst, School: currentSchool.key, IngevoerdDoor: userAccess?.email,
+    });
+    toast('Opmerking opgeslagen');
+    showLeerkracht(leerkrachtId, 'opmerkingen');
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+async function deleteOpmerking(itemId, leerkrachtId) {
+  if (!confirm('Opmerking verwijderen?')) return;
+  try { await deleteItem(LIST_IDS[`${currentSchool.key}_Opmerkingen`], itemId); toast('Verwijderd'); showLeerkracht(leerkrachtId, 'opmerkingen'); }
+  catch(e) { toast('Fout: ' + e.message); }
+}
+
+function renderPOP(l, doelen, actief) {
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Persoonlijk Ontwikkelingsplan</div>
+          ${actief ? `<div class="card-sub">Actief schooljaar</div>` : ''}
+        </div>
+        <button class="btn btn-sm ${actief?'btn-danger':'btn-primary'}" onclick="togglePOP('${l.id}',${actief})">
+          ${actief ? '⏹ Deactiveren' : '▶ POP activeren'}
+        </button>
+      </div>
+      ${!actief ? `<p style="color:var(--gray-400);font-size:13px">Nog geen actief POP. Klik op "POP activeren" om te starten.</p>` :
+      `<button class="btn btn-primary btn-sm" style="margin-bottom:12px" onclick="showAddPOPDoel('${l.id}')">+ Doel toevoegen</button>
+      ${doelen.length === 0 ? '<p style="color:var(--gray-400);font-size:13px">Nog geen doelen toegevoegd.</p>' :
+      doelen.map(d => `
+        <div style="background:var(--gray-50);border-radius:8px;padding:12px;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="color:var(--teal)">🎯</span>
+            <strong style="font-size:13px;flex:1">${d.Doel||''}</strong>
+            <button class="btn btn-sm btn-danger" onclick="deletePOPDoel('${d.id}','${l.id}')">✕</button>
+          </div>
+          ${d.Actie ? `<p style="font-size:12px;color:var(--gray-500);margin-bottom:6px">→ ${d.Actie}</p>` : ''}
+          ${d.Deadline ? `<p style="font-size:11px;color:var(--gray-400);margin-bottom:6px">📅 ${fmtDate(d.Deadline)}</p>` : ''}
+          <div style="display:flex;align-items:center;gap:10px">
+            <input type="range" min="0" max="100" step="5" value="${d.Voortgang||0}"
+              onchange="updateVoortgang('${d.id}','${l.id}',this.value)"
+              style="flex:1">
+            <span style="font-size:12px;font-weight:600;min-width:36px;text-align:right">${d.Voortgang||0}%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${d.Voortgang||0}%"></div></div>
+        </div>`).join('')}`}
+      `}
+    </div>`;
+}
+
+async function togglePOP(leerkrachtId, currentState) {
+  try {
+    const items = await getListItems(LIST_IDS[`${currentSchool.key}_POP`], `fields/LeerkrachtId eq '${leerkrachtId}' and fields/POPActief eq 1`);
+    if (currentState) {
+      for (const i of items) await updateItem(LIST_IDS[`${currentSchool.key}_POP`], i.id, { POPActief: false });
+    } else {
+      await createItem(LIST_IDS[`${currentSchool.key}_POP`], { LeerkrachtId: leerkrachtId, LeerkrachtNaam: `${currentLeerkracht.Voornaam} ${currentLeerkracht.Naam}`, POPActief: true, POPPeriode: `${new Date().getFullYear()}-${new Date().getFullYear()+1}`, School: currentSchool.key });
+    }
+    toast('POP bijgewerkt');
+    showLeerkracht(leerkrachtId, 'pop');
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+function showAddPOPDoel(leerkrachtId) {
+  showModal(`
+    <div class="modal-title">POP-doel toevoegen</div>
+    <div class="fg" style="margin-bottom:12px"><label>Ontwikkelingsdoel</label><input id="m-doel" placeholder="bv. Formatief evalueren"></div>
+    <div class="fg" style="margin-bottom:12px"><label>Concrete acties</label><textarea id="m-actie" rows="3"></textarea></div>
+    <div class="form-grid">
+      <div class="fg"><label>Deadline</label><input type="date" id="m-deadline"></div>
+      <div class="fg"><label>Startvoortgang (%)</label><input type="number" id="m-voortgang" value="0" min="0" max="100"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="savePOPDoel('${leerkrachtId}')">Toevoegen</button>
+    </div>`);
+}
+
+async function savePOPDoel(leerkrachtId) {
+  const l = currentLeerkracht;
+  try {
+    await createItem(LIST_IDS[`${currentSchool.key}_POP`], {
+      LeerkrachtId: leerkrachtId, LeerkrachtNaam: `${l.Voornaam} ${l.Naam}`,
+      POPActief: true, Doel: document.getElementById('m-doel').value,
+      Actie: document.getElementById('m-actie').value,
+      Deadline: document.getElementById('m-deadline').value || null,
+      Voortgang: parseInt(document.getElementById('m-voortgang').value)||0,
+      School: currentSchool.key,
+    });
+    toast('Doel toegevoegd');
+    closeModal();
+    showLeerkracht(leerkrachtId, 'pop');
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+async function updateVoortgang(itemId, leerkrachtId, val) {
+  try { await updateItem(LIST_IDS[`${currentSchool.key}_POP`], itemId, { Voortgang: parseInt(val) }); }
+  catch(e) { toast('Fout bij opslaan: ' + e.message); }
+}
+
+async function deletePOPDoel(itemId, leerkrachtId) {
+  if (!confirm('Doel verwijderen?')) return;
+  try { await deleteItem(LIST_IDS[`${currentSchool.key}_POP`], itemId); toast('Doel verwijderd'); showLeerkracht(leerkrachtId, 'pop'); }
+  catch(e) { toast('Fout: ' + e.message); }
+}
+
+function showAddLeerkracht() {
+  showModal(`
+    <div class="modal-title">Leerkracht toevoegen — ${currentSchool.name}</div>
+    <div class="form-grid">
+      <div class="fg"><label>Voornaam</label><input id="m-vnaam" placeholder="Voornaam"></div>
+      <div class="fg"><label>Naam</label><input id="m-naam" placeholder="Achternaam"></div>
+      <div class="fg"><label>Functie</label>
+        <select id="m-functie-sel">
+          <option>Leraar lager onderwijs</option><option>Leraar kleuter</option>
+          <option>Zorgleerkracht</option><option>ICT-coördinator</option><option>Andere</option>
+        </select>
+      </div>
+      <div class="fg"><label>Opdracht</label>
+        <select id="m-opdracht"><option>100%</option><option>80%</option><option>60%</option><option>50%</option><option>40%</option><option>20%</option></select>
+      </div>
+      <div class="fg fg-full"><label>E-mail</label><input id="m-email" type="email" placeholder="naam@gebaska.be"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveLeerkracht()">Toevoegen</button>
+    </div>`);
+}
+
+async function saveLeerkracht() {
+  try {
+    await createItem(LIST_IDS[`${currentSchool.key}_Leerkrachten`], {
+      Naam: document.getElementById('m-naam').value,
+      Voornaam: document.getElementById('m-vnaam').value,
+      Functie: document.getElementById('m-functie-sel').value,
+      Opdracht: document.getElementById('m-opdracht').value,
+      Email: document.getElementById('m-email').value,
+      School: currentSchool.key, Actief: true,
+    });
+    toast('Leerkracht toegevoegd');
+    closeModal();
+    showSchool(currentSchool.key);
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════════════════════
+// SOLLICITANTEN MODULE
+// ════════════════════════════════════════════════════════════════
+let currentSollicitant = null, currentSolTab = 'basisgegevens', solFilter = '';
+
+async function showSollicitanten(filterStatus = '') {
+  setActive('sol');
+  solFilter = filterStatus;
+  showLoader();
+  try {
+    let items = await getListItems(LIST_IDS.SOL_Sollicitanten);
+    if (filterStatus) items = items.filter(s => s.Status === filterStatus);
+    items.sort((a,b) => new Date(b.DatumOntvangst||0) - new Date(a.DatumOntvangst||0));
+    renderSollicitantenList(items);
+  } catch(e) { render(`<div class="page-content"><div class="empty">Fout: ${e.message}</div></div>`); }
+}
+
+function renderSollicitantenList(items) {
+  render(`
+    <div class="page-header">
+      <div><h1>Sollicitanten</h1><div class="page-sub">${items.length} dossier${items.length!==1?'s':''}</div></div>
+      <button class="btn btn-primary" onclick="showAddSollicitant()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nieuw dossier
+      </button>
+    </div>
+    <div style="padding:12px 24px;background:white;border-bottom:1px solid var(--gray-200);display:flex;gap:8px;flex-wrap:wrap">
+      ${['','Nieuw','Uitgenodigd','Gesprek','Beslissing','Afgesloten'].map(s => `
+        <button class="btn btn-sm ${solFilter===s?'btn-primary':''}" onclick="showSollicitanten('${s}')">${s||'Alle'}</button>`).join('')}
+    </div>
+    <div class="page-content">
+      ${items.length === 0 ? `<div class="empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p>Geen sollicitanten${solFilter?' met status '+solFilter:''}.</p></div>` :
+      items.map(s => `
+        <div class="person-card" onclick="showSollicitant('${s.id}')">
+          <div class="person-avatar ${avatarColor(s.Naam)}">${initials((s.Voornaam||'')+' '+(s.Naam||''))}</div>
+          <div class="person-info">
+            <div class="person-name">${s.Voornaam||''} ${s.Naam||''}</div>
+            <div class="person-meta">${s.Functie||'—'} · ${fmtDate(s.DatumOntvangst)}</div>
+          </div>
+          <div class="person-tags">
+            <span class="tag ${SOL_STATUS_COLORS[s.Status]||'tag-gray'}">${s.Status||'—'}</span>
+            ${s.Beslissing && s.Beslissing!=='—' ? `<span class="tag ${s.Beslissing==='Aangenomen'?'tag-green':s.Beslissing==='Reserve'?'tag-amber':'tag-red'}">${s.Beslissing}</span>` : ''}
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>`).join('')}
+    </div>`);
+}
+
+async function showSollicitant(id, tab = 'basisgegevens') {
+  showLoader();
+  currentSolTab = tab;
+  try {
+    const [s, gesprekken, docs, refs, comm] = await Promise.all([
+      getListItems(LIST_IDS.SOL_Sollicitanten).then(items => items.find(i => i.id === id)),
+      getListItems(LIST_IDS.SOL_Gesprekken, `fields/SollicitantId eq '${id}'`),
+      getListItems(LIST_IDS.SOL_Documenten, `fields/SollicitantId eq '${id}'`),
+      getListItems(LIST_IDS.SOL_Referenties, `fields/SollicitantId eq '${id}'`),
+      getListItems(LIST_IDS.SOL_Communicatie, `fields/SollicitantId eq '${id}'`),
+    ]);
+    currentSollicitant = s;
+    renderSollicitantDetail(s, gesprekken, docs, refs, comm);
+  } catch(e) { render(`<div class="page-content"><div class="empty">Fout: ${e.message}</div></div>`); }
+}
+
+function renderSollicitantDetail(s, gesprekken, docs, refs, comm) {
+  const name = `${s.Voornaam||''} ${s.Naam||''}`.trim();
+  const tabs = [['basisgegevens','Dossier'],['gesprekken',`Gesprekken (${gesprekken.length})`],['documenten',`Documenten (${docs.length})`],['referenties',`Referenties (${refs.length})`],['communicatie',`Communicatie (${comm.length})`]];
+
+  render(`
+    <div class="page-header">
+      <button class="btn btn-sm" onclick="showSollicitanten()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Sollicitanten
+      </button>
+      <div style="display:flex;align-items:center;gap:10px;flex:1;margin-left:8px">
+        <div class="person-avatar ${avatarColor(s.Naam)}" style="width:36px;height:36px">${initials(name)}</div>
+        <div>
+          <h1 style="font-size:16px">${name}</h1>
+          <div class="page-sub">${s.Functie||'—'} · ${fmtDate(s.DatumOntvangst)}</div>
+        </div>
+      </div>
+      <span class="tag ${SOL_STATUS_COLORS[s.Status]||'tag-gray'}" style="font-size:12px">${s.Status||'—'}</span>
+    </div>
+    <div style="padding:8px 24px;background:white;border-bottom:1px solid var(--gray-200)">
+      <div class="status-flow">
+        ${SOL_STATUSES.map(st => {
+          const idx = SOL_STATUSES.indexOf(st);
+          const curIdx = SOL_STATUSES.indexOf(s.Status);
+          let cls = idx < curIdx ? 'done' : idx === curIdx ? 'active' : '';
+          if (st === 'Beslissing' && s.Beslissing && s.Beslissing !== '—') {
+            cls = s.Beslissing === 'Aangenomen' ? 'decision-ok' : s.Beslissing === 'Reserve' ? 'decision-reserve' : 'decision-nok';
+          }
+          return `<div class="sf-step ${cls}" onclick="setStatus('${s.id}','${st}')">${st}${s.Beslissing && st==='Beslissing' && s.Beslissing!=='—' ? ': '+s.Beslissing : ''}</div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="tabs">
+      ${tabs.map(([t,l]) => `<div class="tab ${currentSolTab===t?'active':''}" onclick="showSollicitant('${s.id}','${t}')">${l}</div>`).join('')}
+    </div>
+    <div class="page-content">
+      ${currentSolTab === 'basisgegevens' ? renderSolBasis(s) :
+        currentSolTab === 'gesprekken' ? renderSolGesprekken(s, gesprekken) :
+        currentSolTab === 'documenten' ? renderSolDocumenten(s, docs) :
+        currentSolTab === 'referenties' ? renderSolReferenties(s, refs) :
+        renderSolCommunicatie(s, comm)}
+    </div>`);
+}
+
+async function setStatus(id, status) {
+  const fields = { Status: status };
+  if (status === 'Beslissing') {
+    const beslissing = prompt('Beslissing (Aangenomen / Reserve / Afgewezen):');
+    if (beslissing) fields.Beslissing = beslissing;
+  }
+  try {
+    await updateItem(LIST_IDS.SOL_Sollicitanten, id, fields);
+    toast('Status bijgewerkt');
+    showSollicitant(id, currentSolTab);
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+function renderSolBasis(s) {
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Basisgegevens</div>
+        <button class="btn btn-sm" onclick="showEditSollicitant('${s.id}')">✏️ Bewerken</button>
+      </div>
+      <div class="form-grid">
+        ${[['Naam',s.Naam],['Voornaam',s.Voornaam],['E-mail',s.Email],['Telefoon',s.Telefoon],['Functie waarvoor gesolliciteerd',s.Functie],['School van voorkeur',s.SchoolVoorkeur||'—']].map(([k,v])=>`
+          <div class="fg"><label>${k}</label><input value="${v||''}" readonly style="background:var(--gray-50)"></div>`).join('')}
+        <div class="fg fg-full"><label>Opmerkingen</label>
+          <textarea rows="3" style="padding:8px 10px;border:1px solid var(--gray-200);border-radius:7px;font-family:inherit;font-size:13px;resize:vertical;width:100%;background:var(--gray-50)" readonly>${s.Opmerkingen||''}</textarea>
+        </div>
+      </div>
+    </div>`;
+}
+
+function showEditSollicitant(id) {
+  const s = currentSollicitant;
+  showModal(`
+    <div class="modal-title">Dossier bewerken</div>
+    <div class="form-grid">
+      <div class="fg"><label>Voornaam</label><input id="m-svnaam" value="${s.Voornaam||''}"></div>
+      <div class="fg"><label>Naam</label><input id="m-snaam" value="${s.Naam||''}"></div>
+      <div class="fg"><label>E-mail</label><input id="m-semail" value="${s.Email||''}"></div>
+      <div class="fg"><label>Telefoon</label><input id="m-stel" value="${s.Telefoon||''}"></div>
+      <div class="fg fg-full"><label>Functie waarvoor gesolliciteerd</label><input id="m-sfunctie" value="${s.Functie||''}"></div>
+      <div class="fg fg-full"><label>School van voorkeur</label>
+        <select id="m-sschool">
+          <option value="">— geen voorkeur —</option>
+          ${SCHOOLS.map(sch => `<option value="${sch.name}" ${s.SchoolVoorkeur===sch.name?'selected':''}>${sch.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg fg-full"><label>Opmerkingen</label><textarea id="m-sopm" rows="3">${s.Opmerkingen||''}</textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveSollicitantEdit('${id}')">Opslaan</button>
+    </div>`);
+}
+
+async function saveSollicitantEdit(id) {
+  try {
+    await updateItem(LIST_IDS.SOL_Sollicitanten, id, {
+      Voornaam: document.getElementById('m-svnaam').value,
+      Naam: document.getElementById('m-snaam').value,
+      Email: document.getElementById('m-semail').value,
+      Telefoon: document.getElementById('m-stel').value,
+      Functie: document.getElementById('m-sfunctie').value,
+      SchoolVoorkeur: document.getElementById('m-sschool').value,
+      Opmerkingen: document.getElementById('m-sopm').value,
+    });
+    toast('Dossier bijgewerkt');
+    closeModal();
+    showSollicitant(id, 'basisgegevens');
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+function renderSolGesprekken(s, items) {
+  const sorted = [...items].sort((a,b) => new Date(b.Datum)-new Date(a.Datum));
+  return `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="btn btn-primary" onclick="showAddSolGesprek('${s.id}')">+ Gesprek toevoegen</button>
+    </div>
+    ${sorted.length === 0 ? `<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>Nog geen gesprekken.</p></div>` :
+    sorted.map(g => {
+      let comps = {};
+      try { comps = JSON.parse(g.Competenties||'{}'); } catch {}
+      return `
+        <div class="entry">
+          <div class="entry-header">
+            <div><div style="font-weight:600;font-size:13px">${g.Type||''}</div><div class="entry-date">${fmtDate(g.Datum)} · ${g.Aanwezigen||''}</div></div>
+            <div style="display:flex;gap:6px">
+              ${g.Eindadvies && g.Eindadvies!=='—' ? `<span class="tag ${g.Eindadvies.includes('ositief')?'tag-green':g.Eindadvies.includes('egatief')?'tag-red':'tag-amber'}">${g.Eindadvies}</span>` : ''}
+              <button class="btn btn-sm btn-danger" onclick="deleteSolGesprek('${g.id}','${s.id}')">✕</button>
+            </div>
+          </div>
+          <div class="entry-body">${g.AlgemeenVerslag||''}</div>
+          ${Object.keys(comps).length > 0 ? `
+            <div class="divider"></div>
+            <div style="font-size:11px;font-weight:600;color:var(--gray-400);margin-bottom:6px">COMPETENTIES</div>
+            <div class="comp-grid">
+              ${Object.entries(comps).map(([k,v]) => `
+                <div class="comp-item">
+                  <span class="comp-name">${k}</span>
+                  <div class="comp-stars">${[1,2,3,4,5].map(n=>`<div class="star ${n<=v?'filled':''}">★</div>`).join('')}</div>
+                </div>`).join('')}
+            </div>` : ''}
+        </div>`;}).join('')}`;
+}
+
+function showAddSolGesprek(solId) {
+  const compHtml = COMPETENTIES.map(dom => `
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;font-weight:600;color:var(--gray-400);margin-bottom:6px">${dom.domein.toUpperCase()}</div>
+      ${dom.items.map(item => `
+        <div class="comp-item" style="margin-bottom:4px">
+          <span class="comp-name" style="font-size:12px">${item}</span>
+          <div class="comp-stars" id="stars-${item.replace(/[^a-z]/gi,'_')}">
+            ${[1,2,3,4,5].map(n=>`<div class="star" data-comp="${item}" data-val="${n}" onclick="setStar(this)">${n}</div>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+
+  showModal(`
+    <div class="modal-title">Gesprek toevoegen</div>
+    <div class="form-grid">
+      <div class="fg"><label>Datum</label><input type="date" id="m-sgdat" value="${today()}"></div>
+      <div class="fg"><label>Type</label>
+        <select id="m-sgtype">
+          <option>Eerste gesprek</option><option>Vervolggesprek</option><option>Proefles</option><option>Telefonisch gesprek</option>
+        </select>
+      </div>
+      <div class="fg fg-full"><label>Aanwezigen</label><input id="m-sgaanw" placeholder="Naam directie(s)"></div>
+      <div class="fg fg-full"><label>Algemeen verslag</label><textarea id="m-sgverslag" rows="4"></textarea></div>
+    </div>
+    <div style="margin-top:12px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px">Competentiebeoordeling (optioneel)</div>
+      ${compHtml}
+    </div>
+    <div class="fg" style="margin-top:12px"><label>Eindadvies</label>
+      <select id="m-sgadvies"><option>—</option><option>Positief</option><option>Eerder positief</option><option>Eerder negatief</option><option>Negatief</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveSolGesprek('${solId}')">Opslaan</button>
+    </div>`);
+}
+
+let starValues = {};
+function setStar(el) {
+  const comp = el.dataset.comp;
+  const val = parseInt(el.dataset.val);
+  starValues[comp] = val;
+  const container = el.parentElement;
+  container.querySelectorAll('.star').forEach((s,i) => { s.classList.toggle('filled', i < val); });
+}
+
+async function saveSolGesprek(solId) {
+  const s = currentSollicitant;
+  try {
+    await createItem(LIST_IDS.SOL_Gesprekken, {
+      SollicitantId: solId, SollicitantNaam: `${s.Voornaam} ${s.Naam}`,
+      Datum: document.getElementById('m-sgdat').value,
+      Type: document.getElementById('m-sgtype').value,
+      Aanwezigen: document.getElementById('m-sgaanw').value,
+      AlgemeenVerslag: document.getElementById('m-sgverslag').value,
+      Competenties: JSON.stringify(starValues),
+      Eindadvies: document.getElementById('m-sgadvies').value,
+      IngevoerdDoor: userAccess?.email,
+    });
+    starValues = {};
+    toast('Gesprek opgeslagen');
+    closeModal();
+    showSollicitant(solId, 'gesprekken');
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+async function deleteSolGesprek(itemId, solId) {
+  if (!confirm('Gesprek verwijderen?')) return;
+  try { await deleteItem(LIST_IDS.SOL_Gesprekken, itemId); toast('Verwijderd'); showSollicitant(solId, 'gesprekken'); }
+  catch(e) { toast('Fout: ' + e.message); }
+}
+
+function renderSolDocumenten(s, docs) {
+  return `
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Bijlage opladen</div>
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()"
+        ondragover="event.preventDefault();this.classList.add('drag')"
+        ondragleave="this.classList.remove('drag')"
+        ondrop="handleDrop(event,'${s.id}')">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p>Sleep een bestand hier of klik om te bladeren</p>
+        <p style="font-size:11px">PDF, Word, max. 10 MB</p>
+      </div>
+      <input type="file" id="file-input" style="display:none" accept=".pdf,.doc,.docx" onchange="handleFileSelect(event,'${s.id}')">
+      <div id="upload-status" style="margin-top:8px;font-size:13px"></div>
+    </div>
+    ${docs.length === 0 ? `<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg><p>Nog geen documenten.</p></div>` :
+    docs.map(d => `
+      <div class="entry">
+        <div class="entry-header">
+          <div>
+            <div style="font-weight:600;font-size:13px">📄 ${d.Bestandsnaam||''}</div>
+            <div class="entry-date">${d.Type||''} · ${fmtDate(d.UploadDatum)} · ${d.UploadDoor||''}</div>
+          </div>
+          ${d.DriveItemUrl ? `<a href="${d.DriveItemUrl}" target="_blank" class="btn btn-sm">Openen</a>` : ''}
+        </div>
+      </div>`).join('')}`;
+}
+
+async function handleFileSelect(event, solId) {
+  const file = event.target.files[0];
+  if (file) await doUpload(file, solId);
+}
+async function handleDrop(event, solId) {
+  event.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag');
+  const file = event.dataTransfer.files[0];
+  if (file) await doUpload(file, solId);
+}
+
+async function doUpload(file, solId) {
+  const s = currentSollicitant;
+  const status = document.getElementById('upload-status');
+  if (file.size > 10 * 1024 * 1024) { status.textContent = '❌ Bestand te groot (max. 10 MB)'; return; }
+  status.textContent = '⏳ Uploaden...';
+  try {
+    const driveItem = await uploadFile(solId, `${s.Voornaam}_${s.Naam}`, file);
+    const ext = file.name.split('.').pop().toLowerCase();
+    const type = ext === 'pdf' ? 'Sollicitatiebrief' : ext.includes('doc') ? 'CV' : 'Andere';
+    await createItem(LIST_IDS.SOL_Documenten, {
+      SollicitantId: solId, SollicitantNaam: `${s.Voornaam} ${s.Naam}`,
+      Bestandsnaam: file.name, Type: type,
+      DriveItemId: driveItem.id, DriveItemUrl: driveItem.webUrl,
+      UploadDatum: new Date().toISOString(), UploadDoor: userAccess?.email,
+    });
+    status.textContent = '✅ Opgeladen!';
+    toast('Bestand opgeladen');
+    showSollicitant(solId, 'documenten');
+  } catch(e) { status.textContent = '❌ Fout: ' + e.message; }
+}
+
+function renderSolReferenties(s, refs) {
+  return `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="btn btn-primary" onclick="showAddReferentie('${s.id}')">+ Referentie toevoegen</button>
+    </div>
+    ${refs.length === 0 ? `<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><p>Nog geen referenties.</p></div>` :
+    refs.map(r => `
+      <div class="entry">
+        <div class="entry-header">
+          <div><div style="font-weight:600;font-size:13px">${r.NaamReferent||''}</div>
+            <div class="entry-date">${r.Organisatie||''} · ${r.Relatie||''} · ${fmtDate(r.Contactdatum)}</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            ${r.Beoordeling && r.Beoordeling!=='—' ? `<span class="tag ${r.Beoordeling==='Positief'?'tag-green':r.Beoordeling==='Negatief'?'tag-red':'tag-gray'}">${r.Beoordeling}</span>` : ''}
+            <button class="btn btn-sm btn-danger" onclick="deleteRef('${r.id}','${s.id}')">✕</button>
+          </div>
+        </div>
+        <div class="entry-body">${r.Samenvatting||''}</div>
+      </div>`).join('')}`;
+}
+
+function showAddReferentie(solId) {
+  showModal(`
+    <div class="modal-title">Referentie toevoegen</div>
+    <div class="form-grid">
+      <div class="fg"><label>Naam referent</label><input id="m-rnaam"></div>
+      <div class="fg"><label>Organisatie</label><input id="m-rorg"></div>
+      <div class="fg"><label>Relatie tot sollicitant</label><input id="m-rrel" placeholder="bv. Vroegere collega"></div>
+      <div class="fg"><label>Contactdatum</label><input type="date" id="m-rdat" value="${today()}"></div>
+      <div class="fg fg-full"><label>Samenvatting gesprek</label><textarea id="m-rsum" rows="4"></textarea></div>
+      <div class="fg"><label>Beoordeling</label>
+        <select id="m-rbeoo"><option>—</option><option>Positief</option><option>Neutraal</option><option>Negatief</option></select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveReferentie('${solId}')">Opslaan</button>
+    </div>`);
+}
+
+async function saveReferentie(solId) {
+  const s = currentSollicitant;
+  try {
+    await createItem(LIST_IDS.SOL_Referenties, {
+      SollicitantId: solId, SollicitantNaam: `${s.Voornaam} ${s.Naam}`,
+      NaamReferent: document.getElementById('m-rnaam').value,
+      Organisatie: document.getElementById('m-rorg').value,
+      Relatie: document.getElementById('m-rrel').value,
+      Contactdatum: document.getElementById('m-rdat').value,
+      Samenvatting: document.getElementById('m-rsum').value,
+      Beoordeling: document.getElementById('m-rbeoo').value,
+      IngevoerdDoor: userAccess?.email,
+    });
+    toast('Referentie opgeslagen');
+    closeModal();
+    showSollicitant(solId, 'referenties');
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+async function deleteRef(itemId, solId) {
+  if (!confirm('Referentie verwijderen?')) return;
+  try { await deleteItem(LIST_IDS.SOL_Referenties, itemId); toast('Verwijderd'); showSollicitant(solId, 'referenties'); }
+  catch(e) { toast('Fout: ' + e.message); }
+}
+
+function renderSolCommunicatie(s, comm) {
+  const sorted = [...comm].sort((a,b) => new Date(b.Modified||0)-new Date(a.Modified||0));
+  return `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="btn btn-primary" onclick="showAddComm('${s.id}')">+ Communicatie loggen</button>
+    </div>
+    ${sorted.length === 0 ? `<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><p>Nog geen communicatie gelogd.</p></div>` :
+    sorted.map(c => `
+      <div class="entry">
+        <div class="entry-header">
+          <div><div style="font-weight:600;font-size:13px">${c.Type||''}</div>
+            <div class="entry-date">${fmtDate(c.Modified)} · ${c.Kanaal||''} · ${c.VerstuurdDoor||''}</div>
+          </div>
+          <button class="btn btn-sm btn-danger" onclick="deleteComm('${c.id}','${s.id}')">✕</button>
+        </div>
+        <div class="entry-body">${c.Inhoud||''}</div>
+      </div>`).join('')}`;
+}
+
+function showAddComm(solId) {
+  showModal(`
+    <div class="modal-title">Communicatie loggen</div>
+    <div class="form-grid">
+      <div class="fg"><label>Type</label>
+        <select id="m-ctype"><option>Uitnodiging gesprek</option><option>Bevestiging gesprek</option><option>Afwijzing</option><option>Aanbieding</option><option>Andere</option></select>
+      </div>
+      <div class="fg"><label>Kanaal</label>
+        <select id="m-ckanaal"><option>E-mail</option><option>Brief</option><option>Telefoon</option><option>Andere</option></select>
+      </div>
+      <div class="fg fg-full"><label>Inhoud / samenvatting</label><textarea id="m-cinhoud" rows="4"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveComm('${solId}')">Opslaan</button>
+    </div>`);
+}
+
+async function saveComm(solId) {
+  const s = currentSollicitant;
+  try {
+    await createItem(LIST_IDS.SOL_Communicatie, {
+      SollicitantId: solId, SollicitantNaam: `${s.Voornaam} ${s.Naam}`,
+      Type: document.getElementById('m-ctype').value,
+      Kanaal: document.getElementById('m-ckanaal').value,
+      Inhoud: document.getElementById('m-cinhoud').value,
+      VerstuurdDoor: userAccess?.email,
+    });
+    toast('Communicatie gelogd');
+    closeModal();
+    showSollicitant(solId, 'communicatie');
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+async function deleteComm(itemId, solId) {
+  if (!confirm('Verwijderen?')) return;
+  try { await deleteItem(LIST_IDS.SOL_Communicatie, itemId); toast('Verwijderd'); showSollicitant(solId, 'communicatie'); }
+  catch(e) { toast('Fout: ' + e.message); }
+}
+
+function showAddSollicitant() {
+  showModal(`
+    <div class="modal-title">Nieuw sollicitantendossier</div>
+    <div class="form-grid">
+      <div class="fg"><label>Voornaam</label><input id="m-nsvnaam"></div>
+      <div class="fg"><label>Naam</label><input id="m-nsnaam"></div>
+      <div class="fg"><label>E-mail</label><input id="m-nsemail" type="email"></div>
+      <div class="fg"><label>Telefoon</label><input id="m-nstel"></div>
+      <div class="fg fg-full"><label>Functie waarvoor gesolliciteerd</label><input id="m-nsfunctie" placeholder="bv. Leraar lager onderwijs"></div>
+      <div class="fg fg-full"><label>School van voorkeur</label>
+        <select id="m-nsschool">
+          <option value="">— geen voorkeur —</option>
+          ${SCHOOLS.map(s => `<option value="${s.name}">${s.name}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveNewSollicitant()">Dossier aanmaken</button>
+    </div>`);
+}
+
+async function saveNewSollicitant() {
+  try {
+    await createItem(LIST_IDS.SOL_Sollicitanten, {
+      Naam: document.getElementById('m-nsnaam').value,
+      Voornaam: document.getElementById('m-nsvnaam').value,
+      Email: document.getElementById('m-nsemail').value,
+      Telefoon: document.getElementById('m-nstel').value,
+      Functie: document.getElementById('m-nsfunctie').value,
+      SchoolVoorkeur: document.getElementById('m-nsschool').value,
+      Status: 'Nieuw', Beslissing: '—',
+      DatumOntvangst: new Date().toISOString(),
+      IngevoerdDoor: userAccess?.email,
+    });
+    toast('Dossier aangemaakt');
+    closeModal();
+    showSollicitanten();
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════════════════════
+// MODAL
+// ════════════════════════════════════════════════════════════════
+function showModal(html) {
+  const existing = document.getElementById('modal-bg');
+  if (existing) existing.remove();
+  const div = document.createElement('div');
+  div.id = 'modal-bg'; div.className = 'modal-bg';
+  div.innerHTML = `<div class="modal">${html}</div>`;
+  div.addEventListener('click', e => { if (e.target === div) closeModal(); });
+  document.body.appendChild(div);
+}
+function closeModal() { const m = document.getElementById('modal-bg'); if (m) m.remove(); }
+
+// ════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════
+msalApp.handleRedirectPromise().then(async r => {
+  const accounts = msalApp.getAllAccounts();
+  if (accounts.length > 0) {
+    currentUser = accounts[0];
+    await getToken();
+    await afterLogin();
+  }
+}).catch(() => {});
+</script>
+</body>
+</html>
