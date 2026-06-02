@@ -802,39 +802,44 @@ async function deleteOpmerking(itemId, leerkrachtId) {
 }
 
 function renderPOP(l, doelen, actief) {
-  return `
-    <div class="card">
-      <div class="card-header">
-        <div>
-          <div class="card-title">Persoonlijk Ontwikkelingsplan</div>
-          ${actief ? `<div class="card-sub">Actief schooljaar</div>` : ''}
-        </div>
-        <button class="btn btn-sm ${actief?'btn-danger':'btn-primary'}" onclick="togglePOP('${l.id}',${actief})">
-          ${actief ? '⏹ Deactiveren' : '▶ POP activeren'}
-        </button>
-      </div>
-      ${!actief ? `<p style="color:var(--gray-400);font-size:13px">Nog geen actief POP. Klik op "POP activeren" om te starten.</p>` :
-      `<button class="btn btn-primary btn-sm" style="margin-bottom:12px" onclick="showAddPOPDoel('${l.id}')">+ Doel toevoegen</button>
-      ${doelen.length === 0 ? '<p style="color:var(--gray-400);font-size:13px">Nog geen doelen toegevoegd.</p>' :
-      doelen.map(d => `
-        <div style="background:var(--gray-50);border-radius:8px;padding:12px;margin-bottom:8px">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-            <span style="color:var(--teal)">🎯</span>
-            <strong style="font-size:13px;flex:1">${d.Doel||''}</strong>
-            <button class="btn btn-sm btn-danger" onclick="deletePOPDoel('${d.id}','${l.id}')">✕</button>
-          </div>
-          ${d.Actie ? `<p style="font-size:12px;color:var(--gray-500);margin-bottom:6px">→ ${d.Actie}</p>` : ''}
-          ${d.Deadline ? `<p style="font-size:11px;color:var(--gray-400);margin-bottom:6px">📅 ${fmtDate(d.Deadline)}</p>` : ''}
-          <div style="display:flex;align-items:center;gap:10px">
-            <input type="range" min="0" max="100" step="5" value="${d.Voortgang||0}"
-              onchange="updateVoortgang('${d.id}','${l.id}',this.value)"
-              style="flex:1">
-            <span style="font-size:12px;font-weight:600;min-width:36px;text-align:right">${d.Voortgang||0}%</span>
-          </div>
-          <div class="progress-bar"><div class="progress-fill" style="width:${d.Voortgang||0}%"></div></div>
-        </div>`).join('')}`}
-      `}
-    </div>`;
+  const btnCls = actief ? 'btn-danger' : 'btn-primary';
+  const btnTxt = actief ? '⏹ Deactiveren' : '▶ POP activeren';
+  const subTitel = actief ? '<div class="card-sub">Actief schooljaar</div>' : '';
+
+  let body = '';
+  if (!actief) {
+    body = '<p style="color:var(--gray-400);font-size:13px">Nog geen actief POP. Klik op "POP activeren" om te starten.</p>';
+  } else {
+    const doelenHtml = doelen.length === 0
+      ? '<p style="color:var(--gray-400);font-size:13px">Nog geen doelen toegevoegd.</p>'
+      : doelen.map(function(d) {
+          const actieHtml = d.Actie ? '<p style="font-size:12px;color:var(--gray-500);margin-bottom:6px">\u2192 ' + d.Actie + '</p>' : '';
+          const deadlineHtml = d.Deadline ? '<p style="font-size:11px;color:var(--gray-400);margin-bottom:6px">\uD83D\uDCC5 ' + fmtDate(d.Deadline) + '</p>' : '';
+          const voortgang = d.Voortgang || 0;
+          return '<div style="background:var(--gray-50);border-radius:8px;padding:12px;margin-bottom:8px">'
+            + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
+            + '<span style="color:var(--teal)">\uD83C\uDFAF</span>'
+            + '<strong style="font-size:13px;flex:1">' + (d.Doel || '') + '</strong>'
+            + '<button class="btn btn-sm btn-danger" onclick="deletePOPDoel(\'' + d.id + '\',\'' + l.id + '\')">✕</button>'
+            + '</div>'
+            + actieHtml + deadlineHtml
+            + '<div style="display:flex;align-items:center;gap:10px">'
+            + '<input type="range" min="0" max="100" step="5" value="' + voortgang + '" onchange="updateVoortgang(\'' + d.id + '\',\'' + l.id + '\',this.value)" style="flex:1">'
+            + '<span style="font-size:12px;font-weight:600;min-width:36px;text-align:right">' + voortgang + '%</span>'
+            + '</div>'
+            + '<div class="progress-bar"><div class="progress-fill" style="width:' + voortgang + '%"></div></div>'
+            + '</div>';
+        }).join('');
+    body = '<button class="btn btn-primary btn-sm" style="margin-bottom:12px" onclick="showAddPOPDoel(\'' + l.id + '\')">+ Doel toevoegen</button>' + doelenHtml;
+  }
+
+  return '<div class="card">'
+    + '<div class="card-header">'
+    + '<div><div class="card-title">Persoonlijk Ontwikkelingsplan</div>' + subTitel + '</div>'
+    + '<button class="btn btn-sm ' + btnCls + '" onclick="togglePOP(\'' + l.id + '\',' + actief + ')">' + btnTxt + '</button>'
+    + '</div>'
+    + body
+    + '</div>';
 }
 
 async function togglePOP(leerkrachtId, currentState) {
