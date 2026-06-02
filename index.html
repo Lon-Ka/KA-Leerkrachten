@@ -347,15 +347,22 @@ async function afterLogin() {
 async function loadUserAccess(email) {
   if (!LIST_IDS.BEHEER_Toegang) return { naam: currentUser.name, email, scholen: ["KIE","KEI","MUL"], niveau: "Systeembeheer", sol: true };
   try {
-    const data = await graphGet(`/sites/${CONFIG.siteId}/lists/${LIST_IDS.BEHEER_Toegang}/items?$expand=fields&$filter=fields/Email eq '${email}'`);
-    if (!data.value.length) return null;
-    const f = data.value[0].fields;
+    // Haal alle records op en filter in JS (Email-kolom is mogelijk niet geïndexeerd in SharePoint)
+    const data = await graphGet(`/sites/${CONFIG.siteId}/lists/${LIST_IDS.BEHEER_Toegang}/items?$expand=fields&$top=500`);
+    const match = (data.value || []).find(item =>
+      item.fields && item.fields.Email && item.fields.Email.toLowerCase() === email.toLowerCase() && item.fields.Actief !== false
+    );
+    if (!match) return null;
+    const f = match.fields;
     return {
-      naam: f.Naam, email: f.Email, rol: f.Rol,
+      naam: f.Naam || currentUser.name, email: f.Email, rol: f.Rol,
       scholen: [f.SchoolKIE && "KIE", f.SchoolKEI && "KEI", f.SchoolMUL && "MUL"].filter(Boolean),
       niveau: f.Niveau, sol: true,
     };
-  } catch { return { naam: currentUser.name, email, scholen: ["KIE","KEI","MUL"], niveau: "Directie", sol: true }; }
+  } catch(e) {
+    console.warn('loadUserAccess fout, fallback gebruikt:', e.message);
+    return { naam: currentUser.name, email, scholen: ["KIE","KEI","MUL"], niveau: "Directie", sol: true };
+  }
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1474,14 +1481,21 @@ async function msalInit() {
   });
   await msalApp.initialize();
   try {
-    const redirectResult = await msalApp.handleRedirectPromise();
+    await msalApp.handleRedirectPromise();
+    // URL cleanup na redirect
+    if (window.location.hash && window.location.hash.startsWith('#code=')) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
     const accounts = msalApp.getAllAccounts();
     if (accounts.length > 0) {
       currentUser = accounts[0];
       await getToken();
       await afterLogin();
     }
-  } catch(e) { console.error('MSAL redirect error:', e); }
+  } catch(e) {
+    console.error('MSAL redirect error:', e);
+    try { document.getElementById('auth-err').textContent = 'Aanmeldfout: ' + e.message; } catch {}
+  }
 }
 window.addEventListener('DOMContentLoaded', function() {
   msalInit().catch(function(e) { console.error('MSAL init error:', e); });
