@@ -1707,7 +1707,7 @@ window.addEventListener('DOMContentLoaded', function() {
 // ════════════════════════════════════════════════════════════════
 function showFunctiebibliotheek() {
   setActive('functies');
-  const main = document.getElementById('main');
+  const main = document.getElementById('main-area');
 
   const kaarten = FUNCTIES_BIBLIOTHEEK.map(f => `
     <div class="card" style="margin-bottom:12px">
@@ -1759,7 +1759,7 @@ function copyFunctieTekst(code) {
 // ════════════════════════════════════════════════════════════════
 function showImport() {
   setActive('import');
-  const main = document.getElementById('main');
+  const main = document.getElementById('main-area');
   const schoolOpties = SCHOOLS
     .filter(s => !userAccess || userAccess.scholen.includes(s.key))
     .map(s => `<option value="${s.key}">${s.name}</option>`).join('');
