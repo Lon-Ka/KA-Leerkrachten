@@ -287,6 +287,7 @@ const LIST_IDS = {
   SOL_Sollicitanten: "84847179-18fd-45e7-a53f-3b00541325b0", SOL_Gesprekken: "2de5b5a6-6be6-46b5-8010-476676036334", SOL_Documenten: "12d8848c-5e6d-4e0b-b071-46a63636b8c5",
   SOL_Referenties: "2e6d4bf6-d314-4158-9a45-90545afb03bd", SOL_Communicatie: "9236240d-8ec3-405b-8eed-7d4ec9fa1aa8",
   SOL_Bijlagen: "6d00de38-8408-48b1-9c91-cf215957e8b4",
+  BEHEER_Functies: "", // In te vullen na aanmaken via setup.html of beheer
 };
 
 const SCHOOLS = [
@@ -303,6 +304,174 @@ const COMPETENTIES = [
   { domein:"Samenwerken",         items:["Teamspeler","Collegialiteit","Oudercontact","Samenwerking zorgteam","Bijdrage schoolcultuur"] },
   { domein:"Communicatie",        items:["Mondeling communiceren","Schriftelijk rapporteren","Luistervaardigheid","Feedback geven/ontvangen","Digitale communicatie"] },
   { domein:"Persoonlijk",         items:["Flexibiliteit","Stressbestendigheid","Initiatief","Zelfstandigheid","Professionaliteit"] },
+];
+
+
+// ════════════════════════════════════════════════════════════════
+// FUNCTIEBIBLIOTHEEK (OVSG-gebaseerd)
+// ════════════════════════════════════════════════════════════════
+const FUNCTIES_BIBLIOTHEEK = [
+  { code:"LLO", titel:"Leraar lager onderwijs", beschrijving:`FUNCTIEBESCHRIJVING — Leraar lager onderwijs
+Scholengemeenschap Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De leraar lager onderwijs geeft kwalitatief onderwijs aan leerlingen van het lager onderwijs en draagt bij aan de vorming en ontwikkeling van elk kind, in lijn met de missie en visie van de school.
+
+KERNTAKEN
+
+1. Lesgeven en begeleiden van leerlingen
+- Bereidt lessen voor en geeft ze conform het leerplan (ZILL of gelijkwaardig)
+- Stemt het onderwijs af op de noden en mogelijkheden van individuele leerlingen
+- Hanteert gevarieerde werkvormen en didactische aanpakken
+- Houdt een klas- en leeromgeving in stand die aanzet tot leren
+- Begeleidt leerlingen in hun sociaal-emotionele ontwikkeling
+
+2. Evalueren en rapporteren
+- Volgt de vorderingen van leerlingen systematisch op
+- Hanteert diverse evaluatievormen (formatief en summatief)
+- Rapporteert aan ouders via rapporten en oudercontacten
+- Informeert de directie en het zorgteam tijdig bij zorgvragen
+
+3. Samenwerken en communiceren
+- Werkt samen met collega's in graadteams en schoolteam
+- Participeert aan teamvergaderingen, studiedagen en nascholing
+- Onderhoudt een open en respectvolle communicatie met ouders
+
+4. Bijdragen aan schoolbeleid
+- Levert een actieve bijdrage aan de schoolwerking en schoolcultuur
+- Neemt deel aan werkgroepen en beleidsontwikkeling
+
+VEREISTE KWALIFICATIES
+Bacheloropleiding leraar lager onderwijs of gelijkwaardig erkend diploma` },
+
+  { code:"KLO", titel:"Kleuteronderwijzer", beschrijving:`FUNCTIEBESCHRIJVING — Kleuteronderwijzer
+Scholengemeenschap Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De kleuteronderwijzer biedt een rijke, speelse en veilige leeromgeving aan kleuters (2,5–6 jaar) en stimuleert hun brede ontwikkeling op cognitief, sociaal-emotioneel, motorisch en creatief vlak.
+
+KERNTAKEN
+
+1. Spel- en ontwikkelingsgericht werken
+- Ontwikkelt een krachtige leer- en speelomgeving afgestemd op de ontwikkelingsleeftijd
+- Begeleidt kleuters in vrij en gestuurd spel
+- Observeert systematisch en registreert de ontwikkeling van elk kind
+- Stimuleert taal-, reken- en wereldoriënterende vaardigheden via spel en projecten
+
+2. Zorg en ondersteuning
+- Signaleert ontwikkelingsachterstanden tijdig aan het zorgteam
+- Begeleidt de overgang van thuis naar school
+
+3. Communiceren met ouders
+- Houdt dagelijkse contacten bij het halen en brengen
+- Organiseert kleutergesprekken en informatiemomenten
+
+VEREISTE KWALIFICATIES
+Bacheloropleiding kleuteronderwijs of gelijkwaardig erkend diploma` },
+
+  { code:"ZORG", titel:"Zorgleerkracht", beschrijving:`FUNCTIEBESCHRIJVING — Zorgleerkracht
+Scholengemeenschap Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De zorgleerkracht ondersteunt leerlingen met specifieke onderwijsbehoeften en werkt nauw samen met de klasleerkracht en zorgcoördinator.
+
+KERNTAKEN
+
+1. Ondersteuning van leerlingen
+- Biedt individuele en groepsgebonden ondersteuning aan leerlingen met leerproblemen
+- Werkt remediërend, compenserend en differentiërend
+- Implementeert handelingsplannen en ondersteuningsmaatregelen
+- Begeleidt leerlingen met specifieke onderwijsbehoeften (dyslexie, dyscalculie, ADHD, ASS, ...)
+
+2. Samenwerken met het team
+- Overlegt regelmatig met de klasleerkracht
+- Neemt deel aan zorgoverleg en MDO
+- Werkt samen met zorgcoördinator en CLB
+
+3. Ondersteuning van leerkrachten
+- Adviseert bij differentiatie en aangepaste aanpak
+- Co-teacht in de klas waar relevant
+
+VEREISTE KWALIFICATIES
+Bachelor onderwijs + ervaring of bijscholing in zorgpedagogiek` },
+
+  { code:"ZOCO", titel:"Zorgcoördinator", beschrijving:`FUNCTIEBESCHRIJVING — Zorgcoördinator
+Scholengemeenschap Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De zorgcoördinator coördineert de zorgwerking op schoolniveau en stuurt het zorgbeleid aan.
+
+KERNTAKEN
+
+1. Beleid en coördinatie
+- Ontwikkelt en bewaakt het zorgbeleid
+- Coördineert het zorgcontinuüm (niveaus 1–4)
+- Neemt initiatief voor MDO en zorgoverleg
+
+2. Ondersteuning van leerkrachten
+- Begeleidt leerkrachten bij specifieke noden
+- Adviseert bij handelingsplannen
+
+3. Externe samenwerking
+- Aanspreekpunt voor CLB, leerondersteuners en revalidatiecentra
+
+VEREISTE KWALIFICATIES
+Bachelor onderwijs + opleiding of ervaring als zorgcoördinator` },
+
+  { code:"DIR", titel:"Directeur basisonderwijs", beschrijving:`FUNCTIEBESCHRIJVING — Directeur basisonderwijs
+Scholengemeenschap Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De directeur is eindverantwoordelijke voor de pedagogische, organisatorische en administratieve werking van de school.
+
+KERNTAKEN
+
+1. Pedagogisch leiderschap
+- Ontwikkelt en bewaakt de pedagogische visie
+- Voert functionerings- en evaluatiegesprekken
+
+2. Organisatie en beheer
+- Verantwoordelijk voor dagelijkse werking
+- Beheert urenpakket en personeelsplanning
+
+3. Personeelsbeleid
+- Werft aan en begeleidt personeelsleden
+- Kent functiebeschrijvingen toe en evalueert
+
+4. Externe communicatie
+- Aanspreekpunt voor ouders, CLB en inspectie
+
+VEREISTE KWALIFICATIES
+Bachelor of master onderwijs + leidinggevende ervaring` },
+
+  { code:"ADM", titel:"Administratief medewerker", beschrijving:`FUNCTIEBESCHRIJVING — Administratief medewerker
+Scholengemeenschap Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De administratief medewerker ondersteunt de directie bij de administratieve en secretariële werking.
+
+KERNTAKEN
+- Leerlingenadministratie en correspondentie
+- Personeelsadministratie en verlofopvolging
+- Financieel beheer en kleine kas
+- Onthaal en communicatie
+
+VEREISTE KWALIFICATIES
+Secundair onderwijs of hoger + administratieve ervaring` },
+
+  { code:"PARA", titel:"Kinderverzorger", beschrijving:`FUNCTIEBESCHRIJVING — Kinderverzorger
+Scholengemeenschap Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De kinderverzorger ondersteunt de kleuteronderwijzer bij verzorging en begeleiding van jonge kinderen.
+
+KERNTAKEN
+- Persoonlijke hygiëne en verzorging van kleuters
+- Ondersteuning bij activiteiten en spel
+- Toezicht op veiligheid
+
+VEREISTE KWALIFICATIES
+Opleiding kinderverzorging of gelijkwaardig` },
 ];
 
 // ════════════════════════════════════════════════════════════════
@@ -493,6 +662,15 @@ function buildSidebar() {
     <div class="sb-item ${activeNav==='sol'?'active':''}" onclick="showSollicitanten()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       Alle sollicitanten
+    </div>
+    <div class="sb-section">Beheer</div>
+    <div class="sb-item ${activeNav==='functies'?'active':''}" onclick="showFunctiebibliotheek()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Functiebibliotheek
+    </div>
+    <div class="sb-item ${activeNav==='import'?'active':''}" onclick="showImport()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+      Import leerkrachten
     </div>`;
 
   document.getElementById('sb-nav').innerHTML = html;
@@ -909,21 +1087,25 @@ async function deletePOPDoel(itemId, leerkrachtId) {
 }
 
 function showAddLeerkracht() {
+  const functieOpties = FUNCTIES_BIBLIOTHEEK.map(f =>
+    `<option value="${f.code}">${f.titel}</option>`
+  ).join('') + '<option value="CUSTOM">Andere (geen sjabloon)</option>';
+
   showModal(`
     <div class="modal-title">Leerkracht toevoegen — ${currentSchool.name}</div>
     <div class="form-grid">
       <div class="fg"><label>Voornaam</label><input id="m-vnaam" placeholder="Voornaam"></div>
       <div class="fg"><label>Naam</label><input id="m-naam" placeholder="Achternaam"></div>
-      <div class="fg"><label>Functie</label>
-        <select id="m-functie-sel">
-          <option>Leraar lager onderwijs</option><option>Leraar kleuter</option>
-          <option>Zorgleerkracht</option><option>ICT-coördinator</option><option>Andere</option>
+      <div class="fg fg-full"><label>Functiesjabloon</label>
+        <select id="m-functie-sel" onchange="applyFunctiesjabloon(this.value)">
+          <option value="">— Kies een functie —</option>
+          ${functieOpties}
         </select>
       </div>
       <div class="fg"><label>Opdracht</label>
         <select id="m-opdracht"><option>100%</option><option>80%</option><option>60%</option><option>50%</option><option>40%</option><option>20%</option></select>
       </div>
-      <div class="fg fg-full"><label>E-mail</label><input id="m-email" type="email" placeholder="naam@gebaska.be"></div>
+      <div class="fg"><label>E-mail</label><input id="m-email" type="email" placeholder="naam@gebaska.be"></div>
     </div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal()">Annuleren</button>
@@ -931,17 +1113,35 @@ function showAddLeerkracht() {
     </div>`);
 }
 
+function applyFunctiesjabloon(code) {
+  // Pre-fills the functiebeschrijving when leerkracht is saved
+  // Store selection for saveLeerkracht to use
+  window._selectedFunctieCode = code;
+}
+
 async function saveLeerkracht() {
   try {
-    await createItem(LIST_IDS[`${currentSchool.key}_Leerkrachten`], {
+    const code = window._selectedFunctieCode || '';
+    const functie = FUNCTIES_BIBLIOTHEEK.find(f => f.code === code);
+    const fields = {
       Naam: document.getElementById('m-naam').value,
       Voornaam: document.getElementById('m-vnaam').value,
-      Functie: document.getElementById('m-functie-sel').value,
+      Functie: functie ? functie.titel : (code || 'Andere'),
       Opdracht: document.getElementById('m-opdracht').value,
       Email: document.getElementById('m-email').value,
       School: currentSchool.key, Actief: true,
-    });
-    toast('Leerkracht toegevoegd');
+    };
+    const result = await createItem(LIST_IDS[`${currentSchool.key}_Leerkrachten`], fields);
+    // If a template was selected, save functiebeschrijving immediately
+    if (functie && result && result.id) {
+      try {
+        await updateItem(LIST_IDS[`${currentSchool.key}_Leerkrachten`], result.id, {
+          Functiebeschrijving: functie.beschrijving
+        });
+      } catch(e) { console.warn('Functiebeschrijving opslaan mislukt:', e.message); }
+    }
+    window._selectedFunctieCode = '';
+    toast('Leerkracht toegevoegd' + (functie ? ' met functiebeschrijving ' + functie.titel : ''));
     closeModal();
     showSchool(currentSchool.key);
   } catch(e) { toast('Fout: ' + e.message); }
@@ -1501,6 +1701,227 @@ async function msalInit() {
 window.addEventListener('DOMContentLoaded', function() {
   msalInit().catch(function(e) { console.error('MSAL init error:', e); });
 });
+
+// ════════════════════════════════════════════════════════════════
+// FUNCTIEBIBLIOTHEEK
+// ════════════════════════════════════════════════════════════════
+function showFunctiebibliotheek() {
+  setActive('functies');
+  const main = document.getElementById('main');
+
+  const kaarten = FUNCTIES_BIBLIOTHEEK.map(f => `
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-header">
+        <div>
+          <div class="card-title">${f.titel}</div>
+          <div class="card-sub" style="font-family:monospace;font-size:11px">${f.code}</div>
+        </div>
+        <button class="btn btn-sm btn-primary" onclick="showFunctieTekst('${f.code}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          Bekijk
+        </button>
+      </div>
+    </div>`).join('');
+
+  main.innerHTML = `
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Functiebibliotheek</h1>
+        <div class="page-sub">OVSG-gebaseerde functiebeschrijvingen — aanpasbaar per leerkracht</div>
+      </div>
+    </div>
+    <div class="alert alert-info" style="margin-bottom:16px">
+      <strong>ℹ️ Gebruik:</strong> Bij het toevoegen van een leerkracht kies je een sjabloon — de functiebeschrijving wordt automatisch vooringevuld en kan daarna per leerkracht aangepast worden.
+    </div>
+    ${kaarten}`;
+}
+
+function showFunctieTekst(code) {
+  const f = FUNCTIES_BIBLIOTHEEK.find(x => x.code === code);
+  if (!f) return;
+  showModal(`
+    <div class="modal-title">${f.titel}</div>
+    <div style="background:var(--gray-50);border-radius:8px;padding:16px;max-height:60vh;overflow-y:auto;white-space:pre-wrap;font-size:12px;font-family:monospace;line-height:1.6">${f.beschrijving}</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Sluiten</button>
+      <button class="btn btn-primary" onclick="copyFunctieTekst('${code}')">📋 Kopiëren</button>
+    </div>`);
+}
+
+function copyFunctieTekst(code) {
+  const f = FUNCTIES_BIBLIOTHEEK.find(x => x.code === code);
+  if (!f) return;
+  navigator.clipboard.writeText(f.beschrijving).then(() => toast('Functiebeschrijving gekopieerd'));
+}
+
+// ════════════════════════════════════════════════════════════════
+// IMPORT LEERKRACHTEN
+// ════════════════════════════════════════════════════════════════
+function showImport() {
+  setActive('import');
+  const main = document.getElementById('main');
+  const schoolOpties = SCHOOLS
+    .filter(s => !userAccess || userAccess.scholen.includes(s.key))
+    .map(s => `<option value="${s.key}">${s.name}</option>`).join('');
+
+  main.innerHTML = `
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Import leerkrachten</h1>
+        <div class="page-sub">Voeg meerdere leerkrachten tegelijk toe via plakken vanuit Excel of SharePoint</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title">Stap 1 — School en instellingen</div></div>
+      <div class="form-grid">
+        <div class="fg"><label>School</label>
+          <select id="imp-school">${schoolOpties}</select>
+        </div>
+        <div class="fg"><label>Standaardfunctie (indien leeg)</label>
+          <select id="imp-functie-def">
+            ${FUNCTIES_BIBLIOTHEEK.map(f => `<option value="${f.code}">${f.titel}</option>`).join('')}
+            <option value="">Geen sjabloon</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><div class="card-title">Stap 2 — Data plakken</div></div>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:12px">
+        Kopieer rijen uit Excel of SharePoint en plak ze hieronder.<br>
+        <strong>Verwacht formaat (tab-gescheiden kolommen):</strong><br>
+        <code style="background:var(--gray-100);padding:2px 6px;border-radius:4px;font-size:12px">Voornaam &Tab; Naam &Tab; Functie &Tab; Opdracht% &Tab; E-mail</code><br>
+        <span style="font-size:12px;color:var(--gray-400)">Opdracht als getal: 100, 80, 60, 50... Functie mag leeg zijn (gebruikt dan het standaardsjabloon)</span>
+      </p>
+      <textarea id="imp-data" rows="10" style="width:100%;font-family:monospace;font-size:13px;border:1px solid var(--gray-200);border-radius:8px;padding:12px;resize:vertical" placeholder="Plak hier je Excel-data (Ctrl+V)..."></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="parseImportData()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Verwerk data
+        </button>
+        <button class="btn" onclick="document.getElementById('imp-data').value='';document.getElementById('imp-preview').innerHTML=''">Wissen</button>
+      </div>
+    </div>
+
+    <div id="imp-preview"></div>`;
+}
+
+function parseImportData() {
+  const raw = document.getElementById('imp-data').value.trim();
+  if (!raw) { toast('Geen data ingevoerd'); return; }
+
+  const lines = raw.split('\n').filter(l => l.trim());
+  const rows = lines.map(line => {
+    const cols = line.split('\t').map(c => c.trim());
+    return {
+      Voornaam: cols[0] || '',
+      Naam: cols[1] || '',
+      Functie: cols[2] || '',
+      Opdracht: (cols[3] || '100').replace('%','') + '%',
+      Email: cols[4] || '',
+    };
+  }).filter(r => r.Voornaam || r.Naam);
+
+  if (!rows.length) { toast('Geen geldige rijen gevonden'); return; }
+
+  const preview = document.getElementById('imp-preview');
+  const tableRows = rows.map((r, i) => `
+    <tr>
+      <td><input style="width:100%;border:1px solid var(--gray-200);border-radius:4px;padding:4px 6px;font-size:12px" value="${r.Voornaam}" onchange="window._importRows[${i}].Voornaam=this.value"></td>
+      <td><input style="width:100%;border:1px solid var(--gray-200);border-radius:4px;padding:4px 6px;font-size:12px" value="${r.Naam}" onchange="window._importRows[${i}].Naam=this.value"></td>
+      <td>
+        <select style="width:100%;border:1px solid var(--gray-200);border-radius:4px;padding:4px 6px;font-size:12px" onchange="window._importRows[${i}].FunctieCode=this.value">
+          <option value="">— automatisch —</option>
+          ${FUNCTIES_BIBLIOTHEEK.map(f => `<option value="${f.code}" ${r.Functie.toLowerCase().includes(f.titel.toLowerCase().split(' ')[0].toLowerCase())?'selected':''}>${f.titel}</option>`).join('')}
+          <option value="CUSTOM">Andere</option>
+        </select>
+      </td>
+      <td>
+        <select style="width:100%;border:1px solid var(--gray-200);border-radius:4px;padding:4px 6px;font-size:12px" onchange="window._importRows[${i}].Opdracht=this.value">
+          ${['100%','80%','60%','50%','40%','20%'].map(o => `<option ${r.Opdracht===o?'selected':''}>${o}</option>`).join('')}
+        </select>
+      </td>
+      <td><input type="email" style="width:100%;border:1px solid var(--gray-200);border-radius:4px;padding:4px 6px;font-size:12px" value="${r.Email}" onchange="window._importRows[${i}].Email=this.value"></td>
+    </tr>`).join('');
+
+  window._importRows = rows;
+
+  preview.innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Stap 3 — Controleer en importeer (${rows.length} leerkrachten)</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="background:var(--teal-light)">
+              <th style="padding:8px 12px;text-align:left;color:var(--teal-dark)">Voornaam</th>
+              <th style="padding:8px 12px;text-align:left;color:var(--teal-dark)">Naam</th>
+              <th style="padding:8px 12px;text-align:left;color:var(--teal-dark)">Functie</th>
+              <th style="padding:8px 12px;text-align:left;color:var(--teal-dark)">Opdracht</th>
+              <th style="padding:8px 12px;text-align:left;color:var(--teal-dark)">E-mail</th>
+            </tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+      <div class="modal-actions" style="margin-top:16px">
+        <div id="imp-progress" style="font-size:13px;color:var(--gray-500)"></div>
+        <button class="btn btn-primary" onclick="runImport()" id="imp-btn">
+          ⬆️ Importeer ${rows.length} leerkrachten naar ${SCHOOLS.find(s=>s.key===document.getElementById('imp-school').value)?.name||''}
+        </button>
+      </div>
+    </div>`;
+}
+
+async function runImport() {
+  const schoolKey = document.getElementById('imp-school').value;
+  const defaultFunctieCode = document.getElementById('imp-functie-def').value;
+  const rows = window._importRows || [];
+  if (!rows.length) return;
+
+  const btn = document.getElementById('imp-btn');
+  const prog = document.getElementById('imp-progress');
+  btn.disabled = true;
+
+  let ok = 0, fail = 0;
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    prog.textContent = `Importeren ${i+1}/${rows.length}...`;
+    try {
+      const code = r.FunctieCode || defaultFunctieCode;
+      const functie = FUNCTIES_BIBLIOTHEEK.find(f => f.code === code);
+      const fields = {
+        Naam: r.Naam,
+        Voornaam: r.Voornaam,
+        Functie: functie ? functie.titel : (r.Functie || 'Leraar lager onderwijs'),
+        Opdracht: r.Opdracht || '100%',
+        Email: r.Email,
+        School: schoolKey,
+        Actief: true,
+      };
+      const result = await createItem(LIST_IDS[schoolKey + '_Leerkrachten'], fields);
+      if (functie && result && result.id) {
+        try {
+          await updateItem(LIST_IDS[schoolKey + '_Leerkrachten'], result.id, {
+            Functiebeschrijving: functie.beschrijving
+          });
+        } catch {}
+      }
+      ok++;
+    } catch(e) {
+      fail++;
+      console.error('Import rij', i, 'mislukt:', e.message);
+    }
+  }
+
+  prog.innerHTML = `<span style="color:var(--green)">✅ ${ok} geïmporteerd</span>${fail ? ` <span style="color:var(--red)">• ${fail} mislukt</span>` : ''}`;
+  btn.textContent = 'Klaar';
+  if (ok > 0) toast(`${ok} leerkrachten geïmporteerd in ${SCHOOLS.find(s=>s.key===schoolKey)?.name}`);
+}
+
 </script>
 </body>
 </html>
