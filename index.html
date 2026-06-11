@@ -611,7 +611,7 @@ function doLogin() {
   const btn = document.getElementById('btn-auth');
   btn.disabled = true; btn.textContent = 'Aanmelden...';
   try {
-    if(window.self !== window.top){ showError('Sessie verlopen. Sluit dit venster en meld opnieuw aan via het portaal.'); return; }
+    if(window.self !== window.top){ document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;text-align:center;padding:20px;"><div><p style="font-size:1rem;color:#333;">Sessie verlopen.</p><p style="font-size:.85rem;color:#666;">Meld opnieuw aan via het MijnDigiKAntoor portaal.</p></div></div>'; return; }
     msalApp.loginRedirect({ scopes: ["Sites.ReadWrite.All"] });
   } catch(e) {
     document.getElementById('auth-err').textContent = e.message;
