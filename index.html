@@ -1901,7 +1901,14 @@ async function boot() {
 
     const accounts = msalApp.getAllAccounts();
     if (!accounts.length) {
-      if (window.self !== window.top) { showError('Geen sessie gevonden. Meld aan via het MijnDigiKAntoor portaal.'); return; }
+      if (window.self !== window.top) {
+        if (!window._portalToken) await new Promise(r => setTimeout(r, 2000));
+        if (window._portalToken) {
+          currentUser = { username: window._portalEmail || '' };
+          await afterLogin(); window._appBooted = true; return;
+        }
+        showError('Geen sessie gevonden. Meld aan via het MijnDigiKAntoor portaal.'); return;
+      }
       document.getElementById('auth-overlay').style.display = 'flex';
       return;
     }
