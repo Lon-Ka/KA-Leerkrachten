@@ -237,6 +237,45 @@ if (window.self === window.top) {
     });
 }
 </script>
+<script>
+if (window.self === window.top) {
+  document.addEventListener('DOMContentLoaded', function() {
+    document.body.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  height:100vh;font-family:'Segoe UI',sans-serif;background:#F5F7FA;text-align:center;padding:20px;">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" style="margin-bottom:24px;">
+          <rect width="64" height="64" rx="16" fill="#0F1D2E"/>
+          <rect x="12" y="12" width="16" height="16" rx="4" fill="#1A6BB5"/>
+          <rect x="36" y="12" width="16" height="16" rx="4" fill="#2E8B57"/>
+          <rect x="12" y="36" width="16" height="16" rx="4" fill="#C05A1A"/>
+          <rect x="36" y="36" width="16" height="16" rx="4" fill="#6B7A8D"/>
+        </svg>
+        <h2 style="margin:0 0 8px;font-size:1.4rem;color:#1C2B3A;">Toegang via portaal vereist</h2>
+        <p style="margin:0 0 28px;color:#6B7A8D;max-width:360px;line-height:1.5;">
+          Deze applicatie is enkel beschikbaar via het MijnDigiKAntoor portaal.
+        </p>
+        <a href="https://lon-ka.github.io/KA-portaal/"
+           style="display:inline-flex;align-items:center;gap:10px;padding:14px 28px;
+                  background:#0F1D2E;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;">
+          Naar MijnDigiKAntoor
+        </a>
+      </div>`;
+  });
+}
+</script>
+<script>
+window._portalToken = null;
+window._portalEmail = '';
+window._appBooted = false;
+window.addEventListener('message', function(event) {
+  if (event.origin !== 'https://lon-ka.github.io') return;
+  if (!event.data || event.data.type !== 'MSAL_TOKEN') return;
+  if (window._portalToken) return;
+  window._portalToken = event.data.token;
+  window._portalEmail = event.data.email || '';
+  if (!window._appBooted) boot();
+});
+</script>
 </head>
 <body>
 
@@ -605,7 +644,42 @@ Opleiding kinderverzorging of gelijkwaardig` },
 // ════════════════════════════════════════════════════════════════
 // MSAL & AUTH
 // ════════════════════════════════════════════════════════════════
-let msalApp = null, currentUser = null, token = null, userAccess = null;
+const SCOPES = ['User.Read', 'Sites.ReadWrite.All'];
+
+const msalApp = new msal.PublicClientApplication({
+  auth: { clientId: CONFIG.clientId, authority: `https://login.microsoftonline.com/${CONFIG.tenantId}`, redirectUri: CONFIG.redirectUri },
+  cache: { cacheLocation: 'localStorage', storeAuthStateInCookie: false }
+});
+
+let currentUser = null, token = null, userAccess = null;
+
+async function login() {
+  if (window.self !== window.top) { showError('Sessie verlopen. Meld opnieuw aan via het portaal.'); return; }
+  try { await msalApp.loginRedirect({ scopes: SCOPES }); }
+  catch(e) { showError('Aanmelden mislukt: ' + e.message); }
+}
+
+async function logout() {
+  await msalApp.logoutRedirect({ postLogoutRedirectUri: CONFIG.redirectUri });
+}
+
+function showError(msg) {
+  console.error('KA-Leerkrachten:', msg);
+  try {
+    document.getElementById('auth-err').textContent = msg;
+    document.getElementById('auth-overlay').style.display = 'flex';
+  } catch(e) {}
+}
+
+function showView(v) {
+  if (v === 'login') {
+    document.getElementById('auth-overlay').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  } else if (v === 'app') {
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+  }
+}
 
 function doLogin() {
   const btn = document.getElementById('btn-auth');
@@ -624,11 +698,18 @@ function doLogout() {
 }
 
 async function getToken() {
+  if (window._portalToken) { token = window._portalToken; return token; }
   const accounts = msalApp.getAllAccounts();
   if (!accounts.length) return null;
-  const r = await msalApp.acquireTokenSilent({ scopes: ["Sites.ReadWrite.All"], account: accounts[0] });
-  token = r.accessToken;
-  return token;
+  try {
+    const r = await msalApp.acquireTokenSilent({ scopes: SCOPES, account: accounts[0] });
+    token = r.accessToken;
+    return token;
+  } catch(e) {
+    if (window.self !== window.top) { showError('Sessie verlopen. Meld opnieuw aan via het portaal.'); return null; }
+    await msalApp.acquireTokenRedirect({ scopes: SCOPES, account: accounts[0] });
+    return null;
+  }
 }
 
 async function afterLogin() {
@@ -1803,32 +1884,37 @@ function closeModal() { const m = document.getElementById('modal-bg'); if (m) m.
 // ════════════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════════════
-// Meldpunt-patroon: msalInit eenmalig bij DOMContentLoaded
-async function msalInit() {
-  msalApp = new msal.PublicClientApplication({
-    auth: { clientId: CONFIG.clientId, authority: 'https://login.microsoftonline.com/' + CONFIG.tenantId, redirectUri: 'https://lon-ka.github.io/KA-Leerkrachten/' },
-    cache: { cacheLocation: 'localStorage' }
-  });
-  await msalApp.initialize();
+async function boot() {
   try {
+    await msalApp.initialize();
     await msalApp.handleRedirectPromise();
-    // URL cleanup na redirect
     if (window.location.hash && window.location.hash.startsWith('#code=')) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-    const accounts = msalApp.getAllAccounts();
-    if (accounts.length > 0) {
-      currentUser = accounts[0];
-      await getToken();
+
+    if (window._portalToken) {
+      currentUser = msalApp.getAllAccounts()[0] || { username: window._portalEmail || '' };
       await afterLogin();
+      window._appBooted = true;
+      return;
     }
+
+    const accounts = msalApp.getAllAccounts();
+    if (!accounts.length) {
+      if (window.self !== window.top) { showError('Geen sessie gevonden. Meld aan via het MijnDigiKAntoor portaal.'); return; }
+      document.getElementById('auth-overlay').style.display = 'flex';
+      return;
+    }
+    currentUser = accounts[0];
+    await getToken();
+    await afterLogin();
+    window._appBooted = true;
   } catch(e) {
-    console.error('MSAL redirect error:', e);
-    try { document.getElementById('auth-err').textContent = 'Aanmeldfout: ' + e.message; } catch {}
+    showError('Initialisatie mislukt: ' + e.message);
   }
 }
 window.addEventListener('DOMContentLoaded', function() {
-  msalInit().catch(function(e) { console.error('MSAL init error:', e); });
+  boot().catch(function(e) { console.error('boot error:', e); });
 });
 
 // ════════════════════════════════════════════════════════════════
