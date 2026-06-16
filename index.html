@@ -204,6 +204,24 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--gray-50);color
 #toast{position:fixed;bottom:20px;right:20px;background:var(--gray-900);color:white;padding:10px 16px;border-radius:8px;font-size:13px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
 #toast.show{opacity:1}
 </style>
+<script>
+// ── Portaal token bridge (omzeilt iframe tracking prevention in Edge) ──
+window._portalToken = null;
+window._portalEmail = '';
+window._appBooted = false;
+
+window.addEventListener('message', function(event) {
+  if (event.origin !== 'https://lon-ka.github.io') return;
+  if (!event.data || event.data.type !== 'MSAL_TOKEN') return;
+  if (window._portalToken) return;
+  window._portalToken = event.data.token;
+  window._portalEmail = event.data.email || '';
+  // Herstart boot als die nog niet geslaagd is
+  if (!window._appBooted && typeof msalInit === 'function') {
+    msalInit().catch(console.error);
+  }
+});
+</script>
 </head>
 <body>
 
@@ -288,9 +306,9 @@ const LIST_IDS = {
   SOL_Referenties: "2e6d4bf6-d314-4158-9a45-90545afb03bd", SOL_Communicatie: "9236240d-8ec3-405b-8eed-7d4ec9fa1aa8",
   SOL_Bijlagen: "6d00de38-8408-48b1-9c91-cf215957e8b4",
   BEHEER_Functies: "", // In te vullen na aanmaken via setup.html of beheer
-  KIE_Overeenkomsten: "", // In te vullen na setup_update.html
-  KEI_Overeenkomsten: "",
-  MUL_Overeenkomsten: "",
+  KIE_Overeenkomsten: "484266d6-6325-4097-af36-3f107bbc5c02",
+  KEI_Overeenkomsten: "f1c90110-4072-4d6a-a5df-8ab0891009a2",
+  MUL_Overeenkomsten: "34d737c7-8333-4197-b36e-4f62920439b2",
 };
 
 const SCHOOLS = [
@@ -578,6 +596,11 @@ Opleiding kinderverzorging of gelijkwaardig` },
 let msalApp = null, currentUser = null, token = null, userAccess = null;
 
 function doLogin() {
+  // Nooit redirect vanuit iframe
+  if (window.self !== window.top) {
+    document.getElementById('auth-err').textContent = 'Meld aan via het KA-Portaal.';
+    return;
+  }
   const btn = document.getElementById('btn-auth');
   btn.disabled = true; btn.textContent = 'Aanmelden...';
   try {
@@ -593,10 +616,17 @@ function doLogout() {
 }
 
 async function getToken() {
+  // Portaal token bridge: gebruik token van portaal indien beschikbaar (iframe modus)
+  if (window._portalToken) { token = window._portalToken; return token; }
   const accounts = msalApp.getAllAccounts();
   if (!accounts.length) return null;
-  const r = await msalApp.acquireTokenSilent({ scopes: ["Sites.ReadWrite.All"], account: accounts[0] });
-  token = r.accessToken;
+  try {
+    const r = await msalApp.acquireTokenSilent({ scopes: ["Sites.ReadWrite.All"], account: accounts[0] });
+    token = r.accessToken;
+  } catch(e) {
+    if (window._portalToken) { token = window._portalToken; return token; }
+    throw e;
+  }
   return token;
 }
 
@@ -1792,6 +1822,7 @@ async function msalInit() {
     if (accounts.length > 0) {
       currentUser = accounts[0];
       await getToken();
+      window._appBooted = true;
       await afterLogin();
     }
   } catch(e) {
@@ -2184,7 +2215,25 @@ function printOvereenkomst(leerkrachtId, itemId) {
     const parts = [
       '<!DOCTYPE html><html lang=nl><head><meta charset=utf-8>',
       '<title>', titel, ' — ', naam, '</title>',
-      '<style>', css, '</style></head><body>',
+      '<style>', css, '</style><script>
+// ── Portaal token bridge (omzeilt iframe tracking prevention in Edge) ──
+window._portalToken = null;
+window._portalEmail = '';
+window._appBooted = false;
+
+window.addEventListener('message', function(event) {
+  if (event.origin !== 'https://lon-ka.github.io') return;
+  if (!event.data || event.data.type !== 'MSAL_TOKEN') return;
+  if (window._portalToken) return;
+  window._portalToken = event.data.token;
+  window._portalEmail = event.data.email || '';
+  // Herstart boot als die nog niet geslaagd is
+  if (!window._appBooted && typeof msalInit === 'function') {
+    msalInit().catch(console.error);
+  }
+});
+</script>
+</head><body>',
       '<div class=bar>',
         '<div><div style="font-size:18px;font-weight:700;color:#1D9E75">Scholengemeenschap KaBo</div>',
         '<div style="font-size:11px;color:#6B7280">', school, '</div></div>',
