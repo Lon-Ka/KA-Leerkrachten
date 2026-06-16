@@ -303,10 +303,7 @@ window.addEventListener('message', function(event) {
   if (window._portalToken) return;
   window._portalToken = event.data.token;
   window._portalEmail = event.data.email || '';
-  // Herstart boot als die nog niet geslaagd is
-  if (!window._appBooted && typeof msalInit === 'function') {
-    msalInit().catch(console.error);
-  }
+  if (!window._appBooted && typeof boot === 'function') boot();
 });
 </script>
 <script>
@@ -1828,33 +1825,41 @@ function closeModal() { const m = document.getElementById('modal-bg'); if (m) m.
 // INIT
 // ════════════════════════════════════════════════════════════════
 // Meldpunt-patroon: msalInit eenmalig bij DOMContentLoaded
-async function msalInit() {
+async function boot() {
   msalApp = new msal.PublicClientApplication({
     auth: { clientId: CONFIG.clientId, authority: 'https://login.microsoftonline.com/' + CONFIG.tenantId, redirectUri: 'https://lon-ka.github.io/KA-Leerkrachten/' },
     cache: { cacheLocation: 'localStorage' }
   });
-  await msalApp.initialize();
   try {
+    await msalApp.initialize();
     await msalApp.handleRedirectPromise();
-    // URL cleanup na redirect
     if (window.location.hash && window.location.hash.startsWith('#code=')) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
     const accounts = msalApp.getAllAccounts();
     if (accounts.length > 0) {
       currentUser = accounts[0];
-      await getToken();
+      token = await getToken();
       window._appBooted = true;
       await afterLogin();
+    } else if (window._portalToken) {
+      token = window._portalToken;
+      window._appBooted = true;
+      await afterLogin();
+    } else if (window.self !== window.top) {
+      return; // In iframe, wacht op portaal token via postMessage
     }
+    // Standalone zonder account: aanmeldscherm al zichtbaar via auth-overlay
   } catch(e) {
-    console.error('MSAL redirect error:', e);
+    console.error('Boot error:', e);
     try { document.getElementById('auth-err').textContent = 'Aanmeldfout: ' + e.message; } catch {}
   }
 }
-window.addEventListener('DOMContentLoaded', function() {
-  msalInit().catch(function(e) { console.error('MSAL init error:', e); });
-});
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
 
 // ════════════════════════════════════════════════════════════════
 // FUNCTIEBIBLIOTHEEK
