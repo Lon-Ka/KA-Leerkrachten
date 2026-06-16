@@ -1844,6 +1844,8 @@ async function boot() {
       await afterLogin();
     } else if (window._portalToken) {
       token = window._portalToken;
+      // Stel currentUser in vanuit portaal email
+      currentUser = { username: window._portalEmail, name: window._portalEmail };
       window._appBooted = true;
       await afterLogin();
     } else if (window.self !== window.top) {
