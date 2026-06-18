@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LON-Leerkrachten</title>
+<title>KA-Leerkrachten</title>
 <style>
 :root {
-  --teal:       #1F4E79;
-  --teal-dark:  #154060;
-  --teal-light: #EAF0FB;
-  --teal-mid:   #B8CFF0;
+  --teal:       #1D9E75;
+  --teal-dark:  #0F6E56;
+  --teal-light: #E1F5EE;
+  --teal-mid:   #9FE1CB;
   --amber:      #F59E0B;
   --amber-bg:   #FEF3C7;
   --red:        #EF4444;
@@ -119,7 +119,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--gray-50);color
 .person-card{display:flex;align-items:center;gap:12px;padding:12px 16px;background:white;border:1px solid var(--gray-200);border-radius:10px;cursor:pointer;transition:border-color .15s;margin-bottom:8px}
 .person-card:hover{border-color:var(--teal)}
 .person-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
-.av-blue-dark{background:var(--teal-light);color:var(--teal-dark)}
+.av-teal{background:var(--teal-light);color:var(--teal-dark)}
 .av-blue{background:var(--blue-bg);color:#1D4ED8}
 .av-purple{background:var(--purple-bg);color:#6D28D9}
 .av-amber{background:var(--amber-bg);color:#B45309}
@@ -283,9 +283,9 @@ window.addEventListener('message', function(event) {
 <div id="auth-overlay">
   <div class="auth-card">
     <div class="auth-logo">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1F4E79" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     </div>
-    <h1>LON-Leerkrachten</h1>
+    <h1>KA-Leerkrachten</h1>
     <p>Scholengemeenschap Kapelle-op-den-Bos BaO<br>Meld aan met je schoolaccount om verder te gaan.</p>
     <button class="auth-btn" id="btn-auth" onclick="doLogin()">
       <svg width="18" height="18" viewBox="0 0 23 23" fill="none"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="12" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="12" width="10" height="10" fill="#00A4EF"/><rect x="12" y="12" width="10" height="10" fill="#FFB900"/></svg>
@@ -305,7 +305,7 @@ window.addEventListener('message', function(event) {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
         </div>
         <div>
-          <div class="sb-logo-text">LON-Leerkrachten</div>
+          <div class="sb-logo-text">KA-Leerkrachten</div>
           <div class="sb-logo-sub">Scholengemeenschap KaBo</div>
         </div>
       </div>
@@ -344,34 +344,28 @@ window.addEventListener('message', function(event) {
 // CONFIG — vervang LIST_IDS na het uitvoeren van setup.html
 // ════════════════════════════════════════════════════════════════
 const CONFIG = {
-  clientId:  "629b0398-c18e-4455-a474-fe5fde0425e6",
-  tenantId:  "655d15e1-e5fc-4868-8462-8463dc0ff014",
-  siteId:    "londerwijs.sharepoint.com,2305d2c7-4a38-4256-92c0-06474940b240,4034d550-53b5-4591-8158-20a6eb9ca0bd",
-  redirectUri: 'https://lon-ka.github.io/LON-Leerkrachten/',
+  clientId:  "b427a5ba-542f-4254-8ca0-5fa41b1d130a",
+  tenantId:  "165074eb-b8b7-49e8-a9b4-54cac7939ed2",
+  siteId:    "gebaskabe.sharepoint.com,2adf941c-11ef-4788-b148-84a239538257,e0158228-22a6-4225-87dc-fe7d619ae7e4",
+  redirectUri: 'https://lon-ka.github.io/KA-Leerkrachten/',
 };
 
 // !! Na setup.html invullen:
-const DIRECTIES = {
-  CS: { naam: "Katelijne Jespers", email: "directie@centrumschool.londerzeel.be" },
-  KO: { naam: "Farah De Clercq",  email: "directie@kouterschool.londerzeel.be" },
-  TE: { naam: "Pieter Sarens",    email: "directie@terelst.londerzeel.be" },
-};
-
 const LIST_IDS = {
-  BEHEER_Toegang:   "953b7be1-b5f4-4487-b92e-4537dd4c7ad1",
-  CS_Leerkrachten: "6f626002-08ba-4632-8747-1fc2c77dc80b", CS_Gesprekken: "e8b8ee8a-3be6-470a-8211-5dec3a91a07d", CS_Opmerkingen: "c187fa2b-267f-4ee3-bd0f-396e61ee0cd1", CS_POP: "023b0080-91a3-4455-bdb4-b8f0df93862d",
-  KO_Leerkrachten: "31f3c325-d85f-4bfe-841b-7d9309149f01", KO_Gesprekken: "15fa17d1-8480-4ba2-9311-2791c49da07b", KO_Opmerkingen: "1e939e08-ee77-4187-be42-66f9438a3cc2", KO_POP: "1a945673-31bd-45f6-bbb4-d15a8cabd1d1",
-  TE_Leerkrachten: "cf52e172-8e33-47bd-b640-4d9f1b0fe9f3", TE_Gesprekken: "d96d4615-33a4-4005-b542-e4d5e15fc71a", TE_Opmerkingen: "02aee95f-778e-4be5-9ba7-80f1ab1d31b3", TE_POP: "1b8ed17f-f427-40cd-ae62-9b71b070758e",
-  SOL_Sollicitanten: "8ea04e60-fd06-4288-937c-04e456f4805d", SOL_Gesprekken: "7d30ee26-55f2-47d7-93fd-e4938c55d920", SOL_Documenten: "a0005c04-abe6-4dee-bf0d-46426effac1b",
-  SOL_Referenties: "b9c92a47-49ec-4ccd-8dc6-0d51de619989", SOL_Communicatie: "e5904c11-2621-4afa-ac9c-9cf1296b620e",
-  SOL_Bijlagen: "3fab3f5b-7b8d-4df1-a459-492bb2e215bc",
+  BEHEER_Toegang:   "6bfdfcb1-9a03-4fff-a1a3-1a24250279bf",
+  KIE_Leerkrachten: "0daa0be4-3e85-473a-b4cf-f103f06d3620", KIE_Gesprekken: "a956af1e-3903-407e-8052-9eea4e0843ba", KIE_Opmerkingen: "59d8cfcf-7484-4c84-9f1f-1091dc04bb31", KIE_POP: "24402f85-b062-41ea-9c3c-0dad67821b54",
+  KEI_Leerkrachten: "38d38161-1fec-4099-a7cd-e1f1660752ec", KEI_Gesprekken: "04ea922d-b21f-4399-86d0-ead6dade85f3", KEI_Opmerkingen: "152e3228-7f30-4429-aa33-cf018dcfee6a", KEI_POP: "fe7a36a5-9e14-4b8e-a3e9-5ed2bc3f1436",
+  MUL_Leerkrachten: "193fc405-fa69-4207-a7e2-47fab4adcc0c", MUL_Gesprekken: "19192fb6-04f6-4818-88b8-8aac8c979943", MUL_Opmerkingen: "2f9146cd-7ef8-402d-bd5d-4a497c2cf2bb", MUL_POP: "dd7dd9d1-a592-4b5b-8516-4992906125ab",
+  SOL_Sollicitanten: "84847179-18fd-45e7-a53f-3b00541325b0", SOL_Gesprekken: "2de5b5a6-6be6-46b5-8010-476676036334", SOL_Documenten: "12d8848c-5e6d-4e0b-b071-46a63636b8c5",
+  SOL_Referenties: "2e6d4bf6-d314-4158-9a45-90545afb03bd", SOL_Communicatie: "9236240d-8ec3-405b-8eed-7d4ec9fa1aa8",
+  SOL_Bijlagen: "6d00de38-8408-48b1-9c91-cf215957e8b4",
   BEHEER_Functies: "", // In te vullen na aanmaken via setup.html of beheer
 };
 
 const SCHOOLS = [
-  { key: "CS", name: "Centrumschool", color: "av-blue-dark" },
-  { key: "KO", name: "Kouterschool",   color: "av-blue" },
-  { key: "TE", name: "School Ter Elst", color: "av-purple" },
+  { key: "KIE", name: "Het Kiezeltje", color: "av-teal" },
+  { key: "KEI", name: "De Kei",        color: "av-blue" },
+  { key: "MUL", name: "'t Mulderke",   color: "av-purple" },
 ];
 
 const SOL_STATUSES = ["Nieuw","Uitgenodigd","Gesprek","Beslissing","Afgesloten"];
@@ -670,7 +664,7 @@ async function logout() {
 }
 
 function showError(msg) {
-  console.error('LON-Leerkrachten:', msg);
+  console.error('KA-Leerkrachten:', msg);
   try {
     document.getElementById('auth-err').textContent = msg;
     document.getElementById('auth-overlay').style.display = 'flex';
@@ -704,24 +698,18 @@ function doLogout() {
 }
 
 async function getToken() {
-  // Probeer eerst eigen token via silent flow (ook als portal token beschikbaar is)
-  const accounts = msalApp.getAllAccounts();
-  if (accounts.length) {
-    try {
-      const r = await msalApp.acquireTokenSilent({ scopes: SCOPES, account: accounts[0] });
-      token = r.accessToken;
-      return token;
-    } catch(e) { /* silent mislukt - val terug op portal token */ }
-  }
   if (window._portalToken) { token = window._portalToken; return token; }
+  const accounts = msalApp.getAllAccounts();
   if (!accounts.length) return null;
-  if (window.self !== window.top) { showError('Sessie verlopen. Meld opnieuw aan via het portaal.'); return null; }
   try {
-    const r2 = await msalApp.acquireTokenPopup({ scopes: SCOPES, account: accounts[0] });
-    token = r2.accessToken;
+    const r = await msalApp.acquireTokenSilent({ scopes: SCOPES, account: accounts[0] });
+    token = r.accessToken;
     return token;
-  } catch(e) { console.error('Token fout:', e); }
-  return null;
+  } catch(e) {
+    if (window.self !== window.top) { showError('Sessie verlopen. Meld opnieuw aan via het portaal.'); return null; }
+    await msalApp.acquireTokenRedirect({ scopes: SCOPES, account: accounts[0] });
+    return null;
+  }
 }
 
 async function afterLogin() {
@@ -736,7 +724,7 @@ async function afterLogin() {
 }
 
 async function loadUserAccess(email) {
-  if (!LIST_IDS.BEHEER_Toegang) return { naam: currentUser.name, email, scholen: ["CS","KO","TE"], niveau: "Systeembeheer", sol: true };
+  if (!LIST_IDS.BEHEER_Toegang) return { naam: currentUser.name, email, scholen: ["KIE","KEI","MUL"], niveau: "Systeembeheer", sol: true };
   try {
     // Haal alle records op en filter in JS (Email-kolom is mogelijk niet geïndexeerd in SharePoint)
     const data = await graphGet(`/sites/${CONFIG.siteId}/lists/${LIST_IDS.BEHEER_Toegang}/items?$expand=fields&$top=500`);
@@ -747,12 +735,12 @@ async function loadUserAccess(email) {
     const f = match.fields;
     return {
       naam: f.Naam || currentUser.name, email: f.Email, rol: f.Rol,
-      scholen: [f.SchoolCS && "CS", f.SchoolKO && "KO", f.SchoolTE && "TE"].filter(Boolean),
+      scholen: [f.SchoolKIE && "KIE", f.SchoolKEI && "KEI", f.SchoolMUL && "MUL"].filter(Boolean),
       niveau: f.Niveau, sol: true,
     };
   } catch(e) {
     console.warn('loadUserAccess fout, fallback gebruikt:', e.message);
-    return { naam: currentUser.name, email, scholen: ["CS","KO","TE"], niveau: "Directie", sol: true };
+    return { naam: currentUser.name, email, scholen: ["KIE","KEI","MUL"], niveau: "Directie", sol: true };
   }
 }
 
@@ -833,7 +821,7 @@ function fmtDate(d) {
 function today() { return new Date().toISOString().slice(0,10); }
 
 function avatarColor(name) {
-  const colors = ['av-blue-dark','av-blue','av-purple','av-amber'];
+  const colors = ['av-teal','av-blue','av-purple','av-amber'];
   return colors[(name||'').charCodeAt(0) % colors.length];
 }
 
@@ -860,7 +848,7 @@ function buildSidebar() {
     rl.textContent = userAccess.rol || userAccess.niveau;
   }
 
-  const schoolColors = { CS:'#1F4E79', KO:'#3B82F6', TE:'#8B5CF6' };
+  const schoolColors = { KIE:'#1D9E75', KEI:'#3B82F6', MUL:'#8B5CF6' };
 
   let html = `
     <div class="sb-section">Navigatie</div>
@@ -956,7 +944,7 @@ async function showDashboard() {
           <div class="card-title" style="margin-bottom:10px">Scholen</div>
           ${SCHOOLS.filter(s => userAccess?.scholen.includes(s.key)).map(s => `
             <div class="person-card" onclick="showSchool('${s.key}')">
-              <div class="person-avatar av-blue-dark" style="font-size:16px">🏫</div>
+              <div class="person-avatar av-teal" style="font-size:16px">🏫</div>
               <div class="person-info">
                 <div class="person-name">${s.name}</div>
                 <div class="person-meta">${counts[s.key]} leerkracht${counts[s.key]!==1?'en':''} · Sleutel: ${s.key}</div>
@@ -1905,27 +1893,7 @@ async function boot() {
     }
 
     if (window._portalToken) {
-      // Portaal heeft ingelogd — probeer eigen token via silent flow
-      const accs = msalApp.getAllAccounts();
-      if (accs.length) {
-        try {
-          const tr = await msalApp.acquireTokenSilent({ scopes: SCOPES, account: accs[0] });
-          token = tr.accessToken;
-        } catch(e) { token = window._portalToken; }
-      } else if (window._portalEmail) {
-        // Probeer ssoSilent met loginHint
-        try {
-          const sso = await msalApp.ssoSilent({ scopes: SCOPES, loginHint: window._portalEmail });
-          token = sso.accessToken;
-        } catch(e) {
-          // ssoSilent mislukt - gebruik portaaltoken rechtstreeks
-          token = window._portalToken;
-        }
-      } else {
-        token = window._portalToken;
-      }
-      const updAccs = msalApp.getAllAccounts();
-      currentUser = updAccs[0] || { username: window._portalEmail || '', name: window._portalEmail || '' };
+      currentUser = msalApp.getAllAccounts()[0] || { username: window._portalEmail || '' };
       await afterLogin();
       window._appBooted = true;
       return;
@@ -1939,7 +1907,7 @@ async function boot() {
           currentUser = { username: window._portalEmail || '' };
           await afterLogin(); window._appBooted = true; return;
         }
-        showError('Geen sessie gevonden. Meld aan via het MijnDigiLoket portaal.'); return;
+        showError('Geen sessie gevonden. Meld aan via het MijnDigiKAntoor portaal.'); return;
       }
       document.getElementById('auth-overlay').style.display = 'flex';
       return;
