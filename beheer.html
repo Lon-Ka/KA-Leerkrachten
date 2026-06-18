@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Beheer — KA-Leerkrachten</title>
+<title>Beheer — LON-Leerkrachten</title>
 <style>
 :root {
-  --teal:#1D9E75; --teal-dark:#0F6E56; --teal-light:#E1F5EE; --teal-mid:#9FE1CB;
+  --teal:#1F4E79; --teal-dark:#154060; --teal-light:#EAF0FB; --teal-mid:#B8CFF0;
   --amber:#F59E0B; --amber-bg:#FEF3C7; --red:#EF4444; --red-bg:#FEE2E2;
   --green:#22C55E; --green-bg:#DCFCE7;
   --g50:#F9FAFB; --g100:#F3F4F6; --g200:#E5E7EB; --g300:#D1D5DB;
@@ -147,26 +147,32 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g50);color:var
 // CONFIG
 // ════════════════════════════════════════════════
 const CONFIG = {
-  clientId: "2ada9cb7-83e9-450b-a632-193715bec13f",
-  tenantId: "165074eb-b8b7-49e8-a9b4-54cac7939ed2",
-  siteId:   "gebaskabe.sharepoint.com,2adf941c-11ef-4788-b148-84a239538257,e0158228-22a6-4225-87dc-fe7d619ae7e4",
+  clientId: "629b0398-c18e-4455-a474-fe5fde0425e6",
+  tenantId: "655d15e1-e5fc-4868-8462-8463dc0ff014",
+  siteId:   "londerwijs.sharepoint.com,2305d2c7-4a38-4256-92c0-06474940b240,4034d550-53b5-4591-8158-20a6eb9ca0bd",
   redirectUri: window.location.href.split('?')[0],
 };
 
 // !! Na setup.html invullen:
+const DIRECTIES = {
+  CS: { naam: "Katelijne Jespers", email: "directie@centrumschool.londerzeel.be" },
+  KO: { naam: "Farah De Clercq",  email: "directie@kouterschool.londerzeel.be" },
+  TE: { naam: "Pieter Sarens",    email: "directie@terelst.londerzeel.be" },
+};
+
 const LIST_IDS = {
-  BEHEER_Toegang:   "6bfdfcb1-9a03-4fff-a1a3-1a24250279bf",
-  KIE_Leerkrachten: "0daa0be4-3e85-473a-b4cf-f103f06d3620", KIE_Gesprekken: "a956af1e-3903-407e-8052-9eea4e0843ba", KIE_Opmerkingen: "59d8cfcf-7484-4c84-9f1f-1091dc04bb31", KIE_POP: "24402f85-b062-41ea-9c3c-0dad67821b54",
-  KEI_Leerkrachten: "38d38161-1fec-4099-a7cd-e1f1660752ec", KEI_Gesprekken: "04ea922d-b21f-4399-86d0-ead6dade85f3", KEI_Opmerkingen: "152e3228-7f30-4429-aa33-cf018dcfee6a", KEI_POP: "fe7a36a5-9e14-4b8e-a3e9-5ed2bc3f1436",
-  MUL_Leerkrachten: "193fc405-fa69-4207-a7e2-47fab4adcc0c", MUL_Gesprekken: "19192fb6-04f6-4818-88b8-8aac8c979943", MUL_Opmerkingen: "2f9146cd-7ef8-402d-bd5d-4a497c2cf2bb", MUL_POP: "dd7dd9d1-a592-4b5b-8516-4992906125ab",
-  SOL_Sollicitanten: "84847179-18fd-45e7-a53f-3b00541325b0", SOL_Gesprekken: "2de5b5a6-6be6-46b5-8010-476676036334", SOL_Documenten: "12d8848c-5e6d-4e0b-b071-46a63636b8c5",
-  SOL_Referenties: "2e6d4bf6-d314-4158-9a45-90545afb03bd", SOL_Communicatie: "9236240d-8ec3-405b-8eed-7d4ec9fa1aa8", SOL_Bijlagen: "6d00de38-8408-48b1-9c91-cf215957e8b4",
+  BEHEER_Toegang:   "953b7be1-b5f4-4487-b92e-4537dd4c7ad1",
+  CS_Leerkrachten: "6f626002-08ba-4632-8747-1fc2c77dc80b", CS_Gesprekken: "e8b8ee8a-3be6-470a-8211-5dec3a91a07d", CS_Opmerkingen: "c187fa2b-267f-4ee3-bd0f-396e61ee0cd1", CS_POP: "023b0080-91a3-4455-bdb4-b8f0df93862d",
+  KO_Leerkrachten: "31f3c325-d85f-4bfe-841b-7d9309149f01", KO_Gesprekken: "15fa17d1-8480-4ba2-9311-2791c49da07b", KO_Opmerkingen: "1e939e08-ee77-4187-be42-66f9438a3cc2", KO_POP: "1a945673-31bd-45f6-bbb4-d15a8cabd1d1",
+  TE_Leerkrachten: "cf52e172-8e33-47bd-b640-4d9f1b0fe9f3", TE_Gesprekken: "d96d4615-33a4-4005-b542-e4d5e15fc71a", TE_Opmerkingen: "02aee95f-778e-4be5-9ba7-80f1ab1d31b3", TE_POP: "1b8ed17f-f427-40cd-ae62-9b71b070758e",
+  SOL_Sollicitanten: "8ea04e60-fd06-4288-937c-04e456f4805d", SOL_Gesprekken: "7d30ee26-55f2-47d7-93fd-e4938c55d920", SOL_Documenten: "a0005c04-abe6-4dee-bf0d-46426effac1b",
+  SOL_Referenties: "b9c92a47-49ec-4ccd-8dc6-0d51de619989", SOL_Communicatie: "e5904c11-2621-4afa-ac9c-9cf1296b620e", SOL_Bijlagen: "3fab3f5b-7b8d-4df1-a459-492bb2e215bc",
 };
 
 const SCHOOLS = [
-  { key:"KIE", name:"Het Kiezeltje" },
-  { key:"KEI", name:"De Kei" },
-  { key:"MUL", name:"'t Mulderke" },
+  { key:"CS", name:"Centrumschool" },
+  { key:"KO", name:"Kouterschool" },
+  { key:"TE", name:"School Ter Elst" },
 ];
 
 // ════════════════════════════════════════════════
@@ -270,9 +276,9 @@ function renderToegang(items) {
       <td><strong>${u.Naam||''}</strong></td>
       <td style="color:var(--g500)">${u.Email||''}</td>
       <td>${u.Rol||''}</td>
-      <td style="text-align:center"><div class="check ${u.SchoolKIE?'check-yes':'check-no'}">${u.SchoolKIE?'✓':'—'}</div></td>
-      <td style="text-align:center"><div class="check ${u.SchoolKEI?'check-yes':'check-no'}">${u.SchoolKEI?'✓':'—'}</div></td>
-      <td style="text-align:center"><div class="check ${u.SchoolMUL?'check-yes':'check-no'}">${u.SchoolMUL?'✓':'—'}</div></td>
+      <td style="text-align:center"><div class="check ${u.SchoolCS?'check-yes':'check-no'}">${u.SchoolCS?'✓':'—'}</div></td>
+      <td style="text-align:center"><div class="check ${u.SchoolKO?'check-yes':'check-no'}">${u.SchoolKO?'✓':'—'}</div></td>
+      <td style="text-align:center"><div class="check ${u.SchoolTE?'check-yes':'check-no'}">${u.SchoolTE?'✓':'—'}</div></td>
       <td><span class="tag ${u.Niveau==='Systeembeheer'?'tag-sys':'tag-dir'}">${u.Niveau||''}</span></td>
       <td><span style="font-size:11px;color:${u.Actief?'var(--green)':'var(--red)'}">${u.Actief?'✓ Actief':'✗ Inactief'}</span></td>
       <td>
@@ -292,7 +298,7 @@ function renderToegang(items) {
         <table class="table">
           <thead><tr>
             <th>Naam</th><th>E-mailadres</th><th>Rol</th>
-            <th style="text-align:center">KIE</th><th style="text-align:center">KEI</th><th style="text-align:center">MUL</th>
+            <th style="text-align:center">CS</th><th style="text-align:center">KO</th><th style="text-align:center">TE</th>
             <th>Niveau</th><th>Status</th><th>Acties</th>
           </tr></thead>
           <tbody>${rows || '<tr><td colspan="9" style="text-align:center;color:var(--g400);padding:24px">Nog geen gebruikers. Voeg een gebruiker toe.</td></tr>'}</tbody>
@@ -348,9 +354,9 @@ async function saveNewUser() {
   try {
     await createItem(LIST_IDS.BEHEER_Toegang, {
       Naam: naam, Email: email, Rol: document.getElementById('m-rol').value,
-      SchoolKIE: document.getElementById('cb-KIE').checked,
-      SchoolKEI: document.getElementById('cb-KEI').checked,
-      SchoolMUL: document.getElementById('cb-MUL').checked,
+      SchoolCS: document.getElementById('cb-CS').checked,
+      SchoolKO: document.getElementById('cb-KO').checked,
+      SchoolTE: document.getElementById('cb-TE').checked,
       Niveau: document.getElementById('m-niveau').value,
       Periode: document.getElementById('m-periode').value,
       Actief: true,
@@ -400,9 +406,9 @@ async function saveEditUser(id) {
       Naam: document.getElementById('m-naam').value,
       Email: document.getElementById('m-email').value,
       Rol: document.getElementById('m-rol').value,
-      SchoolKIE: document.getElementById('cb-KIE').checked,
-      SchoolKEI: document.getElementById('cb-KEI').checked,
-      SchoolMUL: document.getElementById('cb-MUL').checked,
+      SchoolCS: document.getElementById('cb-CS').checked,
+      SchoolKO: document.getElementById('cb-KO').checked,
+      SchoolTE: document.getElementById('cb-TE').checked,
       Niveau: document.getElementById('m-niveau').value,
       Periode: document.getElementById('m-periode').value,
     });
@@ -603,16 +609,16 @@ function showInfo() {
       <div class="card-title">Applicatie-informatie</div>
       <table class="table">
         <tbody>
-          <tr><td style="font-weight:500">Naam</td><td>KA-Leerkrachten Volgsysteem</td></tr>
+          <tr><td style="font-weight:500">Naam</td><td>LON-Leerkrachten Volgsysteem</td></tr>
           <tr><td style="font-weight:500">Scholengroep</td><td>Scholengemeenschap Kapelle-op-den-Bos BaO</td></tr>
           <tr><td style="font-weight:500">Versie</td><td>1.0</td></tr>
-          <tr><td style="font-weight:500">Scholen</td><td>Het Kiezeltje (KIE) · De Kei (KEI) · 't Mulderke (MUL)</td></tr>
-          <tr><td style="font-weight:500">GitHub repository</td><td><a href="https://github.com/Lon-Ka/KA-Leerkrachten" target="_blank">Lon-Ka/KA-Leerkrachten</a></td></tr>
-          <tr><td style="font-weight:500">GitHub Pages URL</td><td><a href="https://Lon-Ka.github.io/KA-Leerkrachten/" target="_blank">https://Lon-Ka.github.io/KA-Leerkrachten/</a></td></tr>
+          <tr><td style="font-weight:500">Scholen</td><td>Centrumschool (CS) · Kouterschool (KO) · School Ter Elst (TE)</td></tr>
+          <tr><td style="font-weight:500">GitHub repository</td><td><a href="https://github.com/Lon-Ka/LON-Leerkrachten" target="_blank">Lon-Ka/LON-Leerkrachten</a></td></tr>
+          <tr><td style="font-weight:500">GitHub Pages URL</td><td><a href="https://Lon-Ka.github.io/LON-Leerkrachten/" target="_blank">https://Lon-Ka.github.io/LON-Leerkrachten/</a></td></tr>
           <tr><td style="font-weight:500">Azure App Registration</td><td>${CONFIG.clientId}</td></tr>
           <tr><td style="font-weight:500">SharePoint Site ID</td><td style="font-size:11px">${CONFIG.siteId}</td></tr>
-          <tr><td style="font-weight:500">Tenant</td><td>gebaskabe (${CONFIG.tenantId})</td></tr>
-          <tr><td style="font-weight:500">Systeembeheerder</td><td>Wim Cools (ict@gebaska.be)</td></tr>
+          <tr><td style="font-weight:500">Tenant</td><td>londerwijs (${CONFIG.tenantId})</td></tr>
+          <tr><td style="font-weight:500">Systeembeheerder</td><td>Wim Cools (ict@centrumschool.londerzeel.be)</td></tr>
         </tbody>
       </table>
     </div>
