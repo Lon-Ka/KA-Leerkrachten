@@ -294,7 +294,9 @@ window._portalEmail = '';
 window._appBooted = false;
 window.addEventListener('message', function(event) {
   if (event.origin !== 'https://lon-ka.github.io') return;
-  if (!event.data || event.data.type !== 'MSAL_TOKEN') return;
+  if (!event.data) return;
+  if (event.data.type === 'OPEN_HELP') { openHelp(); return; }
+  if (event.data.type !== 'MSAL_TOKEN') return;
   if (window._portalToken) return;
   window._portalToken = event.data.token;
   window._portalEmail = event.data.email || '';
