@@ -210,7 +210,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--gray-50);color
 .help-drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,100vw);background:white;z-index:9001;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.15)}
 .help-drawer.on{transform:translateX(0)}
 .help-hdr{color:white;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.help-hdr h2{font-size:15px;font-weight:700;margin:0;display:flex;align-items:center;gap:8px}
+.help-hdr h2{font-size:15px;font-weight:700;margin:0}
 .help-close{background:rgba(255,255,255,.2);border:none;border-radius:8px;color:white;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:background .15s;flex-shrink:0}
 .help-close:hover{background:rgba(255,255,255,.35)}
 .help-nav{display:flex;border-bottom:1px solid #E8E5DC;flex-shrink:0;overflow-x:auto}
@@ -218,14 +218,14 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--gray-50);color
 .help-tab:hover{color:#333}
 .help-body{flex:1;overflow-y:auto;padding:1.25rem}
 .help-section{display:none}.help-section.active{display:block}
-.help-section h3{font-size:14px;font-weight:700;margin:0 0 .5rem;display:flex;align-items:center;gap:6px}
+.help-section h3{font-size:14px;font-weight:700;margin:0 0 .5rem}
 .help-section h4{font-size:11px;font-weight:700;color:#555;margin:.9rem 0 .3rem;text-transform:uppercase;letter-spacing:.04em}
 .help-section p{font-size:13px;color:#444;line-height:1.65;margin:0 0 .75rem}
 .help-section ul{margin:.25rem 0 .75rem;padding-left:1.25rem}
 .help-section li{font-size:13px;color:#444;line-height:1.65;margin-bottom:.25rem}
 .help-tip{border-left:3px solid #888;border-radius:0 8px 8px 0;padding:.6rem .85rem;margin:.75rem 0;font-size:12px;line-height:1.55;background:#F8F7F4;color:#444}
 .help-step{display:flex;gap:.75rem;margin-bottom:.6rem}
-.help-step-nr{flex-shrink:0;width:22px;height:22px;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-top:2px;background:#888}
+.help-step-nr{flex-shrink:0;width:22px;height:22px;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-top:2px}
 .help-step-txt{font-size:13px;color:#444;line-height:1.6}
 .help-footer{padding:.75rem 1.25rem;border-top:1px solid #E8E5DC;font-size:11px;color:#AAA;flex-shrink:0;text-align:center}
 </style>
@@ -292,17 +292,13 @@ if (window.self === window.top) {
 window._portalToken = null;
 window._portalEmail = '';
 window._appBooted = false;
-document.addEventListener('DOMContentLoaded', function() {
-  window.addEventListener('message', function(event) {
-    if (event.origin !== 'https://lon-ka.github.io') return;
-    if (!event.data) return;
-    if (event.data.type === 'OPEN_HELP') { if(typeof openHelp==='function') openHelp(); return; }
-    if (event.data.type !== 'MSAL_TOKEN') return;
-    if (window._portalToken) return;
-    window._portalToken = event.data.token;
-    window._portalEmail = event.data.email || '';
-    if (!window._appBooted && typeof boot==='function') boot();
-  });
+window.addEventListener('message', function(event) {
+  if (event.origin !== 'https://lon-ka.github.io') return;
+  if (!event.data || event.data.type !== 'MSAL_TOKEN') return;
+  if (window._portalToken) return;
+  window._portalToken = event.data.token;
+  window._portalEmail = event.data.email || '';
+  if (!window._appBooted) boot();
 });
 </script>
 </head>
@@ -349,9 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="sb-nav" id="sb-nav">
       <!-- dynamisch gebouwd -->
     </div>
-    <div style="padding:12px 16px;border-top:1px solid var(--gray-200)">
-      <button onclick="openHelp()" style="width:100%;padding:8px;font-size:12px;background:transparent;border:1px solid var(--gray-200);border-radius:6px;cursor:pointer;color:var(--text-muted,#888);font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">&#63; Help</button>
-    </div>
+    <div style="padding:12px 16px;border-top:1px solid var(--gray-200)"><button onclick="openHelp()" style="width:100%;padding:8px;font-size:12px;background:transparent;border:1px solid var(--gray-200);border-radius:6px;cursor:pointer;color:#888;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">&#63; Help</button></div>
     
     ${sorted.length === 0 ? `<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>Nog geen gesprekken.</p></div>` :
     sorted.map(g => `
@@ -1402,23 +1396,23 @@ async function runImport() {
 }
 
 
-function openHelp(){
-  document.getElementById('helpOverlay').classList.add('on');
-  document.getElementById('helpDrawer').classList.add('on');
-  document.body.style.overflow='hidden';
-}
-function closeHelp(){
-  document.getElementById('helpOverlay').classList.remove('on');
-  document.getElementById('helpDrawer').classList.remove('on');
-  document.body.style.overflow='';
-}
-function showHelpTab(id,btn){
-  document.querySelectorAll('.help-section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.help-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('help-'+id).classList.add('active');
-  btn.classList.add('active');
-}
+function openHelp(){document.getElementById('helpOverlay').classList.add('on');document.getElementById('helpDrawer').classList.add('on');document.body.style.overflow='hidden';}
+function closeHelp(){document.getElementById('helpOverlay').classList.remove('on');document.getElementById('helpDrawer').classList.remove('on');document.body.style.overflow='';}
+function showHelpTab(id,btn){document.querySelectorAll('.help-section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.help-tab').forEach(t=>t.classList.remove('active'));document.getElementById('help-'+id).classList.add('active');btn.classList.add('active');}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeHelp();});
+
+document.addEventListener('DOMContentLoaded', function() {
+  window.addEventListener('message', function(event) {
+    if (event.origin !== 'https://lon-ka.github.io') return;
+    if (!event.data) return;
+    if (event.data.type === 'OPEN_HELP') { if(typeof openHelp==='function') openHelp(); return; }
+    if (event.data.type !== 'MSAL_TOKEN') return;
+    if (window._portalToken) return;
+    window._portalToken = event.data.token;
+    window._portalEmail = event.data.email || '';
+    if (!window._appBooted && typeof boot==='function') boot();
+  });
+});
 
 </script>
 
@@ -1429,42 +1423,8 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeHelp();
     <h2>&#9432; Help &mdash; Leerkrachten</h2>
     <button class="help-close" onclick="closeHelp()">&#x2715;</button>
   </div>
-  <div class="help-nav"><button class="help-tab  active" onclick="showHelpTab('algemeen',this)">Algemeen</button><button class="help-tab" onclick="showHelpTab('personeel',this)">Personeelsgegevens</button><button class="help-tab" onclick="showHelpTab('documenten',this)">Documenten</button><button class="help-tab" onclick="showHelpTab('beheer',this)">Beheer</button></div>
-  <div class="help-body"><div class="help-section  active" id="help-algemeen">
-      <h3>&#8505; Over Leerkrachten</h3>
-      <p>De <strong>Leerkrachten</strong>-app centraliseert personeelsgegevens, functieprofielen en overeenkomsten voor alle scholen van de scholengroep.</p>
-      <div class="help-tip"><strong>Toegang:</strong> enkel via het portaal. Je ziet enkel gegevens van de scholen waarvoor je rechten hebt.</div>
-      <h4>Rollen</h4>
-      <ul>
-        <li><strong>Personeelslid:</strong> eigen gegevens bekijken en documenten raadplegen</li>
-        <li><strong>Directeur:</strong> personeelsgegevens van de eigen school beheren</li>
-        <li><strong>Secretariaat:</strong> alle scholen, exports en instellingen</li>
-        <li><strong>Systeembeheer:</strong> volledige toegang inclusief beheer van rollen</li>
-      </ul></div><div class="help-section" id="help-personeel">
-      <h3>&#128100; Personeelsgegevens</h3>
-      <p>Per personeelslid worden contactgegevens, aanstellingsinfo en schoolkoppeling bijgehouden.</p>
-      <h4>Gegevens toevoegen of wijzigen</h4>
-      <div class="help-step"><div class="help-step-nr">1</div><div class="help-step-txt">Zoek het personeelslid via de zoekbalk of de schoolfilter</div></div>
-      <div class="help-step"><div class="help-step-nr">2</div><div class="help-step-txt">Klik op de naam om het detailscherm te openen</div></div>
-      <div class="help-step"><div class="help-step-nr">3</div><div class="help-step-txt">Klik op <strong>Bewerken</strong> om gegevens aan te passen</div></div>
-      <div class="help-step"><div class="help-step-nr">4</div><div class="help-step-txt">Sla op — wijzigingen worden automatisch gesynchroniseerd</div></div>
-      <div class="help-tip"><strong>Tip:</strong> gebruik de schoolfilter bovenaan om snel te schakelen tussen scholen.</div></div><div class="help-section" id="help-documenten">
-      <h3>&#128196; Documenten en overeenkomsten</h3>
-      <p>Per personeelslid kunnen documenten worden bijgehouden: gebruikersovereenkomsten ICT, functieprofielen, evaluatiedocumenten, ...</p>
-      <h4>Document toevoegen</h4>
-      <div class="help-step"><div class="help-step-nr">1</div><div class="help-step-txt">Open het personeelsdossier</div></div>
-      <div class="help-step"><div class="help-step-nr">2</div><div class="help-step-txt">Ga naar het tabblad <strong>Documenten</strong></div></div>
-      <div class="help-step"><div class="help-step-nr">3</div><div class="help-step-txt">Klik op <strong>+ Document toevoegen</strong> en selecteer het bestand</div></div>
-      <div class="help-tip"><strong>Let op:</strong> documenten worden opgeslagen in SharePoint en zijn beveiligd per school.</div></div><div class="help-section" id="help-beheer">
-      <h3>&#9881; Beheer</h3>
-      <h4>Functiebibliotheek</h4>
-      <p>Via <strong>Functiebibliotheek</strong> beheer je de lijst van functies (leerkracht, zorgleerkracht, directeur, ...) die gekoppeld kunnen worden aan personeelsleden.</p>
-      <h4>Gebruikersbeheer</h4>
-      <p>Beheerders kunnen via <strong>Toegangsbeheer</strong> rollen toekennen en schoolkoppelingen instellen. Wijzigingen zijn onmiddellijk actief.</p>
-      <h4>Export</h4>
-      <p>Het personeelsoverzicht kan geëxporteerd worden als Excel voor gebruik in andere systemen.</p></div></div>
+  <div class="help-nav"><button class="help-tab  active" onclick="showHelpTab('algemeen',this)">Algemeen</button><button class="help-tab" onclick="showHelpTab('personeel',this)">Personeelsgegevens</button><button class="help-tab" onclick="showHelpTab('documenten',this)">Documenten</button><button class="help-tab" onclick="showHelpTab('beheer',this)">Beheer</button></div><div class="help-body"><div class="help-section  active" id="help-algemeen"><h3 style="color:#1A6B4A">&#8505; Over Leerkrachten</h3><p>Centraliseert personeelsgegevens en documenten. Enkel voor directie via het portaal.</p></div><div class="help-section" id="help-personeel"><h3 style="color:#1A6B4A">&#128100; Personeelsgegevens</h3><div class="help-step"><div class="help-step-nr" style="background:#1A6B4A">1</div><div class="help-step-txt">Zoek via zoekbalk of schoolfilter</div></div><div class="help-step"><div class="help-step-nr" style="background:#1A6B4A">2</div><div class="help-step-txt">Klik op naam → detailscherm</div></div><div class="help-step"><div class="help-step-nr" style="background:#1A6B4A">3</div><div class="help-step-txt">Klik <strong>Bewerken</strong> om gegevens aan te passen</div></div></div><div class="help-section" id="help-documenten"><h3 style="color:#1A6B4A">&#128196; Documenten</h3><p>Per personeelslid: gebruikersovereenkomsten ICT, functieprofiel, evaluatiedocumenten.</p><div class="help-tip"><strong>Opgeslagen in SharePoint</strong> en beveiligd per school.</div></div><div class="help-section" id="help-beheer"><h3 style="color:#1A6B4A">&#9881; Beheer</h3><p>Via <strong>Toegangsbeheer</strong> (systeembeheer) worden rollen en schoolkoppelingen ingesteld. Contacteer de ICT-coördinator voor wijzigingen.</p></div></div>
   <div class="help-footer">Scholengroep Kapelle-op-den-Bos BaO — ict@gebaska.be</div>
 </div>
-
 </body>
 </html>
