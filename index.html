@@ -686,17 +686,27 @@ async function afterLogin() {
 
     // Rol ophalen uit BEHEER_Toegang
     const alleGebruikers = await getListItems(LIST_IDS.BEHEER_Toegang);
-    const gebruiker = alleGebruikers.find(u => (u.Title || '').toLowerCase() === email);
+    const gebruiker = alleGebruikers.find(u => (u.Email || u.Title || '').toLowerCase() === email);
     if (!gebruiker) {
       showError(`Uw account (${email}) is niet geconfigureerd in BEHEER_Toegang. Contacteer de ICT-coördinator.`);
       return;
+    }
+
+    // Scholen via aparte checkbox kolommen (SchoolKIE, SchoolKEI, SchoolMUL)
+    const scholen = [];
+    if (gebruiker.SchoolKIE) scholen.push('KK');
+    if (gebruiker.SchoolKEI) scholen.push('DK');
+    if (gebruiker.SchoolMUL) scholen.push('TM');
+    // Fallback: tekstveld indien aanwezig
+    if (scholen.length === 0 && gebruiker.Scholen) {
+      scholen.push(...(gebruiker.Scholen).split(';').map(s => s.trim()).filter(Boolean));
     }
 
     userAccess = {
       email,
       naam: me.displayName || email,
       rol: (gebruiker.Rol || 'leerkracht').toLowerCase(),
-      scholen: (gebruiker.Scholen || '').split(';').map(s => s.trim()).filter(Boolean),
+      scholen,
     };
 
     // Sidebar bijwerken
