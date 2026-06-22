@@ -323,7 +323,31 @@ window.addEventListener('message', function(event) {
       <!-- dynamisch gebouwd -->
     </div>
     <div style="padding:12px 16px;border-top:1px solid var(--gray-200)"><button onclick="openHelp()" style="width:100%;padding:8px;font-size:12px;background:transparent;border:1px solid var(--gray-200);border-radius:6px;cursor:pointer;color:#888;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">&#63; Help</button></div>
-    
+  </nav><!-- end sidebar -->
+
+  <!-- Main content area -->
+  <main class="main">
+    <div id="main-area" style="flex:1;overflow-y:auto;display:flex;flex-direction:column">
+      <!-- Content loaded dynamically -->
+    </div>
+  </main>
+
+</div><!-- end #app -->
+
+<!-- HELP DRAWER -->
+<div class="help-overlay" id="helpOverlay" onclick="closeHelp()"></div>
+<div class="help-drawer" id="helpDrawer">
+  <div class="help-hdr" style="background:#1A6B4A">
+    <h2>&#9432; Help &mdash; Leerkrachten</h2>
+    <button class="help-close" onclick="closeHelp()">&#x2715;</button>
+  </div>
+  <div class="help-nav"><button class="help-tab  active" onclick="showHelpTab('algemeen',this)">Algemeen</button><button class="help-tab" onclick="showHelpTab('personeel',this)">Personeelsgegevens</button><button class="help-tab" onclick="showHelpTab('documenten',this)">Documenten</button><button class="help-tab" onclick="showHelpTab('beheer',this)">Beheer</button></div><div class="help-body"><div class="help-section  active" id="help-algemeen"><h3 style="color:#1A6B4A">&#8505; Over Leerkrachten</h3><p>Centraliseert personeelsgegevens en documenten. Enkel voor directie via het portaal.</p></div><div class="help-section" id="help-personeel"><h3 style="color:#1A6B4A">&#128100; Personeelsgegevens</h3><div class="help-step"><div class="help-step-nr" style="background:#1A6B4A">1</div><div class="help-step-txt">Zoek via zoekbalk of schoolfilter</div></div><div class="help-step"><div class="help-step-nr" style="background:#1A6B4A">2</div><div class="help-step-txt">Klik op naam → detailscherm</div></div><div class="help-step"><div class="help-step-nr" style="background:#1A6B4A">3</div><div class="help-step-txt">Klik <strong>Bewerken</strong> om gegevens aan te passen</div></div></div><div class="help-section" id="help-documenten"><h3 style="color:#1A6B4A">&#128196; Documenten</h3><p>Per personeelslid: gebruikersovereenkomsten ICT, functieprofiel, evaluatiedocumenten.</p><div class="help-tip"><strong>Opgeslagen in SharePoint</strong> en beveiligd per school.</div></div><div class="help-section" id="help-beheer"><h3 style="color:#1A6B4A">&#9881; Beheer</h3><p>Via <strong>Toegangsbeheer</strong> (systeembeheer) worden rollen en schoolkoppelingen ingesteld. Contacteer de ICT-coördinator voor wijzigingen.</p></div></div>
+  <div class="help-footer">Scholengroep Kapelle-op-den-Bos BaO — ict@gebaska.be</div>
+</div>
+
+
+
+
 <script>
 // ════════════════════════════════════════════════════════════════
 // MSAL CDN is loaded in <head> - see script src tag
@@ -1831,16 +1855,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 </script>
-
-<!-- HELP DRAWER -->
-<div class="help-overlay" id="helpOverlay" onclick="closeHelp()"></div>
-<div class="help-drawer" id="helpDrawer">
-  <div class="help-hdr" style="background:#1A6B4A">
-    <h2>&#9432; Help &mdash; Leerkrachten</h2>
-    <button class="help-close" onclick="closeHelp()">&#x2715;</button>
-  </div>
-  <div class="help-nav"><button class="help-tab  active" onclick="showHelpTab('algemeen',this)">Algemeen</button><button class="help-tab" onclick="showHelpTab('personeel',this)">Personeelsgegevens</button><button class="help-tab" onclick="showHelpTab('documenten',this)">Documenten</button><button class="help-tab" onclick="showHelpTab('beheer',this)">Beheer</button></div><div class="help-body"><div class="help-section  active" id="help-algemeen"><h3 style="color:#1A6B4A">&#8505; Over Leerkrachten</h3><p>Centraliseert personeelsgegevens en documenten. Enkel voor directie via het portaal.</p></div><div class="help-section" id="help-personeel"><h3 style="color:#1A6B4A">&#128100; Personeelsgegevens</h3><div class="help-step"><div class="help-step-nr" style="background:#1A6B4A">1</div><div class="help-step-txt">Zoek via zoekbalk of schoolfilter</div></div><div class="help-step"><div class="help-step-nr" style="background:#1A6B4A">2</div><div class="help-step-txt">Klik op naam → detailscherm</div></div><div class="help-step"><div class="help-step-nr" style="background:#1A6B4A">3</div><div class="help-step-txt">Klik <strong>Bewerken</strong> om gegevens aan te passen</div></div></div><div class="help-section" id="help-documenten"><h3 style="color:#1A6B4A">&#128196; Documenten</h3><p>Per personeelslid: gebruikersovereenkomsten ICT, functieprofiel, evaluatiedocumenten.</p><div class="help-tip"><strong>Opgeslagen in SharePoint</strong> en beveiligd per school.</div></div><div class="help-section" id="help-beheer"><h3 style="color:#1A6B4A">&#9881; Beheer</h3><p>Via <strong>Toegangsbeheer</strong> (systeembeheer) worden rollen en schoolkoppelingen ingesteld. Contacteer de ICT-coördinator voor wijzigingen.</p></div></div>
-  <div class="help-footer">Scholengroep Kapelle-op-den-Bos BaO — ict@gebaska.be</div>
-</div>
 </body>
 </html>
