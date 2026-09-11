@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aanvangsbegeleiding – SharePoint Setup</title>
+  <script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@2.39.0/lib/msal-browser.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;background:#f5f7fa;padding:32px 16px;color:#1c2b3a}
+    .container{max-width:700px;margin:0 auto}
+    h1{font-size:1.3rem;font-weight:700;margin-bottom:4px}
+    h1 small{font-size:.8rem;font-weight:400;color:#6b7a8d;display:block}
+    .card{background:#fff;border:1px solid #dde3ec;border-radius:10px;padding:24px;margin-bottom:16px}
+    .card h2{font-size:1rem;font-weight:600;margin-bottom:12px}
+    .badge{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:20px}
+    .badge-ok{background:#e8f5ee;color:#2e8b57}
+    .badge-idle{background:#f0f0f0;color:#888}
+    .badge-err{background:#fdecea;color:#c0392b}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;border:none;font-family:inherit;font-size:.85rem;font-weight:600;cursor:pointer}
+    .btn-primary{background:#0f1d2e;color:#fff}
+    .btn-success{background:#2e8b57;color:#fff}
+    .btn:disabled{opacity:.4;cursor:not-allowed}
+    select,input[type=text]{width:100%;padding:9px 12px;border:1.5px solid #dde3ec;border-radius:8px;font-family:inherit;font-size:.85rem;margin-bottom:12px}
+    .log{background:#0f1d2e;border-radius:8px;padding:12px 14px;max-height:260px;overflow-y:auto;margin-top:12px}
+    .log-line{font-family:monospace;font-size:.78rem;line-height:1.7;color:rgba(255,255,255,.7)}
+    .log-line.ok{color:#5edc8e}
+    .log-line.err{color:#ff6b6b}
+    .result-box{background:#f0faf4;border:1.5px solid #2e8b57;border-radius:10px;padding:16px;margin-top:12px}
+    .result-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(0,0,0,.06);font-size:.82rem}
+    .result-item:last-child{border-bottom:none}
+    .result-val{font-family:monospace;font-size:.75rem;color:#666;cursor:pointer}
+    .result-val:hover{color:#0f1d2e}
+    .list-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f5f7fa;border-radius:8px;margin-bottom:8px;font-size:.85rem;font-weight:600}
+  </style>
+</head>
+<body>
+<div class="container">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+    <div style="width:40px;height:40px;background:#0f1d2e;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="9" height="9" rx="2" fill="#1A6BB5"/><rect x="13" y="2" width="9" height="9" rx="2" fill="#2E8B57"/><rect x="2" y="13" width="9" height="9" rx="2" fill="#C05A1A"/><rect x="13" y="13" width="9" height="9" rx="2" fill="#6B7A8D"/></svg>
+    </div>
+    <h1>Aanvangsbegeleiding Setup<small>SharePoint-lijsten aanmaken voor KA-Leerkrachten</small></h1>
+  </div>
+
+  <!-- TENANT -->
+  <div class="card">
+    <h2>Stap 1 — Tenant & Aanmelden</h2>
+    <label style="font-size:.8rem;font-weight:600;color:#6b7a8d;display:block;margin-bottom:4px;">Tenant</label>
+    <select id="sel-tenant" onchange="onTenantChange()">
+      <option value="KA">Gebaska (KA)</option>
+      <option value="LON">Londerwijs (LON)</option>
+    </select>
+    <div id="badge-login" style="margin-bottom:12px;"><span class="badge badge-idle">⬤ Niet aangemeld</span></div>
+    <button class="btn btn-primary" id="btn-login" onclick="doLogin()">
+      <svg width="18" height="18" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+      Aanmelden met Microsoft
+    </button>
+  </div>
+
+  <!-- SITE -->
+  <div class="card" id="card-site" style="opacity:.4;pointer-events:none">
+    <h2>Stap 2 — SharePoint-site</h2>
+    <label style="font-size:.8rem;font-weight:600;color:#6b7a8d;display:block;margin-bottom:4px;">Site URL</label>
+    <input type="text" id="inp-site" placeholder="bv. gebaskabe.sharepoint.com/sites/BaOKA-Leerkrachten"/>
+    <button class="btn btn-primary" onclick="fetchSite()">Site ophalen</button>
+    <div id="site-result" style="display:none;margin-top:8px;">
+      <span class="badge badge-ok">✓ Site gevonden</span>
+      <div id="site-id-disp" style="font-family:monospace;font-size:.75rem;color:#666;margin-top:4px;word-break:break-all;"></div>
+    </div>
+  </div>
+
+  <!-- LIJSTEN -->
+  <div class="card" id="card-lists" style="opacity:.4;pointer-events:none">
+    <h2>Stap 3 — Lijsten aanmaken</h2>
+    <p style="font-size:.85rem;color:#6b7a8d;margin-bottom:16px;">Per school worden 4 lijsten aangemaakt voor aanvangsbegeleiding.</p>
+    <div id="list-status"></div>
+    <button class="btn btn-success" id="btn-create" onclick="createAllLists()">✦ Lijsten aanmaken</button>
+    <div class="log" id="log" style="display:none"></div>
+  </div>
+
+  <!-- RESULTAAT -->
+  <div class="card" id="card-result" style="display:none">
+    <h2>✅ Setup voltooid!</h2>
+    <p style="font-size:.85rem;color:#6b7a8d;margin-bottom:12px;">Voeg deze IDs toe aan de CONFIG van KA-Leerkrachten.</p>
+    <div class="result-box" id="result-content"></div>
+    <p style="font-size:.75rem;color:#6b7a8d;margin-top:8px;">💡 Klik op een ID om te kopiëren</p>
+  </div>
+</div>
+
+<script>
+const TENANTS = {
+  KA:  { clientId:'b427a5ba-542f-4254-8ca0-5fa41b1d130a', tenantId:'165074eb-b8b7-49e8-a9b4-54cac7939ed2', defaultSite:'gebaskabe.sharepoint.com/sites/BaOKA-Leerkrachten', scholen:['KK','DK','TM'] },
+  LON: { clientId:'08dcc1b5-6041-4e67-ba6f-14650d4e6e62', tenantId:'655d15e1-e5fc-4868-8462-8463dc0ff014', defaultSite:'londerwijs.sharepoint.com/sites/BaOLON-Leerkrachten', scholen:['CSL','CSS','KO','TE'] },
+};
+
+// Lijsten per school
+const LIJST_TYPES = [
+  { suffix:'_Afvinklijst',      label:'Afvinklijst ontvangst', columns:[
+      {name:'LeerkrachtId',type:'number'}, {name:'Datum',type:'dateTime'},
+      {name:'CheckData',type:'note'}, {name:'Mentor',type:'text'},
+      {name:'Afgerond',type:'boolean'},
+  ]},
+  { suffix:'_Coaching',         label:'Coachingshistoriek', columns:[
+      {name:'LeerkrachtId',type:'number'}, {name:'Datum',type:'dateTime'},
+      {name:'Omschrijving',type:'note'}, {name:'Betrokkenen',type:'text'},
+      {name:'EvaluatorParaf',type:'text'}, {name:'PersoneelslidParaf',type:'text'},
+  ]},
+  { suffix:'_Klasbezoek',       label:'Klasbezoeken', columns:[
+      {name:'LeerkrachtId',type:'number'}, {name:'Datum',type:'dateTime'},
+      {name:'Observaties',type:'note'}, {name:'Sterktes',type:'note'},
+      {name:'Werkpunten',type:'note'}, {name:'Bespreking',type:'note'},
+      {name:'Beoordelingen',type:'note'},
+  ]},
+  { suffix:'_Overeenkomst',     label:'Overeenkomst aanvangsbegeleiding', columns:[
+      {name:'LeerkrachtId',type:'number'}, {name:'Datum',type:'dateTime'},
+      {name:'Afspraken',type:'note'}, {name:'Ondertekend',type:'boolean'},
+      {name:'DatumOndertekening',type:'dateTime'},
+  ]},
+];
+
+let msalApp=null, token=null, siteId=null, listIds={}, currentTenant='KA', logCount=0;
+
+function onTenantChange() {
+  currentTenant = document.getElementById('sel-tenant').value;
+  token=null; siteId=null; listIds={}; msalApp=null;
+  document.getElementById('badge-login').innerHTML='<span class="badge badge-idle">⬤ Niet aangemeld</span>';
+  document.getElementById('btn-login').style.display='';
+  document.getElementById('card-site').style.opacity='.4';
+  document.getElementById('card-site').style.pointerEvents='none';
+  document.getElementById('card-lists').style.opacity='.4';
+  document.getElementById('card-lists').style.pointerEvents='none';
+  document.getElementById('card-result').style.display='none';
+  document.getElementById('site-result').style.display='none';
+  document.getElementById('inp-site').value=TENANTS[currentTenant].defaultSite;
+}
+
+async function doLogin() {
+  const cfg = TENANTS[currentTenant];
+  msalApp = new msal.PublicClientApplication({
+    auth:{ clientId:cfg.clientId, authority:`https://login.microsoftonline.com/${cfg.tenantId}`, redirectUri: 'https://lon-ka.github.io/KA-portaal/setup.html' },
+    cache:{ cacheLocation:'sessionStorage' }
+  });
+  await msalApp.initialize();
+  const resp = await msalApp.handleRedirectPromise();
+  if(resp) { token=resp.accessToken; onLoggedIn(resp.account); return; }
+  const accs = msalApp.getAllAccounts();
+  if(accs.length) {
+    try {
+      const r = await msalApp.acquireTokenSilent({scopes:['Sites.ReadWrite.All'],account:accs[0]});
+      token=r.accessToken; onLoggedIn(accs[0]);
+    } catch(e) { await msalApp.loginRedirect({scopes:['Sites.ReadWrite.All']}); }
+  } else { await msalApp.loginRedirect({scopes:['Sites.ReadWrite.All']}); }
+}
+
+function onLoggedIn(acc) {
+  document.getElementById('badge-login').innerHTML=`<span class="badge badge-ok">✓ ${acc.username}</span>`;
+  document.getElementById('btn-login').style.display='none';
+  document.getElementById('card-site').style.opacity='1';
+  document.getElementById('card-site').style.pointerEvents='';
+  document.getElementById('inp-site').value=TENANTS[currentTenant].defaultSite;
+}
+
+async function fetchSite() {
+  const url = document.getElementById('inp-site').value.trim().replace('https://','').replace('http://','');
+  const parts = url.split('/sites/');
+  if(parts.length<2){ alert('Ongeldige URL'); return; }
+  const r = await fetch(`https://graph.microsoft.com/v1.0/sites/${parts[0]}:/sites/${parts[1]}`,
+    {headers:{Authorization:'Bearer '+token}});
+  if(!r.ok){ alert('Site niet gevonden: '+r.status); return; }
+  const d = await r.json();
+  siteId = d.id;
+  document.getElementById('site-id-disp').textContent=siteId;
+  document.getElementById('site-result').style.display='';
+  document.getElementById('card-lists').style.opacity='1';
+  document.getElementById('card-lists').style.pointerEvents='';
+
+  // Toon te maken lijsten
+  const scholen = TENANTS[currentTenant].scholen;
+  let html='';
+  scholen.forEach(s => {
+    LIJST_TYPES.forEach(t => {
+      html+=`<div class="list-row">${s}${t.suffix} <span class="badge badge-idle" id="badge-${s}${t.suffix.replace('_','')}">Wacht</span></div>`;
+    });
+  });
+  document.getElementById('list-status').innerHTML=html;
+}
+
+function log(msg,type='info'){
+  const b=document.getElementById('log'); b.style.display='';
+  const d=document.createElement('div'); d.className=`log-line ${type}`;
+  d.textContent=({'ok':'✓','err':'✗','info':'→'}[type]||'→')+' '+msg;
+  b.appendChild(d); b.scrollTop=b.scrollHeight; logCount++;
+}
+
+function colDef(name,type){
+  const base={name};
+  if(type==='text') return {...base,text:{}};
+  if(type==='note') return {...base,text:{allowMultipleLines:true}};
+  if(type==='number') return {...base,number:{}};
+  if(type==='boolean') return {...base,boolean:{}};
+  if(type==='dateTime') return {...base,dateTime:{format:'dateTime'}};
+  return base;
+}
+
+async function gPost(url,body){
+  const r=await fetch(`https://graph.microsoft.com/v1.0${url}`,{method:'POST',
+    headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+    body:JSON.stringify(body)});
+  if(!r.ok) throw new Error(r.status+' '+await r.text());
+  return r.json();
+}
+async function gGet(url){
+  const r=await fetch(`https://graph.microsoft.com/v1.0${url}`,{headers:{Authorization:'Bearer '+token}});
+  if(!r.ok) throw new Error(r.status+' '+await r.text());
+  return r.json();
+}
+
+async function createAllLists(){
+  document.getElementById('btn-create').disabled=true;
+  const scholen=TENANTS[currentTenant].scholen;
+  const ids={};
+
+  for(const school of scholen){
+    for(const lt of LIJST_TYPES){
+      const naam=school+lt.suffix;
+      const badgeId='badge-'+school+lt.suffix.replace('_','');
+      const badge=document.getElementById(badgeId);
+      if(badge){badge.textContent='Bezig…';badge.className='badge badge-idle';}
+      try{
+        log(`Aanmaken: ${naam}…`);
+        // Check bestaand
+        let listId=null;
+        try{
+          const ex=await gGet(`/sites/${siteId}/lists?$filter=displayName eq '${naam}'&$select=id`);
+          if(ex.value&&ex.value.length>0){listId=ex.value[0].id;log(`${naam} bestaat al`,`ok`);}
+        }catch(e){}
+
+        if(!listId){
+          const lst=await gPost(`/sites/${siteId}/lists`,{displayName:naam,list:{template:'genericList'}});
+          listId=lst.id;
+          log(`${naam} aangemaakt`,'ok');
+          for(const col of lt.columns){
+            try{await gPost(`/sites/${siteId}/lists/${listId}/columns`,colDef(col.name,col.type));
+              log(`  Kolom ${col.name} ✓`,'ok');}
+            catch(e){log(`  Kolom ${col.name} overgeslagen`,'info');}
+          }
+        }
+        ids[naam]=listId;
+        if(badge){badge.textContent='✓ Klaar';badge.className='badge badge-ok';}
+      }catch(e){
+        log(`Fout bij ${naam}: ${e.message}`,'err');
+        if(badge){badge.textContent='✗ Fout';badge.className='badge badge-err';}
+      }
+    }
+  }
+  showResult(ids);
+  document.getElementById('btn-create').disabled=false;
+}
+
+function showResult(ids){
+  const items=Object.entries(ids).map(([k,v])=>`
+    <div class="result-item">
+      <span style="font-weight:600">${k}</span>
+      <span class="result-val" onclick="navigator.clipboard.writeText('${v}').then(()=>{this.textContent='✓ Gekopieerd!';setTimeout(()=>this.textContent='${v}',1500)})">${v}</span>
+    </div>`).join('');
+  document.getElementById('result-content').innerHTML=items;
+  document.getElementById('card-result').style.display='';
+  log('✅ Setup voltooid!','ok');
+}
+
+window.addEventListener('DOMContentLoaded',async()=>{
+  document.getElementById('inp-site').value=TENANTS['KA'].defaultSite;
+  try{
+    const cfg=TENANTS['KA'];
+    msalApp=new msal.PublicClientApplication({
+      auth:{clientId:cfg.clientId,authority:`https://login.microsoftonline.com/${cfg.tenantId}`,redirectUri:'https://lon-ka.github.io/KA-portaal/setup.html'},
+      cache:{cacheLocation:'sessionStorage'}
+    });
+    await msalApp.initialize();
+    const resp=await msalApp.handleRedirectPromise();
+    if(resp){token=resp.accessToken;onLoggedIn(resp.account);}
+  }catch(e){}
+});
+</script>
+</body>
+</html>
