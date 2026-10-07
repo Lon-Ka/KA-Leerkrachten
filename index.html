@@ -87,7 +87,20 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--gray-50);color
 .page-content{flex:1;overflow-y:auto;padding:24px}
 
 /* ── Tabs ── */
-.tabs{display:flex;border-bottom:1px solid var(--gray-200);background:white;padding:0 24px;flex-shrink:0}
+.tabs{display:flex;border-bottom:1px solid var(--gray-200);background:white;padding:0 24px;flex-shrink:0;overflow-x:auto}
+.afvink-row{display:flex;align-items:center;gap:10px;padding:5px 2px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--gray-100)}
+.afvink-row:last-child{border-bottom:none}
+.afvink-row input{width:16px;height:16px;accent-color:var(--teal);flex-shrink:0}
+.afvink-meta{font-size:11px;color:var(--gray-400);white-space:nowrap}
+.cyclus-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--gray-100)}
+.cyclus-row:last-child{border-bottom:none}
+.cyclus-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;background:var(--gray-200)}
+.cyclus-klaar{background:var(--green)}.cyclus-achter{background:var(--red)}.cyclus-deels{background:var(--amber)}.cyclus-nvt{background:var(--gray-100);border:1px dashed var(--gray-300)}
+.ov-table{width:100%;border-collapse:collapse;font-size:13px}
+.ov-table th{text-align:left;font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.03em;padding:10px 14px;border-bottom:1px solid var(--gray-200);background:var(--gray-50)}
+.ov-table td{padding:10px 14px;border-bottom:1px solid var(--gray-100);vertical-align:middle}
+.ov-table tbody tr{cursor:pointer}
+.ov-table tbody tr:hover{background:var(--gray-50)}
 .tab{padding:10px 16px;font-size:13px;cursor:pointer;color:var(--gray-500);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .1s;white-space:nowrap}
 .tab:hover{color:var(--gray-900)}
 .tab.active{color:var(--teal);border-bottom-color:var(--teal);font-weight:600}
@@ -217,7 +230,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--gray-50);color
 .help-close:hover{background:rgba(255,255,255,.35)}
 .help-nav{display:flex;border-bottom:1px solid #E8E5DC;flex-shrink:0;overflow-x:auto}
 .help-tab{padding:10px 14px;font-size:12px;font-weight:600;color:#888;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all .15s}
-.help-tab:hover{color:#333}
+.help-tab:hover{color:#333}.help-tab.active{color:#1A6B4A;border-bottom-color:#1A6B4A}.help-step-nr{background:#1A6B4A}
 .help-body{flex:1;overflow-y:auto;padding:1.25rem}
 .help-section{display:none}.help-section.active{display:block}
 .help-section h3{font-size:14px;font-weight:700;margin:0 0 .5rem}
@@ -338,10 +351,119 @@ window.addEventListener('message', function(event) {
 <div class="help-overlay" id="helpOverlay" onclick="closeHelp()"></div>
 <div class="help-drawer" id="helpDrawer">
   <div class="help-hdr" style="background:#1A6B4A">
-    <h2>&#9432; Help &mdash; Leerkrachten</h2>
+    <h2>&#9432; Handleiding &mdash; Leerkrachten Volgsysteem</h2>
     <button class="help-close" onclick="closeHelp()">&#x2715;</button>
   </div>
-  <div class="help-nav"><button class="help-tab  active" onclick="showHelpTab('algemeen',this)">Algemeen</button><button class="help-tab" onclick="showHelpTab('personeel',this)">Personeelsgegevens</button><button class="help-tab" onclick="showHelpTab('documenten',this)">Documenten</button><button class="help-tab" onclick="showHelpTab('beheer',this)">Beheer</button></div><div class="help-body"><div class="help-section  active" id="help-algemeen"><h3 style="color:#1A6B4A">&#8505; Over Leerkrachten</h3><p>Centraliseert personeelsgegevens en documenten. Enkel voor directie via het portaal.</p></div><div class="help-section" id="help-personeel"><h3 style="color:#1A6B4A">&#128100; Personeelsgegevens</h3><div class="help-step"><div class="help-step-nr" style="background:#1A6B4A">1</div><div class="help-step-txt">Zoek via zoekbalk of schoolfilter</div></div><div class="help-step"><div class="help-step-nr" style="background:#1A6B4A">2</div><div class="help-step-txt">Klik op naam → detailscherm</div></div><div class="help-step"><div class="help-step-nr" style="background:#1A6B4A">3</div><div class="help-step-txt">Klik <strong>Bewerken</strong> om gegevens aan te passen</div></div></div><div class="help-section" id="help-documenten"><h3 style="color:#1A6B4A">&#128196; Documenten</h3><p>Per personeelslid: gebruikersovereenkomsten ICT, functieprofiel, evaluatiedocumenten.</p><div class="help-tip"><strong>Opgeslagen in SharePoint</strong> en beveiligd per school.</div></div><div class="help-section" id="help-beheer"><h3 style="color:#1A6B4A">&#9881; Beheer</h3><p>Via <strong>Toegangsbeheer</strong> (systeembeheer) worden rollen en schoolkoppelingen ingesteld. Contacteer de ICT-coördinator voor wijzigingen.</p></div></div>
+  <div class="help-nav">
+    <button class="help-tab active" onclick="showHelpTab('start',this)">Start</button>
+    <button class="help-tab" onclick="showHelpTab('fiche',this)">Personeelsfiche</button>
+    <button class="help-tab" onclick="showHelpTab('functie',this)">Functiebeschrijving</button>
+    <button class="help-tab" onclick="showHelpTab('aanvang',this)">Aanvangsbegeleiding</button>
+    <button class="help-tab" onclick="showHelpTab('nascholing',this)">Nascholing</button>
+    <button class="help-tab" onclick="showHelpTab('overig',this)">Overige</button>
+    <button class="help-tab" onclick="showHelpTab('privacy',this)">Privacy</button>
+  </div>
+  <div class="help-body">
+
+    <div class="help-section active" id="help-start">
+      <h3>Waarvoor dient deze app?</h3>
+      <p>Het Leerkrachten Volgsysteem bundelt de opvolging van het personeel van Het Kiezeltje, De Kei en 't Mulderke: functiebeschrijving, gesprekken, opmerkingen, POP, aanvangsbegeleiding van nieuwe collega's en nascholing.</p>
+      <h4>Wie heeft toegang?</h4>
+      <p>Enkel de directies (voor hun eigen school) en de systeembeheerder. Personeelsleden zelf zien deze app niet. Je opent ze via <strong>MijnDigiKAntoor › Leerkrachten</strong>.</p>
+      <h4>De zijbalk</h4>
+      <ul>
+                <li><strong>Scholen</strong>: de personeelslijst per school. Klik op een naam om de fiche te openen.</li>
+        <li><strong>Opvolging</strong>: overzichten over alle personeelsleden heen, voor aanvangsbegeleiding en nascholing.</li>
+        <li><strong>Werving</strong>: sollicitanten voor openstaande functies.</li>
+        <li><strong>Beheer</strong> (systeembeheerder): functiebibliotheek en import.</li>
+      </ul>
+      <div class="help-tip"><strong>Personeelslijst:</strong> die wordt aangevuld vanuit de Microsoft 365-accounts (functie en school). Ontbreekt er iemand of staat er iemand te veel? Meld het aan de ICT-coördinator.</div>
+    </div>
+
+    <div class="help-section" id="help-fiche">
+      <h3>De personeelsfiche</h3>
+      <p>Per personeelslid zie je deze tabbladen:</p>
+      <ul>
+        <li><strong>Functiebeschrijving</strong>: de functiebeschrijving, opdracht en basisgegevens (zie tabblad Functiebeschrijving in deze handleiding).</li>
+        <li><strong>Gesprekken</strong>: functionerings-, evaluatie-, plannings- en informele gesprekken, en de stappen van de functioneringscyclus (bespreking functiebeschrijving, klasbezoek, lesbijwoning, bespreking pedagogisch verslag). Per gesprek noteer je een verslag en afspraken.</li>
+        <li><strong>Opmerkingen</strong>: korte notities over het functioneren.</li>
+        <li><strong>POP</strong>: persoonlijk ontwikkelingsplan met doelen, acties, deadline en voortgang.</li>
+        <li><strong>Aanvangsbegeleiding</strong>: verschijnt enkel als er een traject loopt (zie verder).</li>
+        <li><strong>Nascholing</strong>: gevolgde en geplande nascholingen.</li>
+      </ul>
+      <div class="help-tip"><strong>Nieuw personeelslid?</strong> Rechts bovenaan de fiche staat de knop <strong>+ Aanvangsbegeleiding</strong>.</div>
+    </div>
+
+    <div class="help-section" id="help-functie">
+      <h3>Functiebeschrijving koppelen</h3>
+      <p>De functiebeschrijvingen komen uit de <strong>functiebibliotheek</strong> (OVSG-gebaseerd). Elk personeelslid krijgt een eigen kopie die je per persoon kan aanpassen.</p>
+      <h4>Voor één personeelslid</h4>
+      <div class="help-step"><div class="help-step-nr">1</div><div class="help-step-txt">Open de fiche › tabblad <strong>Functiebeschrijving</strong> › <strong>Bewerken</strong>.</div></div>
+      <div class="help-step"><div class="help-step-nr">2</div><div class="help-step-txt">Kies een <strong>sjabloon</strong>. Is er nog geen tekst, dan staat er al een voorstel klaar op basis van de functie.</div></div>
+      <div class="help-step"><div class="help-step-nr">3</div><div class="help-step-txt">Pas de tekst aan waar nodig, kies de <strong>opdracht</strong> (20% tot 100%) en klik <strong>Opslaan</strong>.</div></div>
+      <h4>Voor de hele school in één keer</h4>
+      <div class="help-step"><div class="help-step-nr">1</div><div class="help-step-txt">Open je school in de zijbalk en klik <strong>Functiebeschrijvingen koppelen</strong>.</div></div>
+      <div class="help-step"><div class="help-step-nr">2</div><div class="help-step-txt">Gebruik de knoppen om alle leerkrachten in één klik op <strong>Leraar lager onderwijs</strong> of <strong>Kleuteronderwijzer</strong> te zetten, en pas daarna de uitzonderingen aan.</div></div>
+      <div class="help-step"><div class="help-step-nr">3</div><div class="help-step-txt">Controleer de vinkjes en klik <strong>Opslaan</strong>. Enkel aangevinkte rijen worden bijgewerkt.</div></div>
+      <div class="help-tip">Bestaande, aangepaste teksten worden nooit zonder bevestiging overschreven. Wijzig je later een sjabloon, dan verandert de tekst bij wie al gekoppeld is niet vanzelf.</div>
+      <p>De functiebeschrijving bespreek je in de <strong>eerste maand</strong> met nieuwe personeelsleden (bij een opdracht van meer dan 104 dagen).</p>
+    </div>
+
+    <div class="help-section" id="help-aanvang">
+      <h3>Aanvangsbegeleiding</h3>
+      <p>Enkel voor <strong>nieuwe personeelsleden</strong>. Het traject bundelt alles uit de documenten van LONKA: de overeenkomst, de afvinklijst, de functioneringscyclus en de coachingshistoriek.</p>
+      <h4>Traject starten</h4>
+      <div class="help-step"><div class="help-step-nr">1</div><div class="help-step-txt">Open de fiche › <strong>+ Aanvangsbegeleiding</strong> › <strong>Traject starten</strong>.</div></div>
+      <div class="help-step"><div class="help-step-nr">2</div><div class="help-step-txt">Vul de startdatum, het statuut, de aanvangsbegeleider en peter/meter in. De directeur staat al ingevuld als eerste evaluator; vul de tweede evaluator aan.</div></div>
+      <div class="help-step"><div class="help-step-nr">3</div><div class="help-step-txt">Duid aan of de opdracht <strong>meer dan 104 dagen</strong> is en of het een <strong>inductiejaar</strong> is. Vul de datum in waarop de overeenkomst(en) getekend werden.</div></div>
+      <h4>Wat zie je daarna?</h4>
+      <ul>
+        <li><strong>Functioneringscyclus</strong>: 1e maand bespreking functiebeschrijving, 2e maand klasbezoek ter ondersteuning, 3e maand lesbijwoningen met pedagogisch verslag en de bespreking ervan, later functionerings- en eventueel evaluatiegesprek. Elke stap toont een streefdatum en kleurt groen (gebeurd), rood (achterstallig) of grijs (gepland). Met <strong>+ Noteren</strong> registreer je de stap als gesprek.</li>
+        <li><strong>Begeleidingsmomenten</strong>: momenten met de aanvangsbegeleider of peter/meter. Noteer enkel een <strong>bondige omschrijving</strong>, zoals in de coachingshistoriek.</li>
+        <li><strong>Afvinklijst</strong>: het stappenplan voor de ontvangst (gesprek, documenten, inlogcodes, praktisch tonen, LONKA). Aanvinken bewaart meteen met datum en naam.</li>
+      </ul>
+      <h4>Coachingshistoriek afdrukken</h4>
+      <p>Klik <strong>Coachingshistoriek</strong> in de kaart van het traject. Je krijgt het document in de opmaak van het sjabloon, met alle begeleidingsmomenten en cyclusstappen, klaar om te laten paraferen. Stamboeknummer en geboortedatum vul je met de hand in; die worden niet in de app bewaard.</p>
+      <div class="help-tip"><strong>Begeleiding is geen evaluatie.</strong> Wat de nieuwe collega met de aanvangsbegeleider bespreekt, blijft vertrouwelijk. Noteer daarom geen inhoud van die gesprekken.</div>
+      <p>Het overzicht van alle trajecten vind je onder <strong>Opvolging › Aanvangsbegeleiding</strong>. Achterstallige stappen staan bovenaan.</p>
+    </div>
+
+    <div class="help-section" id="help-nascholing">
+      <h3>Nascholing</h3>
+      <p>Een nascholing wordt aangevraagd <strong>na een gesprek met de directeur</strong> (professionaliseringsbeleid). Je volgt ze op per personeelslid.</p>
+      <h4>Registreren</h4>
+      <div class="help-step"><div class="help-step-nr">1</div><div class="help-step-txt">Open de fiche › tabblad <strong>Nascholing</strong> › <strong>+ Nascholing</strong>.</div></div>
+      <div class="help-step"><div class="help-step-nr">2</div><div class="help-step-txt">Vul titel, aanbieder, thema, datum, uren en eventueel kosten in, en de datum van het gesprek met de directeur.</div></div>
+      <div class="help-step"><div class="help-step-nr">3</div><div class="help-step-txt">Werk de <strong>status</strong> bij: Besproken › Aangevraagd › Goedgekeurd › Ingeschreven › Gevolgd (of Geannuleerd). Vink <strong>Attest ontvangen</strong> aan zodra het attest binnen is.</div></div>
+      <div class="help-tip">Elke leerkracht volgt minstens het <strong>AI-basistraject Kennismaker</strong>. Zolang dat niet als gevolgd geregistreerd is, toont de app een herinnering met een knop om het meteen toe te voegen.</div>
+      <h4>Overzicht per schooljaar</h4>
+      <p>Onder <strong>Opvolging › Nascholing</strong> zie je per schooljaar en per school het aantal gevolgde nascholingen, de uren per thema en de kosten. Met <strong>CSV</strong> exporteer je de lijst naar Excel, bv. voor het professionaliseringsplan of de rapportering.</p>
+    </div>
+
+    <div class="help-section" id="help-overig">
+      <h3>Overige onderdelen</h3>
+      <h4>Sollicitanten</h4>
+      <p>Kandidaten voor openstaande functies, met gesprekken, documenten en referenties. Statussen: Nieuw › Uitgenodigd › Gesprek › Beslissing › Afgesloten.</p>
+      <h4>Functiebibliotheek</h4>
+      <p>De standaardfunctiebeschrijvingen: leraar lager onderwijs, kleuteronderwijzer, zorgleerkracht, zorgcoördinator, directeur, administratief medewerker, ICT-coördinator (technisch en pedagogisch) en kinderverzorger.</p>
+      <h4>Import leerkrachten</h4>
+      <p>Om een personeelslid manueel toe te voegen. Normaal gebeurt dit centraal vanuit de Microsoft 365-accounts door de ICT-coördinator.</p>
+    </div>
+
+    <div class="help-section" id="help-privacy">
+      <h3>Privacy en goede afspraken</h3>
+      <ul>
+        <li>De gegevens staan op een <strong>afgeschermde SharePoint-site</strong> waar enkel de directies en de systeembeheerder toegang toe hebben.</li>
+        <li>Noteer <strong>feiten en afspraken</strong>, geen waardeoordelen of geruchten. Een personeelslid heeft recht op inzage in wat over hem of haar bewaard wordt.</li>
+        <li>Zet <strong>geen leerlinggegevens</strong> of zorginformatie in de app.</li>
+        <li>Begeleidingsmomenten: enkel een bondige omschrijving, geen inhoud.</li>
+        <li>Medische informatie hoort hier niet thuis.</li>
+        <li>Laat de app niet open staan op een gedeelde computer: meld af via de zijbalk.</li>
+      </ul>
+      <div class="help-tip">Vragen of iets werkt niet? Contacteer de ICT-coördinator: ict@gebaska.be</div>
+    </div>
+
+  </div>
   <div class="help-footer">Scholengroep Kapelle-op-den-Bos BaO — ict@gebaska.be</div>
 </div>
 
@@ -456,6 +578,7 @@ async function graphReq(method, path, body = null) {
 }
 
 async function getListItems(listId, filter = '', select = '') {
+  if (!listId) return [];
   const _sp = CONFIG.siteId.includes(':/') ? ':/lists/' : '/lists/';
   let url = `${_sp}${listId}/items?expand=fields&$top=999&$orderby=id`;
   if (filter) url += `&$filter=${encodeURIComponent(filter)}`;
@@ -548,6 +671,19 @@ function buildNav() {
     });
   }
 
+  // Opvolging (directeur/systeembeheerder)
+  if (['directeur','systeembeheerder'].includes(userAccess.rol)) {
+    html += '<div class="sb-section">Opvolging</div>';
+    html += `<div class="sb-item" data-nav="ov-aanvang" onclick="showAanvangOverzicht()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Aanvangsbegeleiding
+    </div>`;
+    html += `<div class="sb-item" data-nav="ov-nascholing" onclick="showNascholingOverzicht()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>
+      Nascholing
+    </div>`;
+  }
+
   // Sollicitanten (directeur/systeembeheerder)
   if (['directeur','systeembeheerder'].includes(userAccess.rol)) {
     html += '<div class="sb-section">Werving</div>';
@@ -595,7 +731,8 @@ async function showSchool(key) {
           <div class="page-sub">${actief.length} leerkrachten</div>
         </div>
         ${['directeur','systeembeheerder'].includes(userAccess?.rol) ? `
-        <button class="btn btn-primary" onclick="showAddLeerkracht()" style="margin-left:auto">
+        <button class="btn" onclick="showFunctieKoppelen()" style="margin-left:auto">Functiebeschrijvingen koppelen</button>
+        <button class="btn btn-primary" onclick="showAddLeerkracht()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Toevoegen
         </button>` : ''}
@@ -629,11 +766,16 @@ async function showLeerkracht(id, tab = 'gesprekken') {
   main.innerHTML = '<div style="padding:40px;text-align:center;color:#888">Laden...</div>';
 
   try {
-    const [items, gesprekken, opmerkingen, pop] = await Promise.all([
-      getListItems(LIST_IDS[currentSchool.key + '_Leerkrachten']),
-      getListItems(LIST_IDS[currentSchool.key + '_Gesprekken']),
-      getListItems(LIST_IDS[currentSchool.key + '_Opmerkingen']),
-      getListItems(LIST_IDS[currentSchool.key + '_POP']),
+    const sk = currentSchool.key;
+    const beheer = magBeheren();
+    const [items, gesprekken, opmerkingen, pop, aanvangItems, begeleiding, nascholingAll] = await Promise.all([
+      getListItems(LIST_IDS[sk + '_Leerkrachten']),
+      getListItemsSafe(LIST_IDS[sk + '_Gesprekken'], sk + '_Gesprekken'),
+      getListItemsSafe(LIST_IDS[sk + '_Opmerkingen'], sk + '_Opmerkingen'),
+      getListItemsSafe(LIST_IDS[sk + '_POP'], sk + '_POP'),
+      beheer ? getListItemsSafe(LIST_IDS[sk + '_Aanvang'], sk + '_Aanvang') : [],
+      beheer ? getListItemsSafe(LIST_IDS[sk + '_Begeleiding'], sk + '_Begeleiding') : [],
+      beheer ? getListItemsSafe(LIST_IDS[sk + '_Nascholing'], sk + '_Nascholing') : [],
     ]);
     const l = items.find(i => i.id === id);
     if (!l) { main.innerHTML = '<div style="padding:40px;color:var(--red)">Leerkracht niet gevonden.</div>'; return; }
@@ -643,11 +785,20 @@ async function showLeerkracht(id, tab = 'gesprekken') {
     const myOpmerkingen = opmerkingen.filter(o => o.LeerkrachtId === id || o.LeerkrachtId === parseInt(id));
     const myPOP = pop.filter(p => p.LeerkrachtId === id || p.LeerkrachtId === parseInt(id));
     const activePOP = myPOP.find(p => p.POPActief);
+    const vanLk = arr => arr.filter(x => sameId(x.LeerkrachtId, id));
+    const aanvang = [...vanLk(aanvangItems)].sort((a,b) => new Date(b.Startdatum||0) - new Date(a.Startdatum||0))[0] || null;
+    const myBeg = vanLk(begeleiding), myNasch = vanLk(nascholingAll);
+    window._aanvangItem = aanvang; window._begeleidingItems = myBeg; window._nascholingItems = myNasch; window._gesprekkenItems = myGesprekken;
+    if (!aanvang) aanvangState = null;
+    const toonAanvang = beheer && (!!aanvang || tab === 'aanvang');
 
     const tabs = [
+      ['functiebeschrijving', 'Functiebeschrijving'],
       ['gesprekken', `Gesprekken (${myGesprekken.length})`],
       ['opmerkingen', `Opmerkingen (${myOpmerkingen.length})`],
       ['pop', 'POP'],
+      ...(toonAanvang ? [['aanvang', `Aanvangsbegeleiding${aanvang && (aanvang.Status||'Lopend') === 'Lopend' ? ' •' : ''}`]] : []),
+      ...(beheer ? [['nascholing', `Nascholing (${myNasch.length})`]] : []),
     ];
 
     main.innerHTML = `
@@ -657,6 +808,7 @@ async function showLeerkracht(id, tab = 'gesprekken') {
           <div class="page-title">${l.Voornaam||''} ${l.Naam||''}</div>
           <div class="page-sub">${l.Functie||'—'} · ${currentSchool.name}</div>
         </div>
+        ${beheer && !toonAanvang ? `<button class="btn btn-sm" style="margin-left:auto" title="Enkel voor nieuwe personeelsleden" onclick="showLeerkracht('${id}','aanvang')">+ Aanvangsbegeleiding</button>` : ''}
       </div>
       <div class="tabs">
         ${tabs.map(([key, label]) => `<div class="tab${tab===key?' active':''}" onclick="showLeerkracht('${id}','${key}')">${label}</div>`).join('')}
@@ -665,6 +817,9 @@ async function showLeerkracht(id, tab = 'gesprekken') {
         ${tab === 'gesprekken' ? renderGesprekken(l, myGesprekken) : ''}
         ${tab === 'opmerkingen' ? renderOpmerkingen(l, myOpmerkingen) : ''}
         ${tab === 'pop' ? renderPOP(l, myPOP.filter(p=>p.POPActief||false), !!activePOP) : ''}
+        ${tab === 'functiebeschrijving' ? renderFunctiebeschrijving(l) : ''}
+        ${tab === 'aanvang' && beheer ? renderAanvang(l, aanvang, myBeg, myGesprekken) : ''}
+        ${tab === 'nascholing' && beheer ? renderNascholing(l, myNasch) : ''}
       </div>`;
   } catch(e) {
     main.innerHTML = `<div style="padding:40px;color:var(--red)">Fout: ${e.message}</div>`;
@@ -732,13 +887,19 @@ async function afterLogin() {
       rol: (gebruiker.Rol || 'leerkracht').toLowerCase(),
       scholen,
     };
+    // Stafmedewerker / personeelsverantwoordelijke (LONKA) krijgt dezelfde rechten als een directeur
+    userAccess.rolLabel = gebruiker.Rol || userAccess.rol;
+    // Rol uit de toegangsmatrix omzetten naar de interne rollen van de app
+    // ("directie", "Directeur", "Stafmedewerker" -> directeur; "Systeembeheer(der)" -> systeembeheerder)
+    if (/systeembeheer|admin/.test(userAccess.rol)) userAccess.rol = 'systeembeheerder';
+    else if (/direct|staf|personeel/.test(userAccess.rol)) userAccess.rol = 'directeur';
 
     // Sidebar bijwerken
     const sbName = document.getElementById('sb-name');
     const sbRole = document.getElementById('sb-role');
     const sbAv = document.getElementById('sb-av');
     if (sbName) sbName.textContent = userAccess.naam;
-    if (sbRole) sbRole.textContent = userAccess.rol;
+    if (sbRole) sbRole.textContent = userAccess.rolLabel || userAccess.rol;
     if (sbAv) sbAv.textContent = (userAccess.naam.split(' ').map(w => w[0]).join('').slice(0,2)).toUpperCase();
 
     // Auth overlay verbergen, app tonen
@@ -746,6 +907,8 @@ async function afterLogin() {
     const app = document.getElementById('app');
     if (overlay) overlay.style.display = 'none';
     if (app) app.style.display = 'flex';
+
+    await resolveListIds();
 
     // Navigatie bouwen
     buildNav();
@@ -766,15 +929,16 @@ async function afterLogin() {
 
 
 
-function showAddGesprek(leerkrachtId) {
+let gesprekReturnTab = 'gesprekken';
+function showAddGesprek(leerkrachtId, presetType, returnTab) {
+  gesprekReturnTab = returnTab || 'gesprekken';
   showModal(`
     <div class="modal-title">Gesprek toevoegen</div>
     <div class="form-grid">
       <div class="fg"><label>Datum</label><input type="date" id="m-datum" value="${today()}"></div>
       <div class="fg"><label>Type</label>
         <select id="m-type">
-          <option>Functioneringsgesprek</option><option>Evaluatiegesprek</option>
-          <option>Planningsgesprek</option><option>Informeel gesprek</option>
+          ${GESPREK_TYPES.map(t => `<option ${t === presetType ? 'selected' : ''}>${t}</option>`).join('')}
         </select>
       </div>
       <div class="fg fg-full"><label>Verslag / nota</label><textarea id="m-nota" rows="5" placeholder="Beschrijf het gesprek..."></textarea></div>
@@ -799,8 +963,11 @@ async function saveGesprek(leerkrachtId) {
     });
     toast('Gesprek opgeslagen');
     closeModal();
-    showLeerkracht(leerkrachtId, 'gesprekken');
-  } catch(e) { toast('Fout: ' + e.message); }
+    showLeerkracht(leerkrachtId, gesprekReturnTab);
+  } catch(e) {
+    const nieuwType = !['Functioneringsgesprek','Evaluatiegesprek','Planningsgesprek','Informeel gesprek'].includes(document.getElementById('m-type')?.value);
+    toast(nieuwType ? 'Dit gesprekstype bestaat nog niet in de lijst: laat KA-Leerkrachten-uitbreiding.ps1 uitvoeren.' : 'Fout: ' + e.message);
+  }
 }
 
 async function deleteGesprek(itemId, leerkrachtId) {
@@ -1829,16 +1996,1135 @@ function avatarColor(naam) {
 
 // FUNCTIES_BIBLIOTHEEK — officiële functiebeschrijvingen KA BaO
 const FUNCTIES_BIBLIOTHEEK = [
-  { code: 'KL', titel: 'Kleuteronderwijzer(es)', omschrijving: 'Geeft les aan kleuters (2,5-6 jaar).' },
-  { code: 'LO', titel: 'Onderwijzer(es) lager onderwijs', omschrijving: 'Geeft les in het lager onderwijs (6-12 jaar).' },
-  { code: 'ZL', titel: 'Zorgleerkracht', omschrijving: 'Biedt extra ondersteuning aan leerlingen met specifieke noden.' },
-  { code: 'IL', titel: 'Intern begeleider / Zorgcoördinator', omschrijving: 'Coördineert de zorgwerking binnen de school.' },
-  { code: 'GD', titel: 'Directeur', omschrijving: 'Pedagogisch en administratief leider van de school.' },
-  { code: 'ADM', titel: 'Administratief medewerker', omschrijving: 'Beheert de schooladministratie en secretariaatstaken.' },
-  { code: 'OND', titel: 'Ondersteuner', omschrijving: 'Biedt ondersteuning in de klas aan leerlingen met bijzondere noden.' },
-  { code: 'TOE', titel: 'Toezichter', omschrijving: 'Houdt toezicht voor en na schooltijd en tijdens pauzes.' },
-  { code: 'STA', titel: 'Stagiair(e)', omschrijving: 'Student in opleiding die stage loopt in de school.' },
+  { code:"LLO", titel:"Leraar lager onderwijs", beschrijving:`FUNCTIEBESCHRIJVING — Leraar lager onderwijs
+Scholengroep Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De leraar lager onderwijs geeft kwalitatief onderwijs aan leerlingen van het lager onderwijs en draagt bij aan de vorming en ontwikkeling van elk kind, in lijn met de missie en visie van de school.
+
+KERNTAKEN
+
+1. Lesgeven en begeleiden van leerlingen
+- Bereidt lessen voor en geeft ze conform het leerplan (ZILL of gelijkwaardig)
+- Stemt het onderwijs af op de noden en mogelijkheden van individuele leerlingen
+- Hanteert gevarieerde werkvormen en didactische aanpakken
+- Houdt een klas- en leeromgeving in stand die aanzet tot leren
+- Begeleidt leerlingen in hun sociaal-emotionele ontwikkeling
+
+2. Evalueren en rapporteren
+- Volgt de vorderingen van leerlingen systematisch op
+- Hanteert diverse evaluatievormen (formatief en summatief)
+- Rapporteert aan ouders via rapporten en oudercontacten
+- Informeert de directie en het zorgteam tijdig bij zorgvragen
+
+3. Samenwerken en communiceren
+- Werkt samen met collega's in graadteams en schoolteam
+- Participeert aan teamvergaderingen, studiedagen en nascholing
+- Onderhoudt een open en respectvolle communicatie met ouders
+
+4. Bijdragen aan schoolbeleid
+- Levert een actieve bijdrage aan de schoolwerking en schoolcultuur
+- Neemt deel aan werkgroepen en beleidsontwikkeling
+
+VEREISTE KWALIFICATIES
+Bacheloropleiding leraar lager onderwijs of gelijkwaardig erkend diploma` },
+
+  { code:"KLO", titel:"Kleuteronderwijzer", beschrijving:`FUNCTIEBESCHRIJVING — Kleuteronderwijzer
+Scholengroep Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De kleuteronderwijzer biedt een rijke, speelse en veilige leeromgeving aan kleuters (2,5–6 jaar) en stimuleert hun brede ontwikkeling op cognitief, sociaal-emotioneel, motorisch en creatief vlak.
+
+KERNTAKEN
+
+1. Spel- en ontwikkelingsgericht werken
+- Ontwikkelt een krachtige leer- en speelomgeving afgestemd op de ontwikkelingsleeftijd
+- Begeleidt kleuters in vrij en gestuurd spel
+- Observeert systematisch en registreert de ontwikkeling van elk kind
+- Stimuleert taal-, reken- en wereldoriënterende vaardigheden via spel en projecten
+
+2. Zorg en ondersteuning
+- Signaleert ontwikkelingsachterstanden tijdig aan het zorgteam
+- Begeleidt de overgang van thuis naar school
+
+3. Communiceren met ouders
+- Houdt dagelijkse contacten bij het halen en brengen
+- Organiseert kleutergesprekken en informatiemomenten
+
+VEREISTE KWALIFICATIES
+Bacheloropleiding kleuteronderwijs of gelijkwaardig erkend diploma` },
+
+  { code:"ZORG", titel:"Zorgleerkracht", beschrijving:`FUNCTIEBESCHRIJVING — Zorgleerkracht
+Scholengroep Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De zorgleerkracht ondersteunt leerlingen met specifieke onderwijsbehoeften en werkt nauw samen met de klasleerkracht en zorgcoördinator.
+
+KERNTAKEN
+
+1. Ondersteuning van leerlingen
+- Biedt individuele en groepsgebonden ondersteuning aan leerlingen met leerproblemen
+- Werkt remediërend, compenserend en differentiërend
+- Implementeert handelingsplannen en ondersteuningsmaatregelen
+- Begeleidt leerlingen met specifieke onderwijsbehoeften (dyslexie, dyscalculie, ADHD, ASS, ...)
+
+2. Samenwerken met het team
+- Overlegt regelmatig met de klasleerkracht
+- Neemt deel aan zorgoverleg en MDO
+- Werkt samen met zorgcoördinator en CLB
+
+3. Ondersteuning van leerkrachten
+- Adviseert bij differentiatie en aangepaste aanpak
+- Co-teacht in de klas waar relevant
+
+VEREISTE KWALIFICATIES
+Bachelor onderwijs + ervaring of bijscholing in zorgpedagogiek` },
+
+  { code:"ZOCO", titel:"Zorgcoördinator", beschrijving:`FUNCTIEBESCHRIJVING — Zorgcoördinator
+Scholengroep Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De zorgcoördinator coördineert de zorgwerking op schoolniveau en stuurt het zorgbeleid aan.
+
+KERNTAKEN
+
+1. Beleid en coördinatie
+- Ontwikkelt en bewaakt het zorgbeleid
+- Coördineert het zorgcontinuüm (niveaus 1–4)
+- Neemt initiatief voor MDO en zorgoverleg
+
+2. Ondersteuning van leerkrachten
+- Begeleidt leerkrachten bij specifieke noden
+- Adviseert bij handelingsplannen
+
+3. Externe samenwerking
+- Aanspreekpunt voor CLB, leerondersteuners en revalidatiecentra
+
+VEREISTE KWALIFICATIES
+Bachelor onderwijs + opleiding of ervaring als zorgcoördinator` },
+
+  { code:"DIR", titel:"Directeur basisonderwijs", beschrijving:`FUNCTIEBESCHRIJVING — Directeur basisonderwijs
+Scholengroep Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De directeur is eindverantwoordelijke voor de pedagogische, organisatorische en administratieve werking van de school.
+
+KERNTAKEN
+
+1. Pedagogisch leiderschap
+- Ontwikkelt en bewaakt de pedagogische visie
+- Voert functionerings- en evaluatiegesprekken
+
+2. Organisatie en beheer
+- Verantwoordelijk voor dagelijkse werking
+- Beheert urenpakket en personeelsplanning
+
+3. Personeelsbeleid
+- Werft aan en begeleidt personeelsleden
+- Kent functiebeschrijvingen toe en evalueert
+
+4. Externe communicatie
+- Aanspreekpunt voor ouders, CLB en inspectie
+
+VEREISTE KWALIFICATIES
+Bachelor of master onderwijs + leidinggevende ervaring` },
+
+  { code:"ADM", titel:"Administratief medewerker", beschrijving:`FUNCTIEBESCHRIJVING — Administratief medewerker
+Scholengroep Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De administratief medewerker ondersteunt de directie bij de administratieve en secretariële werking.
+
+KERNTAKEN
+- Leerlingenadministratie en correspondentie
+- Personeelsadministratie en verlofopvolging
+- Financieel beheer en kleine kas
+- Onthaal en communicatie
+
+VEREISTE KWALIFICATIES
+Secundair onderwijs of hoger + administratieve ervaring` },
+
+
+  { code:"ICTTECH", titel:"Technisch ICT-coördinator", beschrijving:`FUNCTIEBESCHRIJVING — Technisch ICT-coördinator
+Scholengroep Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De technisch ICT-coördinator staat in voor de technische infrastructuur, het beheer van hard- en software en de ICT-beveiliging binnen de scholen van de scholengemeenschap. Hij/zij zorgt voor een stabiele en veilige digitale werkomgeving voor alle medewerkers en leerlingen.
+
+KERNTAKEN
+
+1. Beheer van ICT-infrastructuur
+- Beheert het schoolnetwerk (bekabeld en draadloos), servers en netwerkapparatuur
+- Installeert, configureert en onderhoudt computers, tablets, printers en randapparatuur
+- Bewaakt de beschikbaarheid en performantie van de ICT-infrastructuur
+- Plant en coördineert hardware-vervangingen en upgrades
+
+2. Software- en licentebeheer
+- Beheert schoolsoftware, besturingssystemen en applicaties
+- Volgt licenties op en zorgt voor tijdige verlenging
+- Installeert updates en beveiligingspatches
+- Beheert Microsoft 365, Azure Entra ID en schoolspecifieke platformen
+
+3. Beveiliging en GDPR
+- Implementeert en bewaakt beveiligingsmaatregelen (firewalls, antivirusbeleid, back-ups)
+- Beheert gebruikersaccounts en toegangsrechten
+- Zorgt voor naleving van de GDPR-vereisten op technisch vlak
+- Documenteert de technische infrastructuur en beveiligingsprocedures
+
+4. Ondersteuning en helpdesk
+- Verleent eerstelijns technische ondersteuning aan leerkrachten en directie
+- Lost technische problemen op of escaleert naar externe leveranciers
+- Staat in voor ICT-onthaal van nieuwe personeelsleden
+- Beheert het ticketsysteem of de meldingsprocedure
+
+5. Projecten en aankoopbeleid
+- Adviseert de directie bij ICT-aankopen en investeringen
+- Begeleidt ICT-projecten (infrastructuurvernieuwing, cloudmigratie, ...)
+- Werkt samen met externe ICT-partners en leveranciers
+
+COMPETENTIES
+- Technische expertise in netwerken, Windows/macOS, Microsoft 365 en cloudinfrastructuur
+- Probleemoplossend en analytisch denken
+- Nauwkeurigheid en documentatievaardigheid
+- Klantgerichtheid en communicatie met niet-technische gebruikers
+- Zelfstandigheid en verantwoordelijkheidsgevoel
+
+VEREISTE KWALIFICATIES
+Bachelor informatica, netwerkbeheer of gelijkwaardig + relevante ervaring
+Kennis van Microsoft 365, Azure Entra ID en netwerkbeheer` },
+
+  { code:"ICTPED", titel:"Pedagogisch ICT-coördinator", beschrijving:`FUNCTIEBESCHRIJVING — Pedagogisch ICT-coördinator
+Scholengroep Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De pedagogisch ICT-coördinator stimuleert en begeleidt de integratie van digitale technologie in het onderwijs. Hij/zij ondersteunt leerkrachten bij het didactisch gebruik van ICT en draagt bij aan de digitale geletterdheid van leerlingen en medewerkers.
+
+KERNTAKEN
+
+1. Ondersteuning van leerkrachten bij ICT-integratie
+- Begeleidt leerkrachten bij het integreren van digitale tools in hun lespraktijk
+- Geeft advies over geschikte apps, platformen en digitale werkvormen
+- Organiseert interne vorming en workshops rond digitaal didactisch handelen
+- Coacht individuele leerkrachten bij het gebruik van digitale leermiddelen
+
+2. Ontwikkeling van ICT-beleid
+- Werkt samen met de directie aan het ICT-beleidsplan van de school
+- Formuleert doelstellingen rond digitale geletterdheid en ICT-gebruik
+- Volgt onderwijskundige ICT-trends op en vertaalt deze naar schoolpraktijk
+- Evalueert en adviseert over digitale leerplatformen en -methodes
+
+3. Digitale geletterdheid van leerlingen
+- Ondersteunt de integratie van digitale competenties in het curriculum
+- Helpt bij de ontwikkeling van lesmateriaal rond mediawijsheid en computational thinking
+- Volgt de eindtermen en leerplannen rond digitale geletterdheid op
+
+4. Samenwerking en communicatie
+- Werkt samen met de technisch ICT-coördinator voor een coherente ICT-werking
+- Onderhoudt contacten met externe partners (Mediawijs, Digisprong, ...)
+- Vertegenwoordigt de school op scholengroepniveau rond ICT-pedagogie
+- Rapporteert aan de directie over de stand van de ICT-integratie
+
+5. Beheer van educatieve platformen
+- Beheert educatieve platformen en digitale leeromgevingen (Smartschool, Teams, ...)
+- Begeleidt leerkrachten bij het gebruik van digitale toets- en feedbacktools
+- Zorgt voor veilig en verantwoord gebruik van digitale tools door leerlingen
+
+COMPETENTIES
+- Pedagogisch-didactische expertise gecombineerd met digitale vaardigheid
+- Coachings- en begeleidingsvaardigheid
+- Visie op onderwijs en digitale innovatie
+- Communicatie en presentatievaardigheid
+- Samenwerking en netwerken
+
+VEREISTE KWALIFICATIES
+Bachelor of master onderwijs + aantoonbare ervaring met ICT-integratie in onderwijs
+Kennis van Microsoft 365 Education, Smartschool of vergelijkbare platformen` },
+  { code:"PARA", titel:"Kinderverzorger", beschrijving:`FUNCTIEBESCHRIJVING — Kinderverzorger
+Scholengroep Kapelle-op-den-Bos BaO
+
+OPDRACHT
+De kinderverzorger ondersteunt de kleuteronderwijzer bij verzorging en begeleiding van jonge kinderen.
+
+KERNTAKEN
+- Persoonlijke hygiëne en verzorging van kleuters
+- Ondersteuning bij activiteiten en spel
+- Toezicht op veiligheid
+
+VEREISTE KWALIFICATIES
+Opleiding kinderverzorging of gelijkwaardig` },
+  { code:"OND", titel:"Ondersteuner", beschrijving:`FUNCTIEBESCHRIJVING — Ondersteuner
+Scholengroep Kapelle-op-den-Bos BaO
+
+OPDRACHT
+Biedt ondersteuning in de klas aan leerlingen met bijzondere noden.` },
+  { code:"TOE", titel:"Toezichter", beschrijving:`FUNCTIEBESCHRIJVING — Toezichter
+Scholengroep Kapelle-op-den-Bos BaO
+
+OPDRACHT
+Houdt toezicht voor en na schooltijd en tijdens pauzes.` },
+  { code:"STA", titel:"Stagiair(e)", beschrijving:`FUNCTIEBESCHRIJVING — Stagiair(e)
+Scholengroep Kapelle-op-den-Bos BaO
+
+OPDRACHT
+Student in opleiding die stage loopt in de school.` },
 ];
+
+// ════════════════════════════════════════════════════════════════
+// AANVANGSBEGELEIDING, COACHINGSHISTORIEK EN NASCHOLING
+// ════════════════════════════════════════════════════════════════
+const SCHOOL_INFO = {
+  KK: { officieel: 'Gemeentelijke Basisschool De Kei - Het Kiezeltje', nr: '12039', directeur: 'Felicia Van der Vliet' },
+  DK: { officieel: 'Gemeentelijke Basisschool De Kei - Het Kiezeltje', nr: '12039', directeur: 'Felicia Van der Vliet' },
+  TM: { officieel: "Gemeentelijke Basisschool 't Mulderke",            nr: '14806', directeur: 'Sigrid Van Campenhout' },
+};
+const TWEEDE_EVALUATOR = ''; // in te vullen
+const SCHOOLBESTUUR = 'Gemeentebestuur van Kapelle-op-den-Bos';
+const SCHOLENGEMEENSCHAP = { naam: 'Interlokale vereniging Londerzeel – Kapelle o/d Bos', nr: '128009' };
+const EXT_LISTS = ['Aanvang', 'Begeleiding', 'Nascholing'];
+
+// Afvinklijst aanvangsbegeleiding LONKA (stappenplan ontvangst nieuwe leerkracht)
+// De sleutels zijn vast: wijzig een label gerust, maar hergebruik nooit een sleutel voor iets anders.
+const AFVINKLIJST = [
+  { rubriek: 'Gesprek', items: [
+    ['kennismaking', 'Kennismakingsgesprek'],
+    ['werking', 'Uitleg werking van de school (pedagogisch: jaarthema, inhoudelijk, schoolwerkplan)'],
+    ['rondleiding', 'Rondleiding: lokalen, speelplaatswerking, verzamelplaats'],
+    ['klaswerking', 'Klaswerking toelichten'],
+    ['llkenmerken', 'Leerlingkenmerken doorgeven'],
+    ['team', 'Voorstelling van het team'],
+    ['afwezigheid', 'Afwezigheidsregeling bij ziekte (volgens arbeidsreglement)'],
+    ['visie', 'Visie toelichten'],
+    ['zorg', 'Zorgwerking toelichten: visie, zorgpiramide, MDO, CLB, Scoodle Track'],
+    ['jaarkalender', 'Jaarkalender toelichten: personeelsvergaderingen, verwachtingen activiteiten'],
+    ['peter', 'Peter/meter aangesteld'],
+    ['mentor', 'Contactgegevens aanvangsbegeleider doorgegeven'],
+    ['vervoer', 'Uitleg vervoersonkosten en fietsvergoeding'],
+  ]},
+  { rubriek: 'Documenten (overhandigen)', items: [
+    ['inlichtingenfiche', 'Inlichtingenfiche (terug naar secretariaat)'],
+    ['startersbox', 'StartersBOX (opdracht langer dan 14 dagen)'],
+    ['fluo', 'Fluohesje'],
+    ['onthaal', 'Onthaalbrochure LON'],
+    ['afsprakenplan', 'Afsprakenplan / afsprakennota'],
+    ['visiedoc', 'Visie van de school'],
+    ['swp', 'Schoolwerkplan'],
+    ['schoolreglement', 'Schoolreglement'],
+    ['noodplan', 'Noodplan'],
+    ['arbeidsreglement', 'Arbeidsreglement'],
+    ['attesten', 'Doktersattest en medisch attest'],
+    ['beeldmateriaal', 'Toestemming beeldmateriaal personeelslid'],
+    ['jaarkalenderdoc', 'Jaarkalender'],
+    ['rooster_lo', 'Lessenrooster LO / zwemmen (vervoersregeling)'],
+    ['rooster_lbv', 'Lessenrooster levensbeschouwing'],
+    ['bewaking', 'Toezichtrooster'],
+    ['llijst', 'Leerlingenlijst'],
+    ['klasplanning', 'Sjabloon klasplanning (opdracht korter dan 14 dagen)'],
+    ['sleutel', 'Sleutel + tekendocument'],
+    ['laptop', 'Laptop + tekendocument'],
+    ['pedproject', 'Pedagogisch project'],
+    ['aanstelling', 'Collegebeslissing / aanstellingsdocument'],
+    ['ictbrochure', 'ICT-welkomstbrochure en Digitale afspraken personeel'],
+  ]},
+  { rubriek: 'Inlogcodes (overhandigen)', items: [
+    ['scoodle', 'Scoodle'],
+    ['gimme', 'Gimme'],
+    ['pedplatformen', 'Pedagogische platformen (bv. Bingel, Kweetet, De leraarskamer…)'],
+    ['email', 'E-mailadres: persoonlijk / klas'],
+    ['wifi', 'Wifi'],
+    ['printer', 'Printercode'],
+    ['swptoegang', 'Toegang schoolwerkplan'],
+    ['teams', 'Windows en Teams (incl. Authenticator)'],
+  ]},
+  { rubriek: 'Praktisch tonen', items: [
+    ['lvs', 'Leerlingvolgsysteem: agenda, afwezigheden, puntenlijst, rapport, KVS/LVS, MDO'],
+    ['gimmewerking', 'Werking Gimme'],
+    ['onboarding', 'Digicomp Academy-site en de Copilot-agents (o.a. Onboarding coach)'],
+  ]},
+  { rubriek: 'LONKA', items: [
+    ['drivers', 'Drivers voor de digiborden op de laptop'],
+    ['scholen', 'Toelichting scholen: directies, locaties, afspraken op scholengemeenschapsniveau'],
+    ['zomer', 'Zomermoment: praktische toelichting (Teams, platformen, Mijn Onderwijs…)'],
+    ['ontmoeting', 'Ontmoetingsmoment met de directies'],
+  ]},
+];
+const AFVINK_TOTAAL = AFVINKLIJST.reduce((n, r) => n + r.items.length, 0);
+
+// Functioneringscyclus eerste jaar: koppelt aan het gesprekstype in {S}_Gesprekken
+const CYCLUS = [
+  { type: 'Bespreking functiebeschrijving', label: 'Bespreking functiebeschrijving', maand: 1, info: 'bij opdracht van meer dan 104 dagen', enkel104: true },
+  { type: 'Klasbezoek ondersteunend', label: 'Klasbezoek ter ondersteuning (zonder verslag)', maand: 2 },
+  { type: 'Lesbijwoning met verslag', label: 'Lesbijwoning met pedagogisch verslag', maand: 3, aantal: 2, info: '1e en 2e lesbijwoning' },
+  { type: 'Bespreking pedagogisch verslag', label: 'Bespreking pedagogisch verslag', maand: 3 },
+  { type: 'Functioneringsgesprek', label: 'Functioneringsgesprek', maand: null },
+  { type: 'Evaluatiegesprek', label: 'Evaluatiegesprek', maand: null, info: 'indien van toepassing', optioneel: true },
+];
+const GESPREK_TYPES = ['Functioneringsgesprek','Evaluatiegesprek','Planningsgesprek','Informeel gesprek',
+  'Bespreking functiebeschrijving','Klasbezoek ondersteunend','Lesbijwoning met verslag','Bespreking pedagogisch verslag'];
+
+const STATUUT_OPTIES   = ['Tijdelijk bepaalde duur','TADD','Vast benoemd','Andere'];
+const TRAJECT_STATUS   = ['Lopend','Afgerond','Stopgezet'];
+const BEGELEIDING_TYPES = ['Kennismakingsgesprek','Opstarttraject (beginsituatie en werkpunten)','Klasbezoek','Reflectiegesprek','Tussentijdse reflectie','Intervisie','Andere'];
+const BEGELEIDING_DOOR  = ['Aanvangsbegeleider','Peter/meter','Directie','Andere'];
+const NASCH_THEMA  = ['ICT en digitale platformen','AI','Pedagogisch-didactisch','Zorg en welbevinden','Veiligheid en welzijn','Taal','Wiskunde','Andere'];
+const NASCH_STATUS = ['Besproken','Aangevraagd','Goedgekeurd','Ingeschreven','Gevolgd','Geannuleerd'];
+const NASCH_STATUS_TAG = { Besproken:'tag-gray', Aangevraagd:'tag-amber', Goedgekeurd:'tag-blue', Ingeschreven:'tag-purple', Gevolgd:'tag-green', Geannuleerd:'tag-red' };
+
+// ── Helpers ─────────────────────────────────────────────────────
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+// Datum uit SharePoint (UTC) → 'JJJJ-MM-DD' in lokale tijd, voor <input type="date">
+function dIn(d) {
+  if (!d) return '';
+  const x = new Date(d); if (isNaN(x)) return '';
+  return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+}
+function addMonths(d, m) { const x = new Date(d); x.setMonth(x.getMonth() + m); return x; }
+function schooljaarVan(d) {
+  const x = d ? new Date(d) : new Date(); if (isNaN(x)) return '';
+  const y = x.getMonth() >= 8 ? x.getFullYear() : x.getFullYear() - 1;
+  return `${y}-${y+1}`;
+}
+function sameId(a, b) { return String(a) === String(b); }
+function leerkrachtNaam(l) { return `${l?.Voornaam||''} ${l?.Naam||''}`.trim(); }
+function extListsReady(sk) { return EXT_LISTS.every(n => LIST_IDS[`${sk}_${n}`]); }
+function extMissingNotice() {
+  return `<div class="card" style="border-color:#FCD34D;background:var(--amber-bg)">
+    <div class="card-title" style="color:#B45309">Lijsten nog niet aangemaakt</div>
+    <p style="font-size:13px;margin-top:6px;color:#92400E">De lijsten voor aanvangsbegeleiding en nascholing bestaan nog niet op de site.
+    Laat de systeembeheerder het script <strong>KA-Leerkrachten-uitbreiding.ps1</strong> uitvoeren en herlaad daarna deze pagina.</p></div>`;
+}
+function val(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+function checked(id) { const el = document.getElementById(id); return !!(el && el.checked); }
+function numOrNull(v) { if (v === '' || v == null) return null; const n = parseFloat(String(v).replace(',', '.')); return isNaN(n) ? null : n; }
+function openLeerkracht(sk, id, tab) {
+  currentSchool = SCHOOLS.find(s => s.key === sk);
+  setActive(`school-${sk}`);
+  showLeerkracht(String(id), tab);
+}
+
+// Zoek alle lijst-ID's op naam op de site. Een ID dat in LIST_IDS staat maar niet (meer) klopt,
+// wordt zo automatisch gecorrigeerd. Lijsten die niet op naam gevonden worden, behouden hun ID.
+async function resolveListIds() {
+  for (const s of SCHOOLS) for (const n of EXT_LISTS) { const k = `${s.key}_${n}`; if (!(k in LIST_IDS)) LIST_IDS[k] = ''; }
+  try {
+    const sp = CONFIG.siteId.includes(':/') ? ':/lists' : '/lists';
+    const data = await graphReq('GET', `${sp}?$select=id,displayName&$top=999`);
+    for (const l of (data.value || [])) {
+      if (l.displayName in LIST_IDS) LIST_IDS[l.displayName] = l.id;
+    }
+  } catch(e) { console.warn('resolveListIds:', e.message); }
+}
+
+function render(html) { const m = document.getElementById('main-area'); if (m) m.innerHTML = html; }
+function magBeheren() { return ['directeur','systeembeheerder'].includes(userAccess?.rol); }
+
+// Lijst ophalen zonder dat één ontbrekende lijst de hele pagina laat mislukken
+async function getListItemsSafe(listId, label) {
+  try { return await getListItems(listId); }
+  catch(e) { console.warn(`Lijst ${label} niet geladen:`, e.message); toast(`Lijst ${label} kon niet geladen worden`); return []; }
+}
+
+// Gedeelde staat voor het tabblad aanvangsbegeleiding
+let aanvangState = null;
+
+// ── Tab: Aanvangsbegeleiding ────────────────────────────────────
+function renderAanvang(l, aanvang, begeleiding, gesprekken) {
+  const sk = currentSchool.key;
+  if (!extListsReady(sk)) return extMissingNotice();
+  const naam = leerkrachtNaam(l);
+  if (!aanvang) {
+    return `<div class="card">
+      <div class="card-title">Aanvangsbegeleiding starten</div>
+      <p style="font-size:13px;color:var(--gray-600);margin:8px 0 14px;line-height:1.6">
+        Enkel voor <strong>nieuwe personeelsleden</strong>. Start je een traject voor ${esc(naam)}, dan volg je op één plek de afvinklijst, de functioneringscyclus van het eerste jaar
+        en de begeleidingsmomenten op, en je kan de coachingshistoriek afdrukken.</p>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="showTrajectModal('${l.id}')">+ Traject starten</button>
+        <button class="btn" onclick="showLeerkracht('${l.id}','functiebeschrijving')">Annuleren</button>
+      </div>
+    </div>`;
+  }
+  let afvink = {};
+  try { afvink = JSON.parse(aanvang.AfvinklijstJson || '{}') || {}; } catch { afvink = {}; }
+  aanvangState = { leerkrachtId: l.id, itemId: aanvang.id, afvink, schoolKey: sk };
+  const gedaan = Object.keys(afvink).filter(k => afvink[k]).length;
+  const pct = Math.round(gedaan / AFVINK_TOTAAL * 100);
+  const statusTag = { Lopend:'tag-blue', Afgerond:'tag-green', Stopgezet:'tag-gray' }[aanvang.Status] || 'tag-gray';
+  const rij = (k, v) => `<div class="fg"><label>${k}</label><div style="font-size:13px;padding:4px 0">${v || '<span style="color:var(--gray-400)">—</span>'}</div></div>`;
+
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Traject aanvangsbegeleiding <span class="tag ${statusTag}" style="margin-left:6px">${esc(aanvang.Status || 'Lopend')}</span></div>
+          <div class="card-sub">Gestart op ${fmtDate(aanvang.Startdatum)}${aanvang.Statuut ? ' · ' + esc(aanvang.Statuut) : ''}${aanvang.Inductie ? ' · inductiejaar' : ''}</div></div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" onclick="printCoachingshistoriek()">🖨️ Coachingshistoriek</button>
+          <button class="btn btn-sm" onclick="showTrajectModal('${l.id}')">✏️ Bewerken</button>
+        </div>
+      </div>
+      <div class="form-grid form-grid-3">
+        ${rij('Aanvangsbegeleider', esc(aanvang.Aanvangsbegeleider))}
+        ${rij('Peter/meter', esc(aanvang.PeterMeter))}
+        ${rij('Opdracht > 104 dagen', aanvang.MeerDan104 ? 'Ja' : 'Nee')}
+        ${rij('Eerste evaluator', esc(aanvang.EersteEvaluator))}
+        ${rij('Tweede evaluator', esc(aanvang.TweedeEvaluator))}
+        ${rij('Overeenkomst aanvangsbegeleiding', aanvang.OvereenkomstDatum ? 'getekend op ' + fmtDate(aanvang.OvereenkomstDatum) : '<span class="tag tag-amber">nog te tekenen</span>')}
+        ${aanvang.Inductie ? rij('Overeenkomst inzake inductie', aanvang.InductieOvereenkomstDatum ? 'getekend op ' + fmtDate(aanvang.InductieOvereenkomstDatum) : '<span class="tag tag-amber">nog te tekenen</span>') : ''}
+      </div>
+    </div>
+
+    ${renderCyclus(l, aanvang, gesprekken)}
+
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Begeleidingsmomenten</div>
+          <div class="card-sub">Bondige omschrijving van de actie, zoals in de coachingshistoriek. Wat met de aanvangsbegeleider besproken wordt, blijft vertrouwelijk en is geen input voor evaluatie.</div></div>
+        <button class="btn btn-sm btn-primary" onclick="showBegeleidingModal('${l.id}')">+ Moment</button>
+      </div>
+      ${begeleiding.length === 0 ? `<div style="font-size:13px;color:var(--gray-400)">Nog geen begeleidingsmomenten genoteerd.</div>` :
+        [...begeleiding].sort((a,b) => new Date(b.Datum) - new Date(a.Datum)).map(b => `
+        <div class="entry" style="margin-bottom:6px;padding:10px 14px">
+          <div class="entry-header" style="margin-bottom:2px">
+            <div><span style="font-weight:600;font-size:13px">${esc(b.Type || '')}</span>
+              <span class="entry-date" style="margin-left:8px">${fmtDate(b.Datum)} · ${esc(b.DoorWie || '')}</span></div>
+            <div style="display:flex;gap:4px">
+              <button class="btn btn-sm" onclick="showBegeleidingModal('${l.id}','${b.id}')">✏️</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteBegeleiding('${b.id}','${l.id}')">✕</button>
+            </div>
+          </div>
+          ${b.Omschrijving ? `<div class="entry-body">${esc(b.Omschrijving)}</div>` : ''}
+        </div>`).join('')}
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Afvinklijst aanvangsbegeleiding LONKA</div>
+          <div class="card-sub">Stappenplan ontvangst nieuwe leerkracht. Aanvinken bewaart meteen, met datum en wie het afvinkte.</div></div>
+        <div style="min-width:160px">
+          <div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="afvink-fill" style="width:${pct}%"></div></div>
+          <div class="progress-label" id="afvink-label">${gedaan} / ${AFVINK_TOTAAL} (${pct}%)</div></div>
+        </div>
+      </div>
+      ${AFVINKLIJST.map(r => {
+        const n = r.items.filter(([k]) => afvink[k]).length;
+        return `
+        <details ${n < r.items.length ? 'open' : ''} style="margin-bottom:8px;border:1px solid var(--gray-200);border-radius:8px;padding:8px 12px">
+          <summary style="cursor:pointer;font-weight:600;font-size:13px">${esc(r.rubriek)} <span class="tag ${n===r.items.length?'tag-green':'tag-gray'}" id="afvink-r-${esc(r.rubriek).replace(/\W/g,'')}" style="margin-left:6px">${n}/${r.items.length}</span></summary>
+          <div style="margin-top:6px">
+          ${r.items.map(([k, label]) => {
+            const v = afvink[k];
+            return `<label class="afvink-row">
+              <input type="checkbox" ${v ? 'checked' : ''} onchange="toggleAfvink('${k}', this.checked)">
+              <span style="flex:1">${esc(label)}</span>
+              <span class="afvink-meta" id="afvink-m-${k}">${v ? fmtDate(v.d) + (v.w ? ' · ' + esc(v.w) : '') : ''}</span>
+            </label>`; }).join('')}
+          </div>
+        </details>`; }).join('')}
+    </div>`;
+}
+
+function cyclusStatus(aanvang, gesprekken) {
+  const start = aanvang?.Startdatum ? new Date(aanvang.Startdatum) : null;
+  const nu = new Date();
+  return CYCLUS.map(c => {
+    const hits = gesprekken.filter(g => g.Type === c.type).sort((a,b) => new Date(a.Datum) - new Date(b.Datum));
+    const nodig = c.aantal || 1;
+    const nvt = c.enkel104 && aanvang && !aanvang.MeerDan104;
+    const due = (start && c.maand) ? addMonths(start, c.maand) : null;
+    let status;
+    if (nvt) status = 'nvt';
+    else if (hits.length >= nodig) status = 'klaar';
+    else if (due && due < nu) status = 'achter';
+    else if (hits.length > 0) status = 'deels';
+    else status = 'open';
+    return { ...c, hits, nodig, due, status };
+  });
+}
+
+function renderCyclus(l, aanvang, gesprekken) {
+  const stappen = cyclusStatus(aanvang, gesprekken);
+  const tag = { klaar:['tag-green','Gebeurd'], achter:['tag-red','Achterstallig'], deels:['tag-amber','Deels'], open:['tag-gray','Gepland'], nvt:['tag-gray','N.v.t.'] };
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Functioneringscyclus eerste jaar</div>
+          <div class="card-sub">Gekoppeld aan het tabblad Gesprekken. Streefdata vanaf de startdatum.</div></div>
+      </div>
+      ${stappen.map(s => `
+        <div class="cyclus-row">
+          <div class="cyclus-dot cyclus-${s.status}"></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600">${esc(s.label)}${s.optioneel ? ' <span style="font-weight:400;color:var(--gray-400)">(optioneel)</span>' : ''}</div>
+            <div style="font-size:11px;color:var(--gray-500)">
+              ${s.maand ? `${s.maand}e maand · streefdatum ${s.due ? fmtDate(s.due) : '—'}` : 'later in het schooljaar'}${s.info ? ' · ' + esc(s.info) : ''}
+              ${s.hits.length ? ' · ' + s.hits.map(h => fmtDate(h.Datum)).join(', ') : ''}
+              ${s.nodig > 1 ? ` · ${s.hits.length}/${s.nodig}` : ''}
+            </div>
+          </div>
+          <span class="tag ${tag[s.status][0]}">${tag[s.status][1]}</span>
+          ${s.status !== 'klaar' && s.status !== 'nvt' ? `<button class="btn btn-sm" onclick="showAddGesprek('${l.id}','${esc(s.type)}','aanvang')">+ Noteren</button>` : ''}
+        </div>`).join('')}
+    </div>`;
+}
+
+async function toggleAfvink(key, on) {
+  if (!aanvangState) return;
+  const st = aanvangState;
+  if (on) st.afvink[key] = { d: today(), w: userAccess?.naam || '' };
+  else delete st.afvink[key];
+  // UI meteen bijwerken
+  const meta = document.getElementById(`afvink-m-${key}`);
+  if (meta) meta.textContent = on ? `${fmtDate(st.afvink[key].d)} · ${st.afvink[key].w}` : '';
+  const gedaan = Object.keys(st.afvink).length;
+  const pct = Math.round(gedaan / AFVINK_TOTAAL * 100);
+  const fill = document.getElementById('afvink-fill'); if (fill) fill.style.width = pct + '%';
+  const lbl = document.getElementById('afvink-label'); if (lbl) lbl.textContent = `${gedaan} / ${AFVINK_TOTAAL} (${pct}%)`;
+  for (const r of AFVINKLIJST) {
+    const el = document.getElementById(`afvink-r-${esc(r.rubriek).replace(/\W/g,'')}`);
+    if (el) { const n = r.items.filter(([k]) => st.afvink[k]).length; el.textContent = `${n}/${r.items.length}`; el.className = `tag ${n===r.items.length?'tag-green':'tag-gray'}`; }
+  }
+  try {
+    await updateItem(LIST_IDS[`${st.schoolKey}_Aanvang`], st.itemId, { AfvinklijstJson: JSON.stringify(st.afvink) });
+  } catch(e) { toast('Niet bewaard: ' + e.message); }
+}
+
+function showTrajectModal(leerkrachtId) {
+  const l = currentLeerkracht;
+  const a = aanvangState && sameId(aanvangState.leerkrachtId, leerkrachtId) ? (window._aanvangItem || null) : null;
+  const sk = currentSchool.key;
+  const opt = (arr, cur) => arr.map(o => `<option ${o === cur ? 'selected' : ''}>${esc(o)}</option>`).join('');
+  showModal(`
+    <div class="modal-title">${a ? 'Traject bewerken' : 'Traject aanvangsbegeleiding starten'} · ${esc(leerkrachtNaam(l))}</div>
+    <div class="form-grid">
+      <div class="fg"><label>Startdatum (indiensttreding)</label><input type="date" id="t-start" value="${a ? dIn(a.Startdatum) : today()}"></div>
+      <div class="fg"><label>Statuut</label><select id="t-statuut">${opt(STATUUT_OPTIES, a?.Statuut || 'Tijdelijk bepaalde duur')}</select></div>
+      <div class="fg"><label>Aanvangsbegeleider</label><input id="t-ab" value="${esc(a?.Aanvangsbegeleider)}"></div>
+      <div class="fg"><label>Peter/meter</label><input id="t-pm" value="${esc(a?.PeterMeter)}"></div>
+      <div class="fg"><label>Eerste evaluator</label><input id="t-e1" value="${esc(a?.EersteEvaluator || SCHOOL_INFO[sk].directeur)}"></div>
+      <div class="fg"><label>Tweede evaluator</label><input id="t-e2" value="${esc(a?.TweedeEvaluator || TWEEDE_EVALUATOR)}"></div>
+      <div class="fg"><label>Overeenkomst aanvangsbegeleiding getekend op</label><input type="date" id="t-ov" value="${dIn(a?.OvereenkomstDatum)}"></div>
+      <div class="fg"><label>Overeenkomst inzake inductie getekend op</label><input type="date" id="t-ovi" value="${dIn(a?.InductieOvereenkomstDatum)}"></div>
+      <div class="fg"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="t-104" ${a ? (a.MeerDan104 ? 'checked' : '') : 'checked'}> Opdracht van meer dan 104 dagen</label></div>
+      <div class="fg"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="t-ind" ${a?.Inductie ? 'checked' : ''}> Inductiejaar (starter, art. 226 arbeidsreglement)</label></div>
+      ${a ? `<div class="fg"><label>Status</label><select id="t-status">${opt(TRAJECT_STATUS, a.Status || 'Lopend')}</select></div>` : ''}
+    </div>
+    <div class="modal-actions">
+      ${a ? `<button class="btn btn-danger" style="margin-right:auto" onclick="deleteTraject('${a.id}','${leerkrachtId}')">Traject verwijderen</button>` : ''}
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveTraject('${leerkrachtId}')">Opslaan</button>
+    </div>`);
+}
+
+async function saveTraject(leerkrachtId) {
+  const l = currentLeerkracht, sk = currentSchool.key;
+  const a = window._aanvangItem && aanvangState && sameId(aanvangState.leerkrachtId, leerkrachtId) ? window._aanvangItem : null;
+  if (!val('t-start')) { toast('Vul de startdatum in'); return; }
+  const fields = {
+    Title: leerkrachtNaam(l), LeerkrachtId: String(leerkrachtId), LeerkrachtNaam: leerkrachtNaam(l),
+    Startdatum: val('t-start'), Statuut: val('t-statuut'),
+    Aanvangsbegeleider: val('t-ab'), PeterMeter: val('t-pm'),
+    EersteEvaluator: val('t-e1'), TweedeEvaluator: val('t-e2'),
+    OvereenkomstDatum: val('t-ov') || null, InductieOvereenkomstDatum: val('t-ovi') || null,
+    MeerDan104: checked('t-104'), Inductie: checked('t-ind'), School: sk,
+  };
+  try {
+    if (a) { fields.Status = val('t-status') || 'Lopend'; await updateItem(LIST_IDS[`${sk}_Aanvang`], a.id, fields); }
+    else { fields.Status = 'Lopend'; fields.AfvinklijstJson = '{}'; fields.IngevoerdDoor = userAccess?.email; await createItem(LIST_IDS[`${sk}_Aanvang`], fields); }
+    toast('Traject opgeslagen'); closeModal(); showLeerkracht(leerkrachtId, 'aanvang');
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+async function deleteTraject(itemId, leerkrachtId) {
+  if (!confirm('Het traject (incl. afvinklijst) verwijderen? Begeleidingsmomenten en gesprekken blijven bewaard.')) return;
+  try { await deleteItem(LIST_IDS[`${currentSchool.key}_Aanvang`], itemId); closeModal(); toast('Traject verwijderd'); showLeerkracht(leerkrachtId, 'functiebeschrijving'); }
+  catch(e) { toast('Fout: ' + e.message); }
+}
+
+function showBegeleidingModal(leerkrachtId, itemId) {
+  const b = itemId ? (window._begeleidingItems || []).find(x => sameId(x.id, itemId)) : null;
+  const opt = (arr, cur) => arr.map(o => `<option ${o === cur ? 'selected' : ''}>${esc(o)}</option>`).join('');
+  showModal(`
+    <div class="modal-title">${b ? 'Begeleidingsmoment bewerken' : 'Begeleidingsmoment toevoegen'}</div>
+    <div class="form-grid">
+      <div class="fg"><label>Datum</label><input type="date" id="b-datum" value="${b ? dIn(b.Datum) : today()}"></div>
+      <div class="fg"><label>Type</label><select id="b-type">${opt(BEGELEIDING_TYPES, b?.Type)}</select></div>
+      <div class="fg"><label>Door</label><select id="b-door">${opt(BEGELEIDING_DOOR, b?.DoorWie || 'Aanvangsbegeleider')}</select></div>
+      <div class="fg fg-full"><label>Bondige omschrijving van de actie</label>
+        <input id="b-omschr" maxlength="200" value="${esc(b?.Omschrijving)}" placeholder="bv. Klasbezoek wiskunde, focus op klasmanagement">
+        <div style="font-size:11px;color:var(--gray-400)">Eén lijn, geen inhoud van het gesprek en geen leerlinggegevens.</div></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveBegeleiding('${leerkrachtId}'${b ? `,'${b.id}'` : ''})">Opslaan</button>
+    </div>`);
+}
+
+async function saveBegeleiding(leerkrachtId, itemId) {
+  const l = currentLeerkracht, sk = currentSchool.key;
+  const fields = {
+    Title: val('b-type'), LeerkrachtId: String(leerkrachtId), LeerkrachtNaam: leerkrachtNaam(l),
+    Datum: val('b-datum'), Type: val('b-type'), DoorWie: val('b-door'), Omschrijving: val('b-omschr'), School: sk,
+  };
+  if (!fields.Datum) { toast('Vul een datum in'); return; }
+  try {
+    if (itemId) await updateItem(LIST_IDS[`${sk}_Begeleiding`], itemId, fields);
+    else { fields.IngevoerdDoor = userAccess?.email; await createItem(LIST_IDS[`${sk}_Begeleiding`], fields); }
+    toast('Opgeslagen'); closeModal(); showLeerkracht(leerkrachtId, 'aanvang');
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+async function deleteBegeleiding(itemId, leerkrachtId) {
+  if (!confirm('Begeleidingsmoment verwijderen?')) return;
+  try { await deleteItem(LIST_IDS[`${currentSchool.key}_Begeleiding`], itemId); toast('Verwijderd'); showLeerkracht(leerkrachtId, 'aanvang'); }
+  catch(e) { toast('Fout: ' + e.message); }
+}
+
+// ── Coachingshistoriek (afdrukbaar, zelfde opbouw als het sjabloon) ──
+function printCoachingshistoriek() {
+  const l = currentLeerkracht, sk = currentSchool.key, info = SCHOOL_INFO[sk];
+  const a = window._aanvangItem || {};
+  const cyclusTypes = new Set(CYCLUS.map(c => c.type));
+  const rijen = [
+    ...(window._begeleidingItems || []).map(b => ({ d: b.Datum, oms: `${b.Type || ''}${b.Omschrijving ? ': ' + b.Omschrijving : ''}`, wie: b.DoorWie === 'Directie' ? '1e evaluator' : (b.DoorWie || 'Aanvangsbegeleider') })),
+    ...(window._gesprekkenItems || []).filter(g => cyclusTypes.has(g.Type)).map(g => ({ d: g.Datum, oms: g.Type, wie: '1e evaluator' })),
+  ].sort((x, y) => new Date(x.d) - new Date(y.d));
+  const leeg = Math.max(0, 6 - rijen.length);
+  const html = `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>Coachingshistoriek ${esc(leerkrachtNaam(l))}</title>
+  <style>
+    body{font-family:Calibri,Arial,sans-serif;font-size:11pt;margin:18mm;color:#111}
+    h1{font-size:16pt;margin:0 0 10px}
+    table{width:100%;border-collapse:collapse;margin-bottom:14px}
+    td,th{border:1px solid #444;padding:6px 8px;vertical-align:top;text-align:left}
+    th{background:#eee}
+    .kop td{border:none;padding:1px 0}
+    .paraf{width:32%}
+    .datum{width:14%}
+    tr{page-break-inside:avoid}
+    @media print{body{margin:12mm}}
+  </style></head><body>
+  <h1>HISTORIEK COACHING</h1>
+  <table class="kop">
+    <tr><td><strong>Onderwijsinstelling:</strong> ${esc(info.officieel)}</td></tr>
+    <tr><td><strong>Instellingsnummer:</strong> ${esc(info.nr)}</td></tr>
+    <tr><td><strong>Schoolbestuur:</strong> ${esc(SCHOOLBESTUUR)}</td></tr>
+    <tr><td><em><strong>Scholengemeenschap:</strong> ${esc(SCHOLENGEMEENSCHAP.naam)}</em></td></tr>
+    <tr><td><em><strong>Nummer scholengemeenschap:</strong> ${esc(SCHOLENGEMEENSCHAP.nr)}</em></td></tr>
+  </table>
+  <table>
+    <tr><th colspan="2">IDENTIFICATIE</th></tr>
+    <tr><td style="width:35%">Naam personeelslid</td><td>${esc(leerkrachtNaam(l))}</td></tr>
+    <tr><td>Stamboeknummer</td><td></td></tr>
+    <tr><td>Geboortedatum</td><td></td></tr>
+    <tr><td>Eerste evaluator</td><td>${esc(a.EersteEvaluator || info.directeur)}</td></tr>
+    <tr><td>Tweede evaluator</td><td>${esc(a.TweedeEvaluator || TWEEDE_EVALUATOR)}</td></tr>
+    <tr><td>Aanvangsbegeleider</td><td>${esc(a.Aanvangsbegeleider || '')}</td></tr>
+    <tr><td>Ambt (functie)</td><td>${esc(l.Functie || '')}</td></tr>
+  </table>
+  <table>
+    <tr><th class="datum">Datum</th><th>Bondige omschrijving van de actie</th><th class="paraf">Betrokkenen – paraf</th></tr>
+    ${rijen.map(r => `<tr><td>${fmtDate(r.d)}</td><td>${esc(r.oms)}</td><td>${esc(r.wie)}:<br><br>Personeelslid:</td></tr>`).join('')}
+    ${'<tr><td>&nbsp;</td><td></td><td><br><br></td></tr>'.repeat(leeg)}
+  </table>
+  <script>window.onload=function(){window.print();}<\/script>
+  </body></html>`;
+  const w = window.open('', '_blank');
+  if (!w) { toast('Pop-up geblokkeerd: sta pop-ups toe voor deze site'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+}
+
+// ── Tab: Nascholing ─────────────────────────────────────────────
+function renderNascholing(l, items) {
+  const sk = currentSchool.key;
+  if (!extListsReady(sk)) return extMissingNotice();
+  const sj = schooljaarVan();
+  const ditJaar = items.filter(n => schooljaarVan(n.Datum || n.Created) === sj);
+  const urenGevolgd = ditJaar.filter(n => n.Status === 'Gevolgd').reduce((s, n) => s + (Number(n.Uren) || 0), 0);
+  const gepland = ditJaar.filter(n => ['Aangevraagd','Goedgekeurd','Ingeschreven'].includes(n.Status)).length;
+  const aiKennismaker = items.some(n => n.Thema === 'AI' && n.Status === 'Gevolgd');
+  const sorted = [...items].sort((a,b) => new Date(b.Datum || b.Created) - new Date(a.Datum || a.Created));
+  return `
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat-card"><div class="stat-val">${urenGevolgd.toLocaleString('nl-BE')}</div><div class="stat-lbl">Uren gevolgd ${sj}</div></div>
+      <div class="stat-card"><div class="stat-val">${ditJaar.filter(n => n.Status === 'Gevolgd').length}</div><div class="stat-lbl">Nascholingen gevolgd ${sj}</div></div>
+      <div class="stat-card"><div class="stat-val">${gepland}</div><div class="stat-lbl">Aangevraagd of gepland</div></div>
+    </div>
+    ${aiKennismaker ? '' : `<div style="background:var(--blue-bg);border:1px solid #BFDBFE;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#1E40AF;display:flex;align-items:center;gap:10px">
+      <span style="flex:1">Nog geen gevolgde AI-nascholing geregistreerd. Elke leerkracht volgt minstens het basistraject AI (<strong>Kennismaker</strong>).</span>
+      <button class="btn btn-sm" onclick="showNascholingModal('${l.id}', null, 'ai')">+ Kennismaker</button></div>`}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:12px;color:var(--gray-500)">Een nascholing wordt aangevraagd na een gesprek met de directeur (professionaliseringsbeleid).</div>
+      <button class="btn btn-primary" onclick="showNascholingModal('${l.id}')">+ Nascholing</button>
+    </div>
+    ${sorted.length === 0 ? `<div class="empty"><p>Nog geen nascholingen geregistreerd.</p></div>` :
+      sorted.map(n => `
+      <div class="entry">
+        <div class="entry-header">
+          <div>
+            <div style="font-weight:600;font-size:13px">${esc(n.Title || '')}${n.Verplicht ? ' <span class="tag tag-red">verplicht</span>' : ''}</div>
+            <div class="entry-date">${fmtDate(n.Datum)}${n.Aanbieder ? ' · ' + esc(n.Aanbieder) : ''}${n.Uren ? ' · ' + n.Uren + ' u' : ''}${n.Thema ? ' · ' + esc(n.Thema) : ''}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            ${n.Attest ? '<span class="tag tag-teal">attest</span>' : ''}
+            <span class="tag ${NASCH_STATUS_TAG[n.Status] || 'tag-gray'}">${esc(n.Status || '')}</span>
+            <button class="btn btn-sm" onclick="showNascholingModal('${l.id}','${n.id}')">✏️</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteNascholing('${n.id}','${l.id}')">✕</button>
+          </div>
+        </div>
+        ${n.Opmerking ? `<div class="entry-body">${esc(n.Opmerking)}</div>` : ''}
+      </div>`).join('')}`;
+}
+
+function showNascholingModal(leerkrachtId, itemId, preset) {
+  const n = itemId ? (window._nascholingItems || []).find(x => sameId(x.id, itemId)) : null;
+  const p = preset === 'ai' ? { Title: 'AI-basistraject Kennismaker', Thema: 'AI', Verplicht: true, Status: 'Besproken' } : {};
+  const v = n || p;
+  const opt = (arr, cur) => arr.map(o => `<option ${o === cur ? 'selected' : ''}>${esc(o)}</option>`).join('');
+  showModal(`
+    <div class="modal-title">${n ? 'Nascholing bewerken' : 'Nascholing toevoegen'}</div>
+    <div class="form-grid">
+      <div class="fg fg-full"><label>Titel</label><input id="n-titel" value="${esc(v.Title)}" placeholder="Naam van de nascholing"></div>
+      <div class="fg"><label>Aanbieder</label><input id="n-aanb" value="${esc(v.Aanbieder)}" placeholder="bv. OVSG, Digicomp Academy, hogeschool"></div>
+      <div class="fg"><label>Thema</label><select id="n-thema">${opt(NASCH_THEMA, v.Thema)}</select></div>
+      <div class="fg"><label>Datum (start)</label><input type="date" id="n-datum" value="${dIn(v.Datum)}"></div>
+      <div class="fg"><label>Aantal uren</label><input type="number" min="0" step="0.5" id="n-uren" value="${v.Uren ?? ''}"></div>
+      <div class="fg"><label>Status</label><select id="n-status">${opt(NASCH_STATUS, v.Status || 'Besproken')}</select></div>
+      <div class="fg"><label>Besproken met directeur op</label><input type="date" id="n-gesprek" value="${dIn(v.GesprekDatum)}"></div>
+      <div class="fg"><label>Kosten (€)</label><input type="number" min="0" step="0.01" id="n-kost" value="${v.Kosten ?? ''}"></div>
+      <div class="fg" style="justify-content:flex-end;gap:8px">
+        <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="n-verpl" ${v.Verplicht ? 'checked' : ''}> Verplichte nascholing</label>
+        <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="n-attest" ${v.Attest ? 'checked' : ''}> Attest ontvangen</label>
+      </div>
+      <div class="fg fg-full"><label>Opmerking</label><textarea id="n-opm" rows="2" placeholder="bv. link met POP-doel, vervanging geregeld…">${esc(v.Opmerking)}</textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveNascholing('${leerkrachtId}'${n ? `,'${n.id}'` : ''})">Opslaan</button>
+    </div>`);
+}
+
+async function saveNascholing(leerkrachtId, itemId) {
+  const l = currentLeerkracht, sk = currentSchool.key;
+  if (!val('n-titel').trim()) { toast('Vul een titel in'); return; }
+  const fields = {
+    Title: val('n-titel').trim(), LeerkrachtId: String(leerkrachtId), LeerkrachtNaam: leerkrachtNaam(l),
+    Aanbieder: val('n-aanb'), Thema: val('n-thema'), Datum: val('n-datum') || null,
+    Uren: numOrNull(val('n-uren')), Status: val('n-status'), GesprekDatum: val('n-gesprek') || null,
+    Kosten: numOrNull(val('n-kost')), Verplicht: checked('n-verpl'), Attest: checked('n-attest'),
+    Opmerking: val('n-opm'), School: sk,
+  };
+  try {
+    if (itemId) await updateItem(LIST_IDS[`${sk}_Nascholing`], itemId, fields);
+    else { fields.IngevoerdDoor = userAccess?.email; await createItem(LIST_IDS[`${sk}_Nascholing`], fields); }
+    toast('Nascholing opgeslagen'); closeModal(); showLeerkracht(leerkrachtId, 'nascholing');
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+async function deleteNascholing(itemId, leerkrachtId) {
+  if (!confirm('Nascholing verwijderen?')) return;
+  try { await deleteItem(LIST_IDS[`${currentSchool.key}_Nascholing`], itemId); toast('Verwijderd'); showLeerkracht(leerkrachtId, 'nascholing'); }
+  catch(e) { toast('Fout: ' + e.message); }
+}
+
+// ── Overzicht: lopende trajecten ────────────────────────────────
+let overzichtAlleTrajecten = false;
+async function showAanvangOverzicht(alle) {
+  if (typeof alle === 'boolean') overzichtAlleTrajecten = alle;
+  setActive('ov-aanvang');
+  showLoader();
+  try {
+    const scholen = SCHOOLS.filter(s => userAccess?.scholen.includes(s.key));
+    const klaar = scholen.filter(s => extListsReady(s.key));
+    const rows = [];
+    for (const s of klaar) {
+      const [trajecten, gesprekken] = await Promise.all([
+        getListItems(LIST_IDS[`${s.key}_Aanvang`]),
+        getListItems(LIST_IDS[`${s.key}_Gesprekken`]),
+      ]);
+      for (const t of trajecten) {
+        if (!overzichtAlleTrajecten && (t.Status || 'Lopend') !== 'Lopend') continue;
+        let afv = {}; try { afv = JSON.parse(t.AfvinklijstJson || '{}') || {}; } catch {}
+        const pct = Math.round(Object.keys(afv).length / AFVINK_TOTAAL * 100);
+        const stappen = cyclusStatus(t, gesprekken.filter(g => sameId(g.LeerkrachtId, t.LeerkrachtId)));
+        const achter = stappen.filter(x => x.status === 'achter');
+        const volgende = stappen.find(x => !x.optioneel && ['open','deels','achter'].includes(x.status));
+        rows.push({ s, t, pct, achter, volgende });
+      }
+    }
+    rows.sort((a, b) => b.achter.length - a.achter.length || new Date(b.t.Startdatum) - new Date(a.t.Startdatum));
+    const totAchter = rows.filter(r => r.achter.length).length;
+    render(`
+      <div class="page-header">
+        <div><h1>Aanvangsbegeleiding</h1><div class="page-sub">${overzichtAlleTrajecten ? 'Alle trajecten' : 'Lopende trajecten'} · ${rows.length}</div></div>
+        <label style="font-size:13px;display:flex;gap:6px;align-items:center"><input type="checkbox" ${overzichtAlleTrajecten ? 'checked' : ''} onchange="showAanvangOverzicht(this.checked)"> Ook afgeronde en stopgezette</label>
+      </div>
+      <div class="page-content">
+        ${klaar.length < scholen.length ? extMissingNotice() : ''}
+        ${totAchter ? `<div style="background:var(--red-bg);border:1px solid #FECACA;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#B91C1C">
+          <strong>${totAchter} traject${totAchter > 1 ? 'en' : ''}</strong> met een achterstallige stap in de functioneringscyclus.</div>` : ''}
+        ${rows.length === 0 ? `<div class="empty"><p>Geen trajecten. Start een traject vanuit de fiche van een leerkracht (tabblad Aanvangsbegeleiding).</p></div>` : `
+        <div class="card" style="padding:0;overflow-x:auto">
+          <table class="ov-table">
+            <thead><tr><th>Leerkracht</th><th>School</th><th>Start</th><th>Aanvangsbegeleider</th><th>Afvinklijst</th><th>Volgende stap</th></tr></thead>
+            <tbody>
+            ${rows.map(r => `<tr onclick="openLeerkracht('${r.s.key}','${esc(r.t.LeerkrachtId)}','aanvang')">
+              <td><strong>${esc(r.t.LeerkrachtNaam)}</strong>${r.t.Inductie ? ' <span class="tag tag-purple">inductie</span>' : ''}${(r.t.Status && r.t.Status !== 'Lopend') ? ` <span class="tag tag-gray">${esc(r.t.Status)}</span>` : ''}</td>
+              <td>${esc(r.s.name)}</td>
+              <td>${fmtDate(r.t.Startdatum)}</td>
+              <td>${esc(r.t.Aanvangsbegeleider || '—')}</td>
+              <td style="min-width:110px"><div class="progress-bar"><div class="progress-fill" style="width:${r.pct}%"></div></div><div class="progress-label">${r.pct}%</div></td>
+              <td>${r.volgende ? `<span class="tag ${r.volgende.status === 'achter' ? 'tag-red' : 'tag-gray'}">${esc(r.volgende.label)}</span>${r.volgende.due ? `<div style="font-size:11px;color:var(--gray-400);margin-top:2px">${fmtDate(r.volgende.due)}</div>` : ''}` : '<span class="tag tag-green">cyclus rond</span>'}</td>
+            </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`}
+      </div>`);
+  } catch(e) { render(`<div class="page-content"><div class="empty">Fout bij laden: ${esc(e.message)}</div></div>`); }
+}
+
+// ── Overzicht: nascholing per schooljaar ────────────────────────
+let nOverzicht = { sj: null, school: 'alle', rows: [] };
+async function showNascholingOverzicht() {
+  setActive('ov-nascholing');
+  showLoader();
+  try {
+    const scholen = SCHOOLS.filter(s => userAccess?.scholen.includes(s.key) && extListsReady(s.key));
+    const all = [];
+    for (const s of scholen) {
+      const items = await getListItems(LIST_IDS[`${s.key}_Nascholing`]);
+      for (const n of items) all.push({ ...n, _school: s });
+    }
+    nOverzicht.rows = all;
+    if (!nOverzicht.sj) nOverzicht.sj = schooljaarVan();
+    renderNascholingOverzicht(scholen.length < SCHOOLS.filter(s => userAccess?.scholen.includes(s.key)).length);
+  } catch(e) { render(`<div class="page-content"><div class="empty">Fout bij laden: ${esc(e.message)}</div></div>`); }
+}
+
+function nascholingGefilterd() {
+  return nOverzicht.rows
+    .filter(n => schooljaarVan(n.Datum || n.Created) === nOverzicht.sj)
+    .filter(n => nOverzicht.school === 'alle' || n._school.key === nOverzicht.school)
+    .sort((a, b) => new Date(a.Datum || a.Created) - new Date(b.Datum || b.Created));
+}
+
+function renderNascholingOverzicht(ontbreekt) {
+  const jaren = [...new Set([schooljaarVan(), ...nOverzicht.rows.map(n => schooljaarVan(n.Datum || n.Created))])].filter(Boolean).sort().reverse();
+  const rows = nascholingGefilterd();
+  const gevolgd = rows.filter(n => n.Status === 'Gevolgd');
+  const uren = gevolgd.reduce((s, n) => s + (Number(n.Uren) || 0), 0);
+  const kosten = rows.filter(n => n.Status !== 'Geannuleerd').reduce((s, n) => s + (Number(n.Kosten) || 0), 0);
+  const perThema = {};
+  for (const n of gevolgd) perThema[n.Thema || 'Andere'] = (perThema[n.Thema || 'Andere'] || 0) + (Number(n.Uren) || 0);
+  const scholen = SCHOOLS.filter(s => userAccess?.scholen.includes(s.key));
+  render(`
+    <div class="page-header">
+      <div><h1>Nascholing</h1><div class="page-sub">Schooljaar ${esc(nOverzicht.sj)} · ${rows.length} registratie${rows.length !== 1 ? 's' : ''}</div></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select class="btn" onchange="nOverzicht.sj=this.value;renderNascholingOverzicht()">${jaren.map(j => `<option ${j === nOverzicht.sj ? 'selected' : ''}>${j}</option>`).join('')}</select>
+        <select class="btn" onchange="nOverzicht.school=this.value;renderNascholingOverzicht()">
+          <option value="alle">Alle scholen</option>${scholen.map(s => `<option value="${s.key}" ${nOverzicht.school === s.key ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select>
+        <button class="btn" onclick="exportNascholingCsv()">⬇️ CSV</button>
+      </div>
+    </div>
+    <div class="page-content">
+      ${ontbreekt ? extMissingNotice() : ''}
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-val">${gevolgd.length}</div><div class="stat-lbl">Gevolgd</div></div>
+        <div class="stat-card"><div class="stat-val">${uren.toLocaleString('nl-BE')}</div><div class="stat-lbl">Uren gevolgd</div></div>
+        <div class="stat-card"><div class="stat-val">${rows.filter(n => ['Aangevraagd','Goedgekeurd','Ingeschreven'].includes(n.Status)).length}</div><div class="stat-lbl">Aangevraagd of gepland</div></div>
+        <div class="stat-card"><div class="stat-val">€ ${kosten.toLocaleString('nl-BE', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</div><div class="stat-lbl">Kosten (excl. geannuleerd)</div></div>
+      </div>
+      ${Object.keys(perThema).length ? `<div class="card"><div class="card-title" style="margin-bottom:8px">Gevolgde uren per thema</div>
+        ${Object.entries(perThema).sort((a,b) => b[1]-a[1]).map(([t, u]) => `<div style="display:flex;align-items:center;gap:10px;font-size:13px;margin:4px 0">
+          <span style="width:190px">${esc(t)}</span><div class="progress-bar" style="flex:1"><div class="progress-fill" style="width:${uren ? Math.round(u/uren*100) : 0}%"></div></div><span style="width:50px;text-align:right">${u} u</span></div>`).join('')}</div>` : ''}
+      ${rows.length === 0 ? `<div class="empty"><p>Geen nascholingen in dit schooljaar.</p></div>` : `
+      <div class="card" style="padding:0;overflow-x:auto">
+        <table class="ov-table">
+          <thead><tr><th>Datum</th><th>Leerkracht</th><th>School</th><th>Nascholing</th><th>Thema</th><th style="text-align:right">Uren</th><th>Status</th></tr></thead>
+          <tbody>${rows.map(n => `<tr onclick="openLeerkracht('${n._school.key}','${esc(n.LeerkrachtId)}','nascholing')">
+            <td>${fmtDate(n.Datum)}</td><td>${esc(n.LeerkrachtNaam)}</td><td>${esc(n._school.name)}</td>
+            <td>${esc(n.Title)}${n.Verplicht ? ' <span class="tag tag-red">verplicht</span>' : ''}</td><td>${esc(n.Thema || '')}</td>
+            <td style="text-align:right">${n.Uren ?? ''}</td><td><span class="tag ${NASCH_STATUS_TAG[n.Status] || 'tag-gray'}">${esc(n.Status || '')}</span></td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`}
+    </div>`);
+}
+
+function exportNascholingCsv() {
+  const rows = nascholingGefilterd();
+  const kol = ['Schooljaar','School','Leerkracht','Nascholing','Aanbieder','Thema','Datum','Uren','Status','Verplicht','Attest','Besproken met directeur','Kosten','Opmerking'];
+  const q = v => `"${String(v ?? '').replace(/"/g, '""').replace(/\r?\n/g, ' ')}"`;
+  const num = v => (v == null || v === '') ? '' : String(v).replace('.', ',');
+  const lines = [kol.join(';'), ...rows.map(n => [
+    nOverzicht.sj, n._school.name, n.LeerkrachtNaam, n.Title, n.Aanbieder, n.Thema, dIn(n.Datum), num(n.Uren), n.Status,
+    n.Verplicht ? 'ja' : 'nee', n.Attest ? 'ja' : 'nee', dIn(n.GesprekDatum), num(n.Kosten), n.Opmerking,
+  ].map(q).join(';'))];
+  const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Nascholing_${nOverzicht.sj}${nOverzicht.school !== 'alle' ? '_' + nOverzicht.school : ''}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+
+
+// ── FUNCTIEBESCHRIJVING ──
+function renderFunctiebeschrijving(l) {
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div><div class="card-title">Functiebeschrijving</div><div class="card-sub">${l.Functie||''} · ${l.Opdracht||''}</div></div>
+        ${magBeheren() ? '<button class="btn btn-sm" onclick="showEditFunctie()">✏️ Bewerken</button>' : ''}
+      </div>
+      <div style="font-size:13px;line-height:1.7;white-space:pre-wrap;color:${l.Functiebeschrijving?'inherit':'var(--gray-400)'}">${l.Functiebeschrijving ? esc(l.Functiebeschrijving) : 'Nog geen functiebeschrijving. Klik op Bewerken om er een te kiezen uit de functiebibliotheek.'}</div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Basisgegevens</div>
+      <div class="form-grid">
+        ${[['Naam',l.Naam],['Voornaam',l.Voornaam],['Functie',l.Functie],['Opdracht',l.Opdracht],['E-mail',l.Email]].map(([k,v])=>`
+          <div class="fg"><label>${k}</label><input value="${v||''}" readonly style="background:var(--gray-50)"></div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// Voorstel van sjabloon op basis van de functie uit Entra ID
+const FUNCTIE_SJABLOON = {
+  'Zorgcoördinator': 'ZOCO', 'Intern begeleider': 'ZOCO', 'Onderwijzer': 'LLO', 'Kleuteronderwijzer(es)': 'KLO', 'Toezichter': 'TOE', 'Ondersteuner': 'OND', 'Secretariaatsmedewerker': 'ADM', 'Directeur': 'DIR', 'Directie': 'DIR',
+  'ICT-coördinator': 'ICTTECH', 'Kinderverzorger': 'PARA', 'Zorgleerkracht': 'ZORG',
+  'Kleuteronderwijzer': 'KLO', 'Kleuterleerkracht': 'KLO', 'Leraar lager onderwijs': 'LLO',
+};
+function sjabloonVoorstel(l) { return FUNCTIE_SJABLOON[(l.Functie || '').trim()] || ''; }
+function sjabloonOpties(gekozen) {
+  return `<option value="">— Kies een sjabloon —</option>` +
+    FUNCTIES_BIBLIOTHEEK.map(f => `<option value="${f.code}" ${f.code === gekozen ? 'selected' : ''}>${esc(f.titel)}</option>`).join('');
+}
+
+function showEditFunctie() {
+  const l = currentLeerkracht;
+  const opdrachten = ['','20%','40%','50%','60%','80%','100%'];
+  showModal(`
+    <div class="modal-title">Functiebeschrijving · ${esc(leerkrachtNaam(l))}</div>
+    <div class="form-grid">
+      <div class="fg"><label>Sjabloon uit de functiebibliotheek</label>
+        <select id="m-sjabloon" onchange="vulSjabloonIn(this.value)">${sjabloonOpties(l.Functiebeschrijving ? '' : sjabloonVoorstel(l))}</select></div>
+      <div class="fg"><label>Opdracht</label>
+        <select id="m-opdr">${opdrachten.map(o => `<option value="${o}" ${o === (l.Opdracht || '') ? 'selected' : ''}>${o || '—'}</option>`).join('')}</select></div>
+      <div class="fg fg-full"><label>Functiebeschrijving (pas gerust aan voor deze persoon)</label>
+        <textarea id="m-functie" rows="14" style="min-height:300px;font-size:12px">${esc(l.Functiebeschrijving || '')}</textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" onclick="saveFunctie('${l.id}')">Opslaan</button>
+    </div>`);
+  // Leeg? Dan meteen het voorgestelde sjabloon invullen
+  if (!l.Functiebeschrijving && sjabloonVoorstel(l)) vulSjabloonIn(sjabloonVoorstel(l), true);
+}
+
+function vulSjabloonIn(code, stil) {
+  const f = FUNCTIES_BIBLIOTHEEK.find(x => x.code === code);
+  const ta = document.getElementById('m-functie');
+  if (!f || !ta) return;
+  if (!stil && ta.value.trim() && !confirm('De huidige tekst vervangen door het sjabloon "' + f.titel + '"?')) return;
+  ta.value = f.beschrijving;
+}
+
+async function saveFunctie(id) {
+  const fields = { Functiebeschrijving: document.getElementById('m-functie').value };
+  const opdr = document.getElementById('m-opdr')?.value;
+  if (opdr) fields.Opdracht = opdr;
+  try {
+    await updateItem(LIST_IDS[`${currentSchool.key}_Leerkrachten`], id, fields);
+    toast('Functiebeschrijving opgeslagen');
+    closeModal();
+    showLeerkracht(id, 'functiebeschrijving');
+  } catch(e) { toast('Fout: ' + e.message); }
+}
+
+// ── In één keer koppelen voor een hele school ───────────────────
+let koppelItems = [];
+async function showFunctieKoppelen() {
+  const sk = currentSchool.key;
+  setActive(`school-${sk}`);
+  showLoader();
+  try {
+    koppelItems = (await getListItems(LIST_IDS[`${sk}_Leerkrachten`])).filter(i => i.Actief !== false)
+      .sort((a, b) => (a.Naam || '').localeCompare(b.Naam || '', 'nl'));
+    const zonder = koppelItems.filter(l => !l.Functiebeschrijving).length;
+    render(`
+      <div class="page-header">
+        <button class="btn btn-sm" onclick="showSchool('${sk}')">← ${esc(currentSchool.name)}</button>
+        <div style="flex:1;margin-left:8px"><h1>Functiebeschrijvingen koppelen</h1>
+          <div class="page-sub">${zonder} van ${koppelItems.length} personeelsleden hebben nog geen functiebeschrijving</div></div>
+        <button class="btn btn-primary" onclick="saveFunctieKoppelen()">Opslaan</button>
+      </div>
+      <div class="page-content">
+        <div class="card" style="background:var(--blue-bg);border-color:#BFDBFE;font-size:13px;color:#1E40AF;line-height:1.6">
+          Kies per persoon een sjabloon. Het voorstel is gebaseerd op de functie in Entra ID. Bij <strong>Leerkracht</strong> kies je zelf
+          kleuter of lager. Enkel aangevinkte rijen worden opgeslagen; bestaande, aangepaste teksten worden niet overschreven tenzij je ze aanvinkt.
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            Alle "Leerkracht" zonder sjabloon instellen op:
+            <button class="btn btn-sm" onclick="koppelZetAlle('LLO')">Leraar lager onderwijs</button>
+            <button class="btn btn-sm" onclick="koppelZetAlle('KLO')">Kleuteronderwijzer</button>
+          </div>
+        </div>
+        <div class="card" style="padding:0;overflow-x:auto">
+          <table class="ov-table">
+            <thead><tr><th style="width:36px"><input type="checkbox" onchange="document.querySelectorAll('.kp-chk').forEach(c=>c.checked=this.checked)"></th>
+              <th>Personeelslid</th><th>Functie (Entra)</th><th>Huidige beschrijving</th><th>Sjabloon</th><th>Opdracht</th></tr></thead>
+            <tbody>${koppelItems.map(l => {
+              const voorstel = l.Functiebeschrijving ? '' : sjabloonVoorstel(l);
+              const huidig = l.Functiebeschrijving ? (FUNCTIES_BIBLIOTHEEK.find(f => l.Functiebeschrijving.startsWith(f.beschrijving.split('\n')[0]))?.titel || 'eigen tekst') : '';
+              return `<tr style="cursor:default">
+                <td><input type="checkbox" class="kp-chk" id="kp-c-${l.id}" ${!l.Functiebeschrijving && voorstel ? 'checked' : ''}></td>
+                <td><strong>${esc(leerkrachtNaam(l))}</strong></td>
+                <td>${esc(l.Functie || '')}</td>
+                <td>${huidig ? `<span class="tag tag-teal">${esc(huidig)}</span>` : '<span class="tag tag-amber">geen</span>'}</td>
+                <td><select id="kp-s-${l.id}" data-functie="${esc(l.Functie || '')}" onchange="document.getElementById('kp-c-${l.id}').checked = !!this.value" style="padding:5px;border:1px solid var(--gray-200);border-radius:6px;font-size:12px">${sjabloonOpties(voorstel)}</select></td>
+                <td><select id="kp-o-${l.id}" style="padding:5px;border:1px solid var(--gray-200);border-radius:6px;font-size:12px">${['','20%','40%','50%','60%','80%','100%'].map(o => `<option value="${o}" ${o === (l.Opdracht || '') ? 'selected' : ''}>${o || '—'}</option>`).join('')}</select></td>
+              </tr>`; }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`);
+  } catch(e) { render(`<div class="page-content"><div class="empty">Fout: ${esc(e.message)}</div></div>`); }
+}
+
+function koppelZetAlle(code) {
+  for (const l of koppelItems) {
+    const sel = document.getElementById(`kp-s-${l.id}`);
+    if (sel && !sel.value && !l.Functiebeschrijving && (l.Functie || '').trim() === 'Leerkracht') {
+      sel.value = code; document.getElementById(`kp-c-${l.id}`).checked = true;
+    }
+  }
+}
+
+async function saveFunctieKoppelen() {
+  const sk = currentSchool.key;
+  const taken = [];
+  for (const l of koppelItems) {
+    const aan = document.getElementById(`kp-c-${l.id}`)?.checked;
+    const code = document.getElementById(`kp-s-${l.id}`)?.value;
+    const opdr = document.getElementById(`kp-o-${l.id}`)?.value || '';
+    const fields = {};
+    if (aan && code) fields.Functiebeschrijving = FUNCTIES_BIBLIOTHEEK.find(f => f.code === code).beschrijving;
+    if (opdr !== (l.Opdracht || '') && opdr) fields.Opdracht = opdr;
+    if (Object.keys(fields).length) taken.push([l.id, fields]);
+  }
+  if (!taken.length) { toast('Niets te bewaren'); return; }
+  const overschrijf = taken.filter(([id, f]) => f.Functiebeschrijving && koppelItems.find(x => x.id === id).Functiebeschrijving).length;
+  if (overschrijf && !confirm(`${overschrijf} bestaande functiebeschrijving(en) worden vervangen door het sjabloon. Doorgaan?`)) return;
+  let ok = 0, fout = 0;
+  for (const [id, fields] of taken) {
+    try { await updateItem(LIST_IDS[`${sk}_Leerkrachten`], id, fields); ok++; }
+    catch(e) { fout++; console.warn(id, e.message); }
+  }
+  toast(`${ok} personeelsleden bijgewerkt${fout ? `, ${fout} fout(en)` : ''}`);
+  showFunctieKoppelen();
+}
+
+
 
 
 document.addEventListener('DOMContentLoaded', function() {
