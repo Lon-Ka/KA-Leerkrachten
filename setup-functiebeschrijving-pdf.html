@@ -78,9 +78,9 @@ header svg{flex-shrink:0}
     <div class="card-sub">De volgende 3 kolommen worden toegevoegd aan elk van de 3 Leerkrachten-lijsten (KK, DK, TM).</div>
 
     <div style="margin-bottom:16px">
-      <div class="col-row"><span class="col-name">FunctiebeschrijvingPDF</span><span class="col-type">Tekst (URL naar SharePoint)</span><span class="tag tag-new">nieuw</span></div>
-      <div class="col-row"><span class="col-name">FunctiebeschrijvingPDFNaam</span><span class="col-type">Tekst (originele bestandsnaam)</span><span class="tag tag-new">nieuw</span></div>
-      <div class="col-row"><span class="col-name">FunctiebeschrijvingPDFDatum</span><span class="col-type">Datum/tijd (upload-datum)</span><span class="tag tag-new">nieuw</span></div>
+      <div class="col-row"><span class="col-name">FunctiePDFUrl</span><span class="col-type">Tekst (URL naar SharePoint)</span><span class="tag tag-new">nieuw</span></div>
+      <div class="col-row"><span class="col-name">FunctiePDFNaam</span><span class="col-type">Tekst (originele bestandsnaam)</span><span class="tag tag-new">nieuw</span></div>
+      <div class="col-row"><span class="col-name">FunctiebeschrijvingPDFDatum</span><span class="col-type">Datum/tijd (upload-datum)</span><span class="tag tag-new">reeds aangemaakt</span></div>
     </div>
 
     <div class="list-grid">
@@ -142,19 +142,19 @@ const LIJSTEN = [
 // De 3 nieuwe kolommen
 const NIEUWE_KOLOMMEN = [
   {
-    name: 'FunctiebeschrijvingPDF',
-    def: { name: 'FunctiebeschrijvingPDF', text: { maxLength: 1000 } },
+    name: 'FunctiePDFUrl',
+    def: { name: 'FunctiePDFUrl', text: { maxLength: 1000 } },
     label: 'URL naar ondertekende PDF',
   },
   {
-    name: 'FunctiebeschrijvingPDFNaam',
-    def: { name: 'FunctiebeschrijvingPDFNaam', text: { maxLength: 500 } },
+    name: 'FunctiePDFNaam',
+    def: { name: 'FunctiePDFNaam', text: { maxLength: 500 } },
     label: 'Originele bestandsnaam',
   },
   {
     name: 'FunctiebeschrijvingPDFDatum',
     def: { name: 'FunctiebeschrijvingPDFDatum', dateTime: { format: 'dateTime' } },
-    label: 'Upload-datum',
+    label: 'Upload-datum (reeds aangemaakt)',
   },
 ];
 
