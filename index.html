@@ -407,6 +407,8 @@ window.addEventListener('message', function(event) {
       <div class="help-step"><div class="help-step-nr">3</div><div class="help-step-txt">Controleer de vinkjes en klik <strong>Opslaan</strong>. Enkel aangevinkte rijen worden bijgewerkt.</div></div>
       <div class="help-tip">Bestaande, aangepaste teksten worden nooit zonder bevestiging overschreven. Wijzig je later een sjabloon, dan verandert de tekst bij wie al gekoppeld is niet vanzelf.</div>
       <p>De functiebeschrijving bespreek je in de <strong>eerste maand</strong> met nieuwe personeelsleden (bij een opdracht van meer dan 104 dagen).</p>
+      <h4>Ondertekende functiebeschrijving uploaden</h4>
+      <p>Nadat de functiebeschrijving besproken en ondertekend is, kan je de <strong>gehandtekende PDF</strong> uploaden in het tabblad Functiebeschrijving van de leerkracht. Sleep het bestand naar de uploadzone of klik om te bladeren. De PDF wordt opgeslagen in SharePoint en is daarna rechtstreeks te openen vanuit de fiche.</p>
     </div>
 
     <div class="help-section" id="help-aanvang">
@@ -2972,6 +2974,7 @@ function exportNascholingCsv() {
 
 // ── FUNCTIEBESCHRIJVING ──
 function renderFunctiebeschrijving(l) {
+  const heeftPDF = !!(l.FunctiePDFUrl);
   return `
     <div class="card">
       <div class="card-header">
@@ -2981,12 +2984,87 @@ function renderFunctiebeschrijving(l) {
       <div style="font-size:13px;line-height:1.7;white-space:pre-wrap;color:${l.Functiebeschrijving?'inherit':'var(--gray-400)'}">${l.Functiebeschrijving ? esc(l.Functiebeschrijving) : 'Nog geen functiebeschrijving. Klik op Bewerken om er een te kiezen uit de functiebibliotheek.'}</div>
     </div>
     <div class="card">
+      <div class="card-header" style="margin-bottom:12px">
+        <div class="card-title">Ondertekende functiebeschrijving</div>
+      </div>
+      ${heeftPDF ? `
+      <div class="entry" style="margin-bottom:12px">
+        <div class="entry-header">
+          <div>
+            <div style="font-weight:600;font-size:13px">📄 ${esc(l.FunctiePDFNaam||'functiebeschrijving.pdf')}</div>
+            <div class="entry-date">Ondertekende versie${l.FunctiebeschrijvingPDFDatum ? ' · ' + fmtDate(l.FunctiebeschrijvingPDFDatum) : ''}</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <a href="${esc(l.FunctiePDFUrl)}" target="_blank" class="btn btn-sm">Openen</a>
+            ${magBeheren() ? `<button class="btn btn-sm" style="color:var(--red)" onclick="deleteFunctiePDF('${l.id}')">Verwijderen</button>` : ''}
+          </div>
+        </div>
+      </div>` : `<div style="font-size:13px;color:var(--gray-400);margin-bottom:12px">Nog geen ondertekende versie geüpload.</div>`}
+      ${magBeheren() ? `
+      <div class="upload-zone" id="fb-upload-zone" onclick="document.getElementById('fb-file-input').click()"
+        ondragover="event.preventDefault();this.classList.add('drag')"
+        ondragleave="this.classList.remove('drag')"
+        ondrop="handleFBDrop(event,'${l.id}')">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p>${heeftPDF ? 'Nieuwe versie uploaden' : 'Sleep een PDF hier of klik om te bladeren'}</p>
+        <p style="font-size:11px">PDF, max. 10 MB</p>
+      </div>
+      <input type="file" id="fb-file-input" style="display:none" accept=".pdf" onchange="handleFBSelect(event,'${l.id}')">
+      <div id="fb-upload-status" style="margin-top:8px;font-size:13px"></div>` : ''}
+    </div>
+    <div class="card">
       <div class="card-title" style="margin-bottom:12px">Basisgegevens</div>
       <div class="form-grid">
         ${[['Naam',l.Naam],['Voornaam',l.Voornaam],['Functie',l.Functie],['Opdracht',l.Opdracht],['E-mail',l.Email]].map(([k,v])=>`
           <div class="fg"><label>${k}</label><input value="${v||''}" readonly style="background:var(--gray-50)"></div>`).join('')}
       </div>
     </div>`;
+}
+
+async function handleFBSelect(event, leerkrachtId) {
+  const file = event.target.files[0];
+  if (file) await doFBUpload(file, leerkrachtId);
+}
+async function handleFBDrop(event, leerkrachtId) {
+  event.preventDefault();
+  document.getElementById('fb-upload-zone').classList.remove('drag');
+  const file = event.dataTransfer.files[0];
+  if (file) await doFBUpload(file, leerkrachtId);
+}
+
+async function doFBUpload(file, leerkrachtId) {
+  const l = currentLeerkracht;
+  const status = document.getElementById('fb-upload-status');
+  if (!file.name.toLowerCase().endsWith('.pdf')) { status.textContent = '❌ Alleen PDF-bestanden zijn toegestaan'; return; }
+  if (file.size > 10 * 1024 * 1024) { status.textContent = '❌ Bestand te groot (max. 10 MB)'; return; }
+  status.textContent = '⏳ Uploaden...';
+  try {
+    const safeName = `${l.Voornaam}_${l.Naam}_functiebeschrijving.pdf`.replace(/[^a-zA-Z0-9_.\-]/g, '_');
+    const folderPath = `Leerkrachten/${leerkrachtId}`;
+    const driveItem = await uploadFile(folderPath, safeName, file);
+    const pdfUrl = driveItem.webUrl || driveItem['@microsoft.graph.downloadUrl'] || '';
+    await updateItem(LIST_IDS[`${currentSchool.key}_Leerkrachten`], leerkrachtId, {
+      FunctiePDFUrl: pdfUrl,
+      FunctiePDFNaam: file.name,
+      FunctiebeschrijvingPDFDatum: new Date().toISOString(),
+    });
+    toast('Ondertekende functiebeschrijving opgeslagen');
+    status.textContent = '';
+    showLeerkracht(leerkrachtId, 'functiebeschrijving');
+  } catch(e) { status.textContent = '❌ ' + e.message; }
+}
+
+async function deleteFunctiePDF(leerkrachtId) {
+  if (!confirm('Ondertekende functiebeschrijving verwijderen?')) return;
+  try {
+    await updateItem(LIST_IDS[`${currentSchool.key}_Leerkrachten`], leerkrachtId, {
+      FunctiePDFUrl: '',
+      FunctiePDFNaam: '',
+      FunctiebeschrijvingPDFDatum: null,
+    });
+    toast('Verwijderd');
+    showLeerkracht(leerkrachtId, 'functiebeschrijving');
+  } catch(e) { toast('Fout: ' + e.message); }
 }
 
 // Voorstel van sjabloon op basis van de functie uit Entra ID
